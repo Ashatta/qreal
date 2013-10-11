@@ -43,7 +43,7 @@ void Serializer::setWorkingFile(QString const &workingFile)
 	mWorkingFile = workingFile;
 }
 
-void Serializer::saveToDisk(QList<Object*> const &objects) const
+void Serializer::saveToDisk(QList<Object*> const &objects, QHash<Id, QStringList> const &log) const
 {
 	Q_ASSERT_X(!mWorkingFile.isEmpty()
 		, "Serializer::saveToDisk(...)"
@@ -59,6 +59,8 @@ void Serializer::saveToDisk(QList<Object*> const &objects) const
 		OutFile out(filePath);
 		doc.save(out(), 2);
 	}
+
+	saveLog(log);
 
 	QFileInfo fileInfo(mWorkingFile);
 	QString fileName = fileInfo.baseName();
@@ -82,14 +84,16 @@ void Serializer::saveToDisk(QList<Object*> const &objects) const
 	clearDir(mWorkingDir);
 }
 
-void Serializer::loadFromDisk(QHash<qReal::Id, Object*> &objectsHash)
+void Serializer::loadFromDisk(QHash<qReal::Id, Object*> &objectsHash, QHash<Id, QStringList> &log)
 {
 	clearWorkingDir();
 	if (!mWorkingFile.isEmpty()) {
 		decompressFile(mWorkingFile);
 	}
 
-	loadFromDisk(SettingsManager::value("temp").toString(), objectsHash);
+	QString const currentPath = SettingsManager::value("temp").toString();
+	loadFromDisk(currentPath, objectsHash);
+	loadLog(currentPath, log);
 }
 
 void Serializer::loadFromDisk(QString const &currentPath, QHash<qReal::Id, Object*> &objectsHash)
@@ -121,6 +125,22 @@ void Serializer::loadModel(QDir const &dir, QHash<qReal::Id, Object*> &objectsHa
 					;
 
 			objectsHash.insert(object->id(), object);
+		}
+	}
+}
+
+void Serializer::loadLog(QString const &currentPath, QHash<Id, QStringList> &log) const
+{
+	QDir const dir(currentPath + "/logs");
+	foreach (QFileInfo const &fileInfo, dir.entryInfoList(QDir::AllEntries | QDir::NoDotAndDotDot)) {
+		if (fileInfo.isFile()) {
+			QFile file(fileInfo.filePath());
+			file.open(QIODevice::ReadOnly | QIODevice::Text);
+			QStringList strings = QString(file.readAll()).split('\n', QString::SkipEmptyParts);
+
+			qReal::Id const id = qReal::Id::loadFromString(strings.first());
+			strings.removeFirst();
+			log.insert(id, strings);
 		}
 	}
 }
@@ -175,6 +195,26 @@ QString Serializer::createDirectory(Id const &id, bool logical) const
 	dir.mkpath(dirName);
 
 	return dirName + "/" + partsList[partsList.size() - 1];
+}
+
+void Serializer::saveLog(QHash<Id, QStringList> const &log) const
+{
+	foreach (qReal::Id const &id, log.keys()) {
+		QStringList const partsList = id.toString().split('/');
+		Q_ASSERT(partsList.size() >= 1 && partsList.size() <= 5);
+
+		QDir dir;
+		dir.rmdir(mWorkingDir);
+		dir.mkpath(mWorkingDir + "/logs");
+
+		OutFile out(mWorkingDir + "/logs/" + partsList[partsList.size() - 1]);
+		out() << id.toString() << "\n";
+		foreach (QString const &string, log[id]) {
+			if (!string.isEmpty()) {
+				out() << string << "\n";
+			}
+		}
+	}
 }
 
 void Serializer::decompressFile(QString const &fileName)

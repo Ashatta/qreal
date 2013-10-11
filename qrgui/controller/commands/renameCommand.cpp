@@ -51,3 +51,8 @@ bool RenameCommand::rename(QString const &name)
 	mModel.setName(mId, name);
 	return true;
 }
+
+QString RenameCommand::logString() const
+{
+	return "rename:" + mOldName + ">" + mNewName;
+}

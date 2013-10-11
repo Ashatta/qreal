@@ -155,6 +155,12 @@ public:
 			, QVariant const &value
 			);
 
+	// Override
+	virtual void addLogEntry(qReal::Id const &diagram, QString const &entry);
+
+	// Override
+	virtual void deleteLogEntry(qReal::Id const &diagram);
+
 private:
 	RepoApi(RepoApi const &other);  // Copying is not allowed.
 	RepoApi& operator =(RepoApi const &);  // Assigning is not allowed.

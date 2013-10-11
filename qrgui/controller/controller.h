@@ -9,6 +9,8 @@
 
 namespace qReal {
 
+class MainWindow;
+
 /// A controller class for all user actions watching.
 /// A part of global MVC architecture.
 class Controller : public QObject
@@ -16,7 +18,7 @@ class Controller : public QObject
 	Q_OBJECT
 
 public:
-	Controller();
+	Controller(MainWindow *mainWindow);
 	virtual ~Controller();
 
 	bool canUndo() const;
@@ -87,6 +89,8 @@ private:
 	bool mModifiedState;
 	bool mCanRedoState;
 	bool mCanUndoState;
+
+	MainWindow *mWindow;
 };
 
 }

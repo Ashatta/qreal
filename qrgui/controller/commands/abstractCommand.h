@@ -55,6 +55,8 @@ public:
 	/// Returns time of this command creation in ms since epoch
 	uint timestamp() const;
 
+	virtual QString logString() const;
+
 signals:
 	void redoComplete(bool success);
 	void undoComplete(bool success);

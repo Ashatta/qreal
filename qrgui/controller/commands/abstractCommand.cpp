@@ -175,3 +175,8 @@ void AbstractCommand::removeDuplicatesOn(QList<AbstractCommand *> &list)
 		}
 	}
 }
+
+QString AbstractCommand::logString() const
+{
+	return QString();
+}

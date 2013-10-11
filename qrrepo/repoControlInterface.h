@@ -43,6 +43,12 @@ public:
 
 	/// Returns current working file name, to which model is saved
 	virtual QString workingFile() const = 0;
+
+	/// Add string entry to a log tied to the diagram
+	virtual void addLogEntry(qReal::Id const &diagram, QString const &entry) = 0;
+
+	/// Delete last log string tied to the diagram
+	virtual void deleteLogEntry(qReal::Id const &diagram) = 0;
 };
 
 }

@@ -1,14 +1,17 @@
 #include "controller.h"
 
+#include "mainwindow/mainWindow.h"
+
 using namespace qReal;
 using namespace qReal::commands;
 
-Controller::Controller()
+Controller::Controller(MainWindow *mainWindow)
 	: mGlobalStack(new UndoStack)
 	, mActiveStack(NULL)
 	, mModifiedState(false)
 	, mCanRedoState(true)
 	, mCanUndoState(true)
+	, mWindow(mainWindow)
 {
 	connectStack(mGlobalStack);
 }
@@ -66,6 +69,9 @@ void Controller::execute(commands::AbstractCommand *command, UndoStack *stack)
 	if (command && stack) {
 		stack->execute(command);
 	}
+
+	qReal::Id const diagram = qReal::Id::loadFromString(mDiagramStacks.key(stack, qReal::Id::rootId().toString()));
+	mWindow->models()->repoControlApi().addLogEntry(diagram, command ? command->logString() : QString());
 }
 
 void Controller::diagramOpened(Id const &diagramId)
@@ -156,9 +162,14 @@ void Controller::projectClosed()
 void Controller::redo()
 {
 	UndoStack *stack = selectActiveStack(false);
+	commands::AbstractCommand const * command = NULL;
 	if (stack) {
+		command = dynamic_cast<commands::AbstractCommand const *>(stack->command(stack->index()));
 		stack->redo();
 	}
+
+	qReal::Id const diagram = qReal::Id::loadFromString(mDiagramStacks.key(stack, qReal::Id::rootId().toString()));
+	mWindow->models()->repoControlApi().addLogEntry(diagram, command ? command->logString() : QString());
 }
 
 void Controller::undo()
@@ -167,6 +178,9 @@ void Controller::undo()
 	if (stack) {
 		stack->undo();
 	}
+
+	qReal::Id const diagram = qReal::Id::loadFromString(mDiagramStacks.key(stack, qReal::Id::rootId().toString()));
+	mWindow->models()->repoControlApi().deleteLogEntry(diagram);
 }
 
 UndoStack *Controller::selectActiveStack(bool forUndo)
