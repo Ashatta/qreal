@@ -386,7 +386,7 @@ void RepoApi::exportToXml(QString const &targetFile) const
 	mRepository.exportToXml(targetFile);
 }
 
-void RepoApi::saveAll() const
+void RepoApi::saveAll()
 {
 	mRepository.saveAll();
 }
@@ -409,7 +409,7 @@ void RepoApi::importFromDisk(QString const &importedFile)
 	mRepository.importFromDisk(importedFile);
 }
 
-void RepoApi::save(qReal::IdList list) const
+void RepoApi::save(qReal::IdList list)
 {
 	mRepository.save(list);
 }

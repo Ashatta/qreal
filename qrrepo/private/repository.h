@@ -87,9 +87,9 @@ public:
 	/// @param importedFile - name of file to be imported
 	void importFromDisk(QString const &importedFile);
 
-	void saveAll() const;
-	void save(qReal::IdList const &list) const;
-	void saveWithLogicalId(qReal::IdList const &list) const;
+	void saveAll();
+	void save(qReal::IdList const &list);
+	void saveWithLogicalId(qReal::IdList const &list);
 	void saveDiagramsById(QHash<QString, qReal::IdList> const &diagramIds);
 	void remove(qReal::IdList list) const;
 	void setWorkingFile(QString const &workingDir);
@@ -134,6 +134,8 @@ private:
 	void loadFromDisk();
 	void addChildrenToRootObject();
 
+	void createNewVersion();
+
 	qReal::IdList idsOfAllChildrenOf(qReal::Id id) const;
 	QList<Object*> allChildrenOf(qReal::Id id) const;
 	QList<Object*> allChildrenOfWithLogicalId(qReal::Id id) const;
@@ -144,6 +146,7 @@ private:
 	QString mWorkingFile;
 	Serializer mSerializer;
 	QHash<qReal::Id, QStringList> mLog;
+	int mModelVersion;
 };
 
 }

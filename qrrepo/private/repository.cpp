@@ -12,6 +12,7 @@ using namespace qrRepo::details;
 Repository::Repository(QString const &workingFile)
 		: mWorkingFile(workingFile)
 		, mSerializer(workingFile)
+		, mModelVersion(1)
 {
 	init();
 	loadFromDisk();
@@ -343,7 +344,8 @@ void Repository::removeTemporaryRemovedLinks(Id const &id)
 
 void Repository::loadFromDisk()
 {
-	mSerializer.loadFromDisk(mObjects, mLog);
+	mSerializer.loadFromDisk(mObjects, mLog, mModelVersion);
+	mModelVersion++;
 	addChildrenToRootObject();
 }
 
@@ -402,26 +404,29 @@ bool Repository::exist(const Id &id) const
 	return (mObjects[id] != NULL);
 }
 
-void Repository::saveAll() const
+void Repository::saveAll()
 {
+	createNewVersion();
 	mSerializer.saveToDisk(mObjects.values(), mLog);
 }
 
-void Repository::save(IdList const &list) const
+void Repository::save(IdList const &list)
 {
 	QList<Object*> toSave;
 	foreach(Id const &id, list)
 		toSave.append(allChildrenOf(id));
 
+	createNewVersion();
 	mSerializer.saveToDisk(toSave, mLog);
 }
 
-void Repository::saveWithLogicalId(qReal::IdList const &list) const
+void Repository::saveWithLogicalId(qReal::IdList const &list)
 {
 	QList<Object*> toSave;
 	foreach(Id const &id, list)
 		toSave.append(allChildrenOfWithLogicalId(id));
 
+	createNewVersion();
 	mSerializer.saveToDisk(toSave, mLog);
 }
 
@@ -497,7 +502,7 @@ void Repository::exterminate()
 {
 	printDebug();
 	mObjects.clear();
-	//serializer.clearWorkingDir();
+	createNewVersion();
 	mSerializer.saveToDisk(mObjects.values(), mLog);
 	init();
 	printDebug();
@@ -589,4 +594,13 @@ void Repository::addLogEntry(qReal::Id const &diagram, QString const &entry)
 void Repository::deleteLogEntry(qReal::Id const &diagram)
 {
 	mLog[diagram].removeLast();
+}
+
+void Repository::createNewVersion()
+{
+	foreach (qReal::Id const &id, mLog.keys()) {
+		mLog[id] << "version:" + QString::number(mModelVersion);
+	}
+
+	mModelVersion++;
 }

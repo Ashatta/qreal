@@ -84,7 +84,7 @@ void Serializer::saveToDisk(QList<Object*> const &objects, QHash<Id, QStringList
 	clearDir(mWorkingDir);
 }
 
-void Serializer::loadFromDisk(QHash<qReal::Id, Object*> &objectsHash, QHash<Id, QStringList> &log)
+void Serializer::loadFromDisk(QHash<qReal::Id, Object*> &objectsHash, QHash<Id, QStringList> &log, int &version)
 {
 	clearWorkingDir();
 	if (!mWorkingFile.isEmpty()) {
@@ -93,7 +93,7 @@ void Serializer::loadFromDisk(QHash<qReal::Id, Object*> &objectsHash, QHash<Id, 
 
 	QString const currentPath = SettingsManager::value("temp").toString();
 	loadFromDisk(currentPath, objectsHash);
-	loadLog(currentPath, log);
+	loadLog(currentPath, log, version);
 }
 
 void Serializer::loadFromDisk(QString const &currentPath, QHash<qReal::Id, Object*> &objectsHash)
@@ -129,9 +129,11 @@ void Serializer::loadModel(QDir const &dir, QHash<qReal::Id, Object*> &objectsHa
 	}
 }
 
-void Serializer::loadLog(QString const &currentPath, QHash<Id, QStringList> &log) const
+void Serializer::loadLog(QString const &currentPath, QHash<Id, QStringList> &log, int &version) const
 {
 	QDir const dir(currentPath + "/logs");
+	version = 0;
+
 	foreach (QFileInfo const &fileInfo, dir.entryInfoList(QDir::AllEntries | QDir::NoDotAndDotDot)) {
 		if (fileInfo.isFile()) {
 			QFile file(fileInfo.filePath());
@@ -141,6 +143,9 @@ void Serializer::loadLog(QString const &currentPath, QHash<Id, QStringList> &log
 			qReal::Id const id = qReal::Id::loadFromString(strings.first());
 			strings.removeFirst();
 			log.insert(id, strings);
+
+			int const lastVersion = strings[0].split(':')[1].toInt();
+			version = qMax(version, lastVersion);
 		}
 	}
 }
