@@ -134,6 +134,7 @@ private:
 	void loadFromDisk();
 	void addChildrenToRootObject();
 
+	bool needNewVersion() const;
 	void createNewVersion();
 
 	qReal::IdList idsOfAllChildrenOf(qReal::Id id) const;

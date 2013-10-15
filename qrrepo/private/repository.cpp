@@ -598,9 +598,22 @@ void Repository::deleteLogEntry(qReal::Id const &diagram)
 
 void Repository::createNewVersion()
 {
+	if (needNewVersion()) {
+		foreach (qReal::Id const &id, mLog.keys()) {
+			mLog[id] << "version:" + QString::number(mModelVersion);
+		}
+
+		mModelVersion++;
+	}
+}
+
+bool Repository::needNewVersion() const
+{
 	foreach (qReal::Id const &id, mLog.keys()) {
-		mLog[id] << "version:" + QString::number(mModelVersion);
+		if (mLog[id].empty() || !mLog[id].last().startsWith("version:")) {
+			return true;
+		}
 	}
 
-	mModelVersion++;
+	return false;
 }
