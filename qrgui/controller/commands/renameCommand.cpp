@@ -1,6 +1,7 @@
 #include "renameCommand.h"
 
 #include "models/graphicalModelAssistApi.h"
+#include "qrrepo/private/logSupport/renameEntry.h"
 
 using namespace qReal::commands;
 
@@ -52,7 +53,7 @@ bool RenameCommand::rename(QString const &name)
 	return true;
 }
 
-QString RenameCommand::logString() const
+qReal::LogEntry *RenameCommand::logEntry() const
 {
-	return "rename:" + mOldName + ">" + mNewName;
+	return new RenameEntry(mId, mOldName, mNewName);
 }

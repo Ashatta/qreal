@@ -125,7 +125,7 @@ public:
 			, QVariant const &value
 			);
 
-	virtual void addLogEntry(qReal::Id const &diagram, QString const &entry);
+	virtual void addLogEntry(qReal::Id const &diagram, qReal::LogEntry * const entry);
 	virtual void deleteLogEntry(qReal::Id const &diagram);
 
 private:
@@ -146,7 +146,7 @@ private:
 	/// Name of the current save file for project.
 	QString mWorkingFile;
 	Serializer mSerializer;
-	QHash<qReal::Id, QStringList> mLog;
+	QHash<qReal::Id, QList<qReal::LogEntry *> > mLog;
 	int mModelVersion;
 };
 

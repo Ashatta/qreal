@@ -8,12 +8,14 @@
 #include "../../qrkernel/settingsManager.h"
 #include "../../qrkernel/exception/exception.h"
 #include "../../qrutils/outFile.h"
+#include "../../qrutils/inFile.h"
 #include "../../qrutils/xmlUtils.h"
 #include "../../qrutils/fileSystemUtils.h"
 
 #include "folderCompressor.h"
 #include "classes/logicalObject.h"
 #include "classes/graphicalObject.h"
+#include "logSupport/versionEntry.h"
 
 using namespace qrRepo;
 using namespace details;
@@ -43,7 +45,7 @@ void Serializer::setWorkingFile(QString const &workingFile)
 	mWorkingFile = workingFile;
 }
 
-void Serializer::saveToDisk(QList<Object*> const &objects, QHash<Id, QStringList> const &log) const
+void Serializer::saveToDisk(QList<Object*> const &objects, QHash<Id, QList<LogEntry *> > const &log) const
 {
 	Q_ASSERT_X(!mWorkingFile.isEmpty()
 		, "Serializer::saveToDisk(...)"
@@ -84,7 +86,7 @@ void Serializer::saveToDisk(QList<Object*> const &objects, QHash<Id, QStringList
 	clearDir(mWorkingDir);
 }
 
-void Serializer::loadFromDisk(QHash<qReal::Id, Object*> &objectsHash, QHash<Id, QStringList> &log, int &version)
+void Serializer::loadFromDisk(QHash<qReal::Id, Object*> &objectsHash, QHash<Id, QList<LogEntry *> > &log, int &version)
 {
 	clearWorkingDir();
 	if (!mWorkingFile.isEmpty()) {
@@ -129,23 +131,29 @@ void Serializer::loadModel(QDir const &dir, QHash<qReal::Id, Object*> &objectsHa
 	}
 }
 
-void Serializer::loadLog(QString const &currentPath, QHash<Id, QStringList> &log, int &version) const
+void Serializer::loadLog(QString const &currentPath, QHash<Id, QList<LogEntry *> > &log, int &version) const
 {
 	QDir const dir(currentPath + "/logs");
 	version = 0;
 
 	foreach (QFileInfo const &fileInfo, dir.entryInfoList(QDir::AllEntries | QDir::NoDotAndDotDot)) {
 		if (fileInfo.isFile()) {
-			QFile file(fileInfo.filePath());
-			file.open(QIODevice::ReadOnly | QIODevice::Text);
-			QStringList strings = QString(file.readAll()).split('\n', QString::SkipEmptyParts);
-
+			QStringList strings = InFile::readAll(fileInfo.filePath()).split('\n', QString::SkipEmptyParts);
 			qReal::Id const id = qReal::Id::loadFromString(strings.first());
 			strings.removeFirst();
-			log.insert(id, strings);
+			foreach (QString const &string, strings) {
+				log[id] << LogEntry::loadFromString(string);
+			}
 
-			int const lastVersion = strings[0].split(':')[1].toInt();
-			version = qMax(version, lastVersion);
+			if (!log[id].empty()) {
+				VersionEntry const * const entry = dynamic_cast<VersionEntry *>(log[id].last());
+				if (entry) {
+					int const lastVersion = entry->version();
+					version = qMax(version, lastVersion);
+				} else {
+					qDebug() << "no version mark at the end of log file";
+				}
+			}
 		}
 	}
 }
@@ -202,7 +210,7 @@ QString Serializer::createDirectory(Id const &id, bool logical) const
 	return dirName + "/" + partsList[partsList.size() - 1];
 }
 
-void Serializer::saveLog(QHash<Id, QStringList> const &log) const
+void Serializer::saveLog(QHash<Id, QList<LogEntry *> > const &log) const
 {
 	foreach (qReal::Id const &id, log.keys()) {
 		QStringList const partsList = id.toString().split('/');
@@ -214,7 +222,8 @@ void Serializer::saveLog(QHash<Id, QStringList> const &log) const
 
 		OutFile out(mWorkingDir + "/logs/" + partsList[partsList.size() - 1]);
 		out() << id.toString() << "\n";
-		foreach (QString const &string, log[id]) {
+		foreach (LogEntry const * const entry, log[id]) {
+			QString const string = entry->toString();
 			if (!string.isEmpty()) {
 				out() << string << "\n";
 			}

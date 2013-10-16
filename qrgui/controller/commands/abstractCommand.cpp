@@ -176,7 +176,7 @@ void AbstractCommand::removeDuplicatesOn(QList<AbstractCommand *> &list)
 	}
 }
 
-QString AbstractCommand::logString() const
+qReal::LogEntry *AbstractCommand::logEntry() const
 {
-	return QString();
+	return new LogEntry();
 }

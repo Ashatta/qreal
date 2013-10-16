@@ -156,7 +156,7 @@ public:
 			);
 
 	// Override
-	virtual void addLogEntry(qReal::Id const &diagram, QString const &entry);
+	virtual void addLogEntry(qReal::Id const &diagram, qReal::LogEntry * const entry);
 
 	// Override
 	virtual void deleteLogEntry(qReal::Id const &diagram);

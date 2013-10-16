@@ -3,6 +3,7 @@
 #include <QtCore/QDebug>
 
 #include "../../qrkernel/exception/exception.h"
+#include "qrrepo/private/logSupport/versionEntry.h"
 #include "singleXmlSerializer.h"
 
 using namespace qReal;
@@ -29,8 +30,14 @@ Repository::~Repository()
 {
 	mSerializer.clearWorkingDir();
 
-	foreach (Id id, mObjects.keys()) {
+	foreach (Id const &id, mObjects.keys()) {
 		delete mObjects[id];
+	}
+
+	foreach (Id const &id, mLog.keys()) {
+		foreach (LogEntry *entry, mLog[id]) {
+			delete entry;
+		}
 	}
 }
 
@@ -426,13 +433,14 @@ void Repository::saveWithLogicalId(qReal::IdList const &list)
 	foreach(Id const &id, list)
 		toSave.append(allChildrenOfWithLogicalId(id));
 
-	createNewVersion();
 	mSerializer.saveToDisk(toSave, mLog);
 }
 
 void Repository::saveDiagramsById(QHash<QString, IdList> const &diagramIds)
 {
 	QString const currentWorkingFile = mWorkingFile;
+	createNewVersion();
+
 	foreach (QString const &savePath, diagramIds.keys()) {
 		qReal::IdList diagrams = diagramIds[savePath];
 		setWorkingFile(savePath);
@@ -586,7 +594,7 @@ void Repository::setGraphicalPartProperty(
 	graphicalObject->setGraphicalPartProperty(partIndex, propertyName, value);
 }
 
-void Repository::addLogEntry(qReal::Id const &diagram, QString const &entry)
+void Repository::addLogEntry(qReal::Id const &diagram, LogEntry * const entry)
 {
 	mLog[diagram] << entry;
 }
@@ -600,7 +608,7 @@ void Repository::createNewVersion()
 {
 	if (needNewVersion()) {
 		foreach (qReal::Id const &id, mLog.keys()) {
-			mLog[id] << "version:" + QString::number(mModelVersion);
+			mLog[id] << new VersionEntry(mModelVersion);
 		}
 
 		mModelVersion++;
@@ -610,7 +618,7 @@ void Repository::createNewVersion()
 bool Repository::needNewVersion() const
 {
 	foreach (qReal::Id const &id, mLog.keys()) {
-		if (mLog[id].empty() || !mLog[id].last().startsWith("version:")) {
+		if (mLog[id].empty() || !dynamic_cast<VersionEntry *>(mLog[id].last())) {
 			return true;
 		}
 	}

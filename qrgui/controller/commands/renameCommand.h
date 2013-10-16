@@ -21,7 +21,7 @@ public:
 			, Id const &id, QString const &oldName, QString const &newName
 			, models::Exploser * const exploser = NULL);
 
-	virtual QString logString() const;
+	virtual LogEntry *logEntry() const;
 
 protected:
 	virtual bool execute();

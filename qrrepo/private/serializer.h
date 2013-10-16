@@ -7,6 +7,7 @@
 
 #include "../../qrkernel/roles.h"
 #include "classes/object.h"
+#include "logSupport/logEntry.h"
 #include "valuesSerializer.h"
 
 namespace qrRepo {
@@ -22,8 +23,9 @@ public:
 	void setWorkingFile(QString const &workingFile);
 
 	void removeFromDisk(qReal::Id const &id) const;
-	void saveToDisk(QList<Object *> const &objects, QHash<qReal::Id, QStringList> const &log) const;
-	void loadFromDisk(QHash<qReal::Id, Object *> &objectsHash, QHash<qReal::Id, QStringList> &log, int &version);
+	void saveToDisk(QList<Object *> const &objects, const QHash<qReal::Id, QList<qReal::LogEntry *> > &log) const;
+	void loadFromDisk(QHash<qReal::Id, Object *> &objectsHash, QHash<qReal::Id, QList<qReal::LogEntry *> > &log
+			, int &version);
 
 	void decompressFile(QString const &fileName);
 
@@ -33,8 +35,8 @@ private:
 	void loadFromDisk(QString const &currentPath, QHash<qReal::Id, Object *> &objectsHash);
 	void loadModel(QDir const &dir, QHash<qReal::Id, Object *> &objectsHash);
 
-	void saveLog(QHash<qReal::Id, QStringList> const &log) const;
-	void loadLog(QString const &currentPath, QHash<qReal::Id, QStringList> &log, int &version) const;
+	void saveLog(const QHash<qReal::Id, QList<qReal::LogEntry *> > &log) const;
+	void loadLog(QString const &currentPath, QHash<qReal::Id, QList<qReal::LogEntry *> > &log, int &version) const;
 
 	QString pathToElement(qReal::Id const &id) const;
 	QString createDirectory(qReal::Id const &id, bool logical) const;

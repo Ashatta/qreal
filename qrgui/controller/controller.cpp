@@ -71,7 +71,7 @@ void Controller::execute(commands::AbstractCommand *command, UndoStack *stack)
 	}
 
 	qReal::Id const diagram = qReal::Id::loadFromString(mDiagramStacks.key(stack, qReal::Id::rootId().toString()));
-	mWindow->models()->repoControlApi().addLogEntry(diagram, command ? command->logString() : QString());
+	mWindow->models()->repoControlApi().addLogEntry(diagram, command ? command->logEntry() : new LogEntry());
 }
 
 void Controller::diagramOpened(Id const &diagramId)
@@ -169,7 +169,7 @@ void Controller::redo()
 	}
 
 	qReal::Id const diagram = qReal::Id::loadFromString(mDiagramStacks.key(stack, qReal::Id::rootId().toString()));
-	mWindow->models()->repoControlApi().addLogEntry(diagram, command ? command->logString() : QString());
+	mWindow->models()->repoControlApi().addLogEntry(diagram, command ? command->logEntry() : new LogEntry());
 }
 
 void Controller::undo()

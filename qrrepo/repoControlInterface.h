@@ -2,6 +2,10 @@
 
 #include "../qrkernel/roles.h"
 
+namespace qReal {
+	class LogEntry;
+}
+
 namespace qrRepo {
 
 /// Provides repository control methods, like save or open saved contents.
@@ -45,7 +49,7 @@ public:
 	virtual QString workingFile() const = 0;
 
 	/// Add string entry to a log tied to the diagram
-	virtual void addLogEntry(qReal::Id const &diagram, QString const &entry) = 0;
+	virtual void addLogEntry(qReal::Id const &diagram, qReal::LogEntry * const entry) = 0;
 
 	/// Delete last log string tied to the diagram
 	virtual void deleteLogEntry(qReal::Id const &diagram) = 0;

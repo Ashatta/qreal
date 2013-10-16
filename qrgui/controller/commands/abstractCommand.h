@@ -4,6 +4,7 @@
 #include <QtWidgets/QUndoCommand>
 
 #include <qrkernel/ids.h>
+#include <qrrepo/private/logSupport/logEntry.h>
 
 namespace qReal {
 namespace commands {
@@ -55,7 +56,7 @@ public:
 	/// Returns time of this command creation in ms since epoch
 	uint timestamp() const;
 
-	virtual QString logString() const;
+	virtual LogEntry *logEntry() const;
 
 signals:
 	void redoComplete(bool success);

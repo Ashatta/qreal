@@ -583,7 +583,7 @@ void RepoApi::setGraphicalPartProperty(
 	mRepository.setGraphicalPartProperty(id, partIndex, propertyName, value);
 }
 
-void RepoApi::addLogEntry(Id const &diagram, QString const &entry)
+void RepoApi::addLogEntry(Id const &diagram, LogEntry * const entry)
 {
 	mRepository.addLogEntry(diagram, entry);
 }
