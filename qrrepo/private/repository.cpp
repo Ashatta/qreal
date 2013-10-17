@@ -601,6 +601,8 @@ void Repository::addLogEntry(qReal::Id const &diagram, LogEntry * const entry)
 
 void Repository::deleteLogEntry(qReal::Id const &diagram)
 {
+	removeLastVersions(diagram);
+	delete mLog[diagram].last();
 	mLog[diagram].removeLast();
 }
 
@@ -624,4 +626,31 @@ bool Repository::needNewVersion() const
 	}
 
 	return false;
+}
+
+void Repository::removeLastVersions(Id const &diagram)
+{
+	int firstVersionToRemove = mModelVersion;
+	for (QList<LogEntry *>::iterator it = mLog[diagram].end(); it != mLog[diagram].begin();) {
+		--it;
+		VersionEntry * const entry = dynamic_cast<VersionEntry *>(*it);
+		if (!entry) {
+			break;
+		}
+
+		firstVersionToRemove = entry->version();
+	}
+
+	mModelVersion = firstVersionToRemove;
+
+	foreach (Id const &id, mLog.keys()) {
+		for (QList<LogEntry *>::iterator it = mLog[id].end(); it != mLog[id].begin();) {
+			--it;
+			VersionEntry const * const entry = dynamic_cast<VersionEntry *>(*it);
+			if (entry && entry->version() >= firstVersionToRemove) {
+				delete *it;
+				it = mLog[id].erase(it);
+			}
+		}
+	}
 }

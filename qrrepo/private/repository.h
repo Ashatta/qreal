@@ -136,6 +136,7 @@ private:
 
 	bool needNewVersion() const;
 	void createNewVersion();
+	void removeLastVersions(qReal::Id const &diagram);
 
 	qReal::IdList idsOfAllChildrenOf(qReal::Id id) const;
 	QList<Object*> allChildrenOf(qReal::Id id) const;
