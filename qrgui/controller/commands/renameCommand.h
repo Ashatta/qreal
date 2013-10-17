@@ -21,11 +21,11 @@ public:
 			, Id const &id, QString const &oldName, QString const &newName
 			, models::Exploser * const exploser = NULL);
 
-	virtual LogEntry *logEntry() const;
-
 protected:
 	virtual bool execute();
 	virtual bool restoreState();
+
+	virtual QList<LogEntry *> logEntries() const;
 
 private:
 	void initExplosions(models::Exploser * const exploser);

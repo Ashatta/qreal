@@ -583,12 +583,16 @@ void RepoApi::setGraphicalPartProperty(
 	mRepository.setGraphicalPartProperty(id, partIndex, propertyName, value);
 }
 
-void RepoApi::addLogEntry(Id const &diagram, LogEntry * const entry)
+void RepoApi::addLogEntries(Id const &diagram, QList<LogEntry *> const &entries)
 {
-	mRepository.addLogEntry(diagram, entry);
+	foreach (LogEntry * const entry, entries) {
+		mRepository.addLogEntry(diagram, entry);
+	}
 }
 
-void RepoApi::deleteLogEntry(Id const &diagram)
+void RepoApi::deleteLogEntries(Id const &diagram, int count)
 {
-	mRepository.deleteLogEntry(diagram);
+	while (count--) {
+		mRepository.deleteLogEntry(diagram);
+	}
 }

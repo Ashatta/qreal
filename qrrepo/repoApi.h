@@ -156,10 +156,10 @@ public:
 			);
 
 	// Override
-	virtual void addLogEntry(qReal::Id const &diagram, qReal::LogEntry * const entry);
+	virtual void addLogEntries(qReal::Id const &diagram, QList<qReal::LogEntry *> const &entries);
 
 	// Override
-	virtual void deleteLogEntry(qReal::Id const &diagram);
+	virtual void deleteLogEntries(qReal::Id const &diagram, int count);
 
 private:
 	RepoApi(RepoApi const &other);  // Copying is not allowed.

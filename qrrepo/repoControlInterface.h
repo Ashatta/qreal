@@ -49,10 +49,10 @@ public:
 	virtual QString workingFile() const = 0;
 
 	/// Add string entry to a log tied to the diagram
-	virtual void addLogEntry(qReal::Id const &diagram, qReal::LogEntry * const entry) = 0;
+	virtual void addLogEntries(qReal::Id const &diagram, QList<qReal::LogEntry *> const &entries) = 0;
 
 	/// Delete last log string tied to the diagram
-	virtual void deleteLogEntry(qReal::Id const &diagram) = 0;
+	virtual void deleteLogEntries(qReal::Id const &diagram, int count) = 0;
 };
 
 }

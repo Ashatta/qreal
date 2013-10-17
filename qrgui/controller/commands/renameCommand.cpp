@@ -53,7 +53,9 @@ bool RenameCommand::rename(QString const &name)
 	return true;
 }
 
-qReal::LogEntry *RenameCommand::logEntry() const
+QList<qReal::LogEntry *> RenameCommand::logEntries() const
 {
-	return new RenameEntry(mId, mOldName, mNewName);
+	QList<LogEntry *> result;
+	result << new RenameEntry(mId, mOldName, mNewName);
+	return result;
 }

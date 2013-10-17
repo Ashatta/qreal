@@ -176,7 +176,24 @@ void AbstractCommand::removeDuplicatesOn(QList<AbstractCommand *> &list)
 	}
 }
 
-qReal::LogEntry *AbstractCommand::logEntry() const
+QList<qReal::LogEntry *> AbstractCommand::commandLog() const
 {
-	return new LogEntry();
+	QList<qReal::LogEntry *> result;
+
+	foreach (AbstractCommand const * const command, mPreActions) {
+		result.append(command->commandLog());
+	}
+
+	result.append(logEntries());
+
+	foreach (AbstractCommand const * const command, mPostActions) {
+		result.append(command->commandLog());
+	}
+
+	return result;
+}
+
+QList<qReal::LogEntry *> AbstractCommand::logEntries() const
+{
+	return QList<LogEntry *>();
 }
