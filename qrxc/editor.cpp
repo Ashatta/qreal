@@ -10,7 +10,7 @@
 #include <QtCore/QDebug>
 
 Editor::Editor(QDomDocument domDocument, XmlCompiler *xmlCompiler)
-	: mXmlCompiler(xmlCompiler), mXmlDomDocument(domDocument), mLoadingComplete(false)
+	: mXmlCompiler(xmlCompiler), mXmlDomDocument(domDocument), mLoadingComplete(false), mEditorVersion(1)
 {}
 
 Editor::~Editor()
@@ -50,6 +50,8 @@ bool Editor::load(QDir const &currentDir)
 		}
 		mIncludes.append(includeFile);
 	}
+
+	mEditorVersion = metamodel.attribute("version", "1").toInt();
 
 	//Load listeners
 	for (QDomElement listenerElement = metamodel.firstChildElement("listener"); !listenerElement.isNull();
@@ -190,4 +192,9 @@ void Editor::generateListenerFactory(utils::OutFile &out, QString const &pluginN
 
 	out() << "\treturn result;\n"
 		<< "}\n";
+}
+
+int Editor::version() const
+{
+	return mEditorVersion;
 }

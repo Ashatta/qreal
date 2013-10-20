@@ -127,6 +127,12 @@ IdList EditorManager::diagrams(Id const &editor) const
 	return diagrams;
 }
 
+int EditorManager::editorVersion(Id const &editor) const
+{
+	Q_ASSERT(mPluginsLoaded.contains(editor.editor()));
+	return mPluginIface[editor.editor()]->editorVersion();
+}
+
 QStringList EditorManager::paletteGroups(Id const &editor, const Id &diagram) const
 {
 	Q_ASSERT(mPluginsLoaded.contains(diagram.editor()));

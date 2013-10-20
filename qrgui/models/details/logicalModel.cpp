@@ -164,6 +164,7 @@ void LogicalModel::addElementToModel(const Id &parent, const Id &id, const Id &l
 		}
 	} else {
 		newItem = createModelItem(id, parentItem);
+		mApi.addUsedMetamodel(id.editor(), mEditorManagerInterface.editorVersion(id));
 		initializeElement(id, parentItem, newItem, name, position);
 	}
 }

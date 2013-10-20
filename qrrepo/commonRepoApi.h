@@ -107,6 +107,8 @@ public:
 	/// Set parent of given node. Children/parents are in a sense of
 	/// "container" relation.
 	virtual void setParent(qReal::Id const &id, qReal::Id const &parent) = 0;
+
+	virtual int version() const = 0;
 };
 
 }

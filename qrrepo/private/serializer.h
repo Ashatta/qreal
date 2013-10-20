@@ -23,9 +23,10 @@ public:
 	void setWorkingFile(QString const &workingFile);
 
 	void removeFromDisk(qReal::Id const &id) const;
-	void saveToDisk(QList<Object *> const &objects, const QHash<qReal::Id, QList<qReal::LogEntry *> > &log) const;
+	void saveToDisk(QList<Object *> const &objects, QHash<qReal::Id, QList<qReal::LogEntry *> > const &log
+			, QMap<QString, int> const &metamodelsVersions) const;
 	void loadFromDisk(QHash<qReal::Id, Object *> &objectsHash, QHash<qReal::Id, QList<qReal::LogEntry *> > &log
-			, int &version);
+			, int &version, QMap<QString, int> &metamodelsVersions);
 
 	void decompressFile(QString const &fileName);
 
@@ -35,8 +36,11 @@ private:
 	void loadFromDisk(QString const &currentPath, QHash<qReal::Id, Object *> &objectsHash);
 	void loadModel(QDir const &dir, QHash<qReal::Id, Object *> &objectsHash);
 
-	void saveLog(const QHash<qReal::Id, QList<qReal::LogEntry *> > &log) const;
+	void saveLog(QHash<qReal::Id, QList<qReal::LogEntry *> > const &log) const;
 	void loadLog(QString const &currentPath, QHash<qReal::Id, QList<qReal::LogEntry *> > &log, int &version) const;
+
+	void saveMetamodelsVersions(QMap<QString, int> const &metamodelsVersions) const;
+	void loadMetamodelsVersions(QString const &currentPath, QMap<QString, int> &metamodelsVersions) const;
 
 	QString pathToElement(qReal::Id const &id) const;
 	QString createDirectory(qReal::Id const &id, bool logical) const;

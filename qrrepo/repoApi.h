@@ -161,6 +161,10 @@ public:
 	// Override
 	virtual void deleteLogEntries(qReal::Id const &diagram, int count);
 
+	virtual int version() const;
+
+	virtual void addUsedMetamodel(QString const &name, int const version);
+
 private:
 	RepoApi(RepoApi const &other);  // Copying is not allowed.
 	RepoApi& operator =(RepoApi const &);  // Assigning is not allowed.

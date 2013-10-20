@@ -127,6 +127,8 @@ public:
 
 	virtual void addLogEntry(qReal::Id const &diagram, qReal::LogEntry * const entry);
 	virtual void deleteLogEntry(qReal::Id const &diagram);
+	virtual int version() const;
+	virtual void addUsedMetamodel(QString const &name, int const version);
 
 private:
 	void init();
@@ -142,13 +144,18 @@ private:
 	QList<Object*> allChildrenOf(qReal::Id id) const;
 	QList<Object*> allChildrenOfWithLogicalId(qReal::Id id) const;
 
+	void clearRepo();
+
 	QHash<qReal::Id, Object*> mObjects;
 
 	/// Name of the current save file for project.
 	QString mWorkingFile;
 	Serializer mSerializer;
+
 	QHash<qReal::Id, QList<qReal::LogEntry *> > mLog;
 	int mModelVersion;
+
+	QMap<QString, int> mUsedMetamodels;
 };
 
 }

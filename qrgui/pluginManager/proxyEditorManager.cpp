@@ -37,6 +37,11 @@ bool ProxyEditorManager::unloadPlugin(QString const &pluginName)
 	return mProxiedEditorManager->unloadPlugin(pluginName);
 }
 
+int ProxyEditorManager::editorVersion(Id const &editor) const
+{
+	return mProxiedEditorManager->editorVersion(editor);
+}
+
 QString ProxyEditorManager::mouseGesture(Id const &id) const
 {
 	return mProxiedEditorManager->mouseGesture(id);

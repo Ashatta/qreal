@@ -32,6 +32,8 @@ public:
 	bool loadPlugin(QString const &pluginName);
 	bool unloadPlugin(QString const &pluginName);
 
+	int editorVersion(Id const &editor) const;
+
 	QString mouseGesture(Id const &id) const;
 	QString friendlyName(Id const &id) const;
 	QString description(Id const &id) const;

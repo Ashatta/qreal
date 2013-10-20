@@ -45,7 +45,8 @@ void Serializer::setWorkingFile(QString const &workingFile)
 	mWorkingFile = workingFile;
 }
 
-void Serializer::saveToDisk(QList<Object*> const &objects, QHash<Id, QList<LogEntry *> > const &log) const
+void Serializer::saveToDisk(QList<Object*> const &objects, QHash<Id, QList<LogEntry *> > const &log
+		, QMap<QString, int> const &metamodelsVersions) const
 {
 	Q_ASSERT_X(!mWorkingFile.isEmpty()
 		, "Serializer::saveToDisk(...)"
@@ -63,6 +64,7 @@ void Serializer::saveToDisk(QList<Object*> const &objects, QHash<Id, QList<LogEn
 	}
 
 	saveLog(log);
+	saveMetamodelsVersions(metamodelsVersions);
 
 	QFileInfo fileInfo(mWorkingFile);
 	QString fileName = fileInfo.baseName();
@@ -86,7 +88,8 @@ void Serializer::saveToDisk(QList<Object*> const &objects, QHash<Id, QList<LogEn
 	clearDir(mWorkingDir);
 }
 
-void Serializer::loadFromDisk(QHash<qReal::Id, Object*> &objectsHash, QHash<Id, QList<LogEntry *> > &log, int &version)
+void Serializer::loadFromDisk(QHash<qReal::Id, Object*> &objectsHash, QHash<Id, QList<LogEntry *> > &log, int &version
+		, QMap<QString, int> &metamodelsVersions)
 {
 	clearWorkingDir();
 	if (!mWorkingFile.isEmpty()) {
@@ -96,6 +99,7 @@ void Serializer::loadFromDisk(QHash<qReal::Id, Object*> &objectsHash, QHash<Id, 
 	QString const currentPath = SettingsManager::value("temp").toString();
 	loadFromDisk(currentPath, objectsHash);
 	loadLog(currentPath, log, version);
+	loadMetamodelsVersions(currentPath, metamodelsVersions);
 }
 
 void Serializer::loadFromDisk(QString const &currentPath, QHash<qReal::Id, Object*> &objectsHash)
@@ -154,6 +158,27 @@ void Serializer::loadLog(QString const &currentPath, QHash<Id, QList<LogEntry *>
 					qDebug() << "no version mark at the end of log file";
 				}
 			}
+		}
+	}
+}
+
+void Serializer::loadMetamodelsVersions(QString const &currentPath, QMap<QString, int> &metamodelsVersions) const
+{
+	if (QFile::exists(currentPath + "metamodelsVersions.txt")) {
+		QStringList const &strings
+				= InFile::readAll(currentPath + "metamodelsVersions.txt").split('\n', QString::SkipEmptyParts);
+		foreach (QString const &string, strings) {
+			QStringList const &nameAndVersion = string.split("=");
+			int version = 1;
+			if (nameAndVersion.size() >= 1 && !nameAndVersion[1].isEmpty()) {
+				bool ok = true;
+				version = nameAndVersion[1].toInt(&ok);
+				if (!ok) {
+					version = 1;
+				}
+			}
+
+			metamodelsVersions[nameAndVersion[0]] = version;
 		}
 	}
 }
@@ -228,6 +253,14 @@ void Serializer::saveLog(QHash<Id, QList<LogEntry *> > const &log) const
 				out() << string << "\n";
 			}
 		}
+	}
+}
+
+void Serializer::saveMetamodelsVersions(QMap<QString, int> const &metamodelsVersions) const
+{
+	OutFile out(mWorkingDir + "metamodelsVersions.txt");
+	foreach (QString const &name, metamodelsVersions.keys()) {
+		out() << name << "=" << metamodelsVersions[name] << "\n";
 	}
 }
 

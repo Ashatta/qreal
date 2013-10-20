@@ -35,6 +35,8 @@ public:
 	virtual bool loadPlugin(QString const &pluginName) = 0;
 	virtual bool unloadPlugin(QString const &pluginName) = 0;
 
+	virtual int editorVersion(Id const &editor) const = 0;
+
 	virtual QString mouseGesture(Id const &id) const = 0;
 	virtual QString friendlyName(Id const &id) const = 0;
 	virtual QString description(Id const &id) const = 0;

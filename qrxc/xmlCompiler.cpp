@@ -180,6 +180,8 @@ void XmlCompiler::generatePluginHeader()
 		<< "\n"
 		<< "\tvirtual QString id() const { return \"" << mPluginName << "\"; }\n"
 		<< "\n"
+		<< "\tvirtual int editorVersion() const { return " << mEditors[mCurrentEditor]->version() << "; }\n"
+		<< "\n"
 		<< "\tvirtual QStringList diagrams() const;\n"
 		<< "\tvirtual QStringList elements(QString const &diagram) const;\n"
 		<< "\tvirtual QStringList getPropertiesWithDefaultValues(QString const &element) const;\n"

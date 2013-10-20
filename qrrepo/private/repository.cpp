@@ -351,7 +351,7 @@ void Repository::removeTemporaryRemovedLinks(Id const &id)
 
 void Repository::loadFromDisk()
 {
-	mSerializer.loadFromDisk(mObjects, mLog, mModelVersion);
+	mSerializer.loadFromDisk(mObjects, mLog, mModelVersion, mUsedMetamodels);
 	mModelVersion++;
 	addChildrenToRootObject();
 }
@@ -414,7 +414,7 @@ bool Repository::exist(const Id &id) const
 void Repository::saveAll()
 {
 	createNewVersion();
-	mSerializer.saveToDisk(mObjects.values(), mLog);
+	mSerializer.saveToDisk(mObjects.values(), mLog, mUsedMetamodels);
 }
 
 void Repository::save(IdList const &list)
@@ -424,7 +424,7 @@ void Repository::save(IdList const &list)
 		toSave.append(allChildrenOf(id));
 
 	createNewVersion();
-	mSerializer.saveToDisk(toSave, mLog);
+	mSerializer.saveToDisk(toSave, mLog, mUsedMetamodels);
 }
 
 void Repository::saveWithLogicalId(qReal::IdList const &list)
@@ -433,7 +433,7 @@ void Repository::saveWithLogicalId(qReal::IdList const &list)
 	foreach(Id const &id, list)
 		toSave.append(allChildrenOfWithLogicalId(id));
 
-	mSerializer.saveToDisk(toSave, mLog);
+	mSerializer.saveToDisk(toSave, mLog, mUsedMetamodels);
 }
 
 void Repository::saveDiagramsById(QHash<QString, IdList> const &diagramIds)
@@ -509,19 +509,26 @@ void Repository::printDebug() const
 void Repository::exterminate()
 {
 	printDebug();
-	mObjects.clear();
-	createNewVersion();
-	mSerializer.saveToDisk(mObjects.values(), mLog);
+	clearRepo();
+	mSerializer.saveToDisk(mObjects.values(), mLog, mUsedMetamodels);
 	init();
 	printDebug();
 }
 
 void Repository::open(QString const &saveFile)
 {
-	mObjects.clear();
+	clearRepo();
 	init();
 	mSerializer.setWorkingFile(saveFile);
 	loadFromDisk();
+}
+
+void Repository::clearRepo()
+{
+	mObjects.clear();
+	mLog.clear();
+	mModelVersion = 1;
+	mUsedMetamodels.clear();
 }
 
 qReal::IdList Repository::elements() const
@@ -653,4 +660,14 @@ void Repository::removeLastVersions(Id const &diagram)
 			}
 		}
 	}
+}
+
+int Repository::version() const
+{
+	return mModelVersion;
+}
+
+void Repository::addUsedMetamodel(QString const &name, int const version)
+{
+	mUsedMetamodels[name] = version;
 }

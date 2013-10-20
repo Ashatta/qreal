@@ -30,6 +30,7 @@ public:
 	QStringList getAllPortNames() const;
 	Diagram *findDiagram(QString const &name);
 	QMap<QString, Diagram*> diagrams();
+	int version() const;
 
 	void generateListenerIncludes(utils::OutFile &out) const;
 	void generateListenerFactory(utils::OutFile &out, QString const &pluginName) const;
@@ -41,4 +42,5 @@ private:
 	QList<Editor*> mIncludes;
 	QMap<QString, Diagram*> mDiagrams;
 	QList<QPair<QString, QString> > mListeners;
+	int mEditorVersion;
 };

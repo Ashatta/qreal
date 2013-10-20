@@ -25,5 +25,7 @@ public:
 	virtual qReal::IdList elementsByType(QString const &type, bool sensitivity = false
 			, bool regExpression = false) const = 0;
 	virtual int elementsCount() const = 0;
+
+	virtual void addUsedMetamodel(QString const &name, int const version) = 0;
 };
 }

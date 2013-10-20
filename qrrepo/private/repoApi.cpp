@@ -596,3 +596,13 @@ void RepoApi::deleteLogEntries(Id const &diagram, int count)
 		mRepository.deleteLogEntry(diagram);
 	}
 }
+
+int RepoApi::version() const
+{
+	return mRepository.version();
+}
+
+void RepoApi::addUsedMetamodel(QString const &name, int const version)
+{
+	mRepository.addUsedMetamodel(name, version);
+}
