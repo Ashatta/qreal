@@ -49,8 +49,8 @@ QHash<Id, QPair<QString,QString> > EditorGenerator::getMetamodelList()
 	return metamodelList;
 }
 
-QPair<QString, QString> EditorGenerator::generateEditor(Id const &metamodelId
-		, QString const &pathToFile, QString const &pathToQRealSource)
+QPair<QString, QString> EditorGenerator::generateEditor(Id const &metamodelId, QString const &pathToFile
+		, QString const &pathToQRealSource, qrRepo::RepoControlInterface * const repoControlIface)
 {
 	mErrorReporter.clear();
 	mErrorReporter.clearErrors();
@@ -79,7 +79,9 @@ QPair<QString, QString> EditorGenerator::generateEditor(Id const &metamodelId
 
 	createDiagrams(metamodel, metamodelId);
 
+
 	QString const fileBaseName = NameNormalizer::normalize(mApi.name(metamodelId), false);
+	repoControlIface->saveTo(pathToFile + "/save.qrs");
 
 	QRegExp patten;
 	patten.setPattern("[A-Za-z]+([A-Za-z0-9]*)");

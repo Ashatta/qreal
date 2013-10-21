@@ -35,6 +35,7 @@ private:
 	void generateDescriptionMappings(utils::OutFile &out);
 	void generateParentsMappings(utils::OutFile &out);
 	void generateExplosionsMappings(utils::OutFile &out);
+	void generateMetamodelRequest(utils::OutFile &out);
 	void generateNameMappingsRequests(utils::OutFile &out);
 	void generateGraphicalObjectRequest(utils::OutFile &out);
 	void generateIsParentOfRequest(utils::OutFile &out);

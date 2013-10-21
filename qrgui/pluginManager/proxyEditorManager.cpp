@@ -42,6 +42,11 @@ int ProxyEditorManager::editorVersion(Id const &editor) const
 	return mProxiedEditorManager->editorVersion(editor);
 }
 
+qrRepo::RepoApi * ProxyEditorManager::metamodel(Id const &editor) const
+{
+	return mProxiedEditorManager->metamodel(editor);
+}
+
 QString ProxyEditorManager::mouseGesture(Id const &id) const
 {
 	return mProxiedEditorManager->mouseGesture(id);

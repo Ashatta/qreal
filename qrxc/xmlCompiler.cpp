@@ -23,13 +23,19 @@ XmlCompiler::XmlCompiler()
 {
 	mResources = "<!DOCTYPE RCC><RCC version=\"1.0\">\n<qresource>\n";
 	QDir dir;
+	if (dir.exists("save.qrs")) {
+		mResources += "\t<file>save.qrs</file>\n";
+	}
+
 	if (!dir.exists("generated")) {
 		dir.mkdir("generated");
 	}
+
 	dir.cd("generated");
 	if (!dir.exists("shapes")) {
 		dir.mkdir("shapes");
 	}
+
 	dir.cd("..");
 }
 
@@ -182,6 +188,8 @@ void XmlCompiler::generatePluginHeader()
 		<< "\n"
 		<< "\tvirtual int editorVersion() const { return " << mEditors[mCurrentEditor]->version() << "; }\n"
 		<< "\n"
+		<< "\tvirtual qrRepo::RepoApi *metamodel() const;\n"
+		<< "\n"
 		<< "\tvirtual QStringList diagrams() const;\n"
 		<< "\tvirtual QStringList elements(QString const &diagram) const;\n"
 		<< "\tvirtual QStringList getPropertiesWithDefaultValues(QString const &element) const;\n"
@@ -255,6 +263,7 @@ void XmlCompiler::generatePluginSource()
 
 	generateIncludes(out);
 	generateInitPlugin(out);
+	generateMetamodelRequest(out);
 	generateNameMappingsRequests(out);
 	generateGraphicalObjectRequest(out);
 	generateIsParentOfRequest(out);
@@ -483,6 +492,13 @@ void XmlCompiler::generatePropertyDefaultsRequests(OutFile &out)
 			<< "QString const &property) const\n{\n"
 			<< "\treturn mPropertyDefault[element][property];\n" // TODO: merge with getPropertyNames()!!11
 			<< "}\n\n";
+}
+
+void XmlCompiler::generateMetamodelRequest(OutFile &out)
+{
+	out() << "qrRepo::RepoApi * " << mPluginName << "Plugin::metamodel() const\n{\n"
+		  << "\treturn new qrRepo::RepoApi(\":/save.qrs\");\n"
+		<< "}\n\n";
 }
 
 void XmlCompiler::generateNameMappingsRequests(OutFile &out)

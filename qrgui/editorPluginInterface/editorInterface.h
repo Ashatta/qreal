@@ -9,6 +9,8 @@
 #include "editorPluginInterface/elementImpl.h"
 #include "editorPluginInterface/listenerInterface.h"
 
+#include "qrrepo/repoApi.h"
+
 namespace qReal {
 
 class EditorInterface
@@ -38,6 +40,7 @@ public:
 	virtual QString id() const = 0;
 
 	virtual int editorVersion() const = 0;
+	virtual qrRepo::RepoApi *metamodel() const = 0;
 
 	virtual QStringList diagrams() const = 0;
 	virtual QStringList elements(QString const &diagram) const = 0;

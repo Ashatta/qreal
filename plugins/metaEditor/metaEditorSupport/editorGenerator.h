@@ -8,6 +8,7 @@
 #include "../../../qrkernel/ids.h"
 #include "../../../qrgui/toolPluginInterface/usedInterfaces/errorReporterInterface.h"
 #include "../../../qrrepo/logicalRepoApi.h"
+#include "qrrepo/repoControlInterface.h"
 
 namespace metaEditor {
 
@@ -18,7 +19,8 @@ public:
 	explicit EditorGenerator(qrRepo::LogicalRepoApi const &api, qReal::ErrorReporterInterface &errorReporter);
 
 	QHash<qReal::Id, QPair<QString, QString> > getMetamodelList();
-	QPair<QString, QString> generateEditor(qReal::Id const &metamodelId, QString const &pathToFile, QString const &pathToQRealSource);
+	QPair<QString, QString> generateEditor(qReal::Id const &metamodelId, QString const &pathToFile
+			, QString const &pathToQRealSource, qrRepo::RepoControlInterface * const repoControlIface);
 
 private:
 	void serializeObjects(QDomElement &parent, qReal::Id const &idParent);

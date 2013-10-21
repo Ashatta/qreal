@@ -33,6 +33,7 @@ public:
 	bool unloadPlugin(QString const &pluginName);
 
 	int editorVersion(Id const &editor) const;
+	qrRepo::RepoApi *metamodel(Id const &editor) const;
 
 	QString mouseGesture(Id const &id) const;
 	QString friendlyName(Id const &id) const;

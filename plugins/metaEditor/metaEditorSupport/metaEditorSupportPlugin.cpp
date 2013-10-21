@@ -75,7 +75,8 @@ void MetaEditorSupportPlugin::generateEditorForQrxc()
 		QString const nameOfTheDirectory = metamodelList[key].first;
 		QString const pathToQRealRoot = metamodelList[key].second;
 		dir.mkpath(nameOfTheDirectory);
-		QPair<QString, QString> const metamodelNames = editorGenerator.generateEditor(key, nameOfTheDirectory, pathToQRealRoot);
+		QPair<QString, QString> const metamodelNames = editorGenerator.generateEditor(key, nameOfTheDirectory
+			, pathToQRealRoot, mRepoControlApi);
 
 		if (!mMainWindowInterface->errorReporter()->wereErrors()) {
 			if (QMessageBox::question(mMainWindowInterface->windowWidget()

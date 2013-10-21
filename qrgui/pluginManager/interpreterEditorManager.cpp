@@ -127,6 +127,20 @@ int InterpreterEditorManager::editorVersion(Id const &editor) const
 	return 1;
 }
 
+qrRepo::RepoApi * InterpreterEditorManager::metamodel(Id const &editor) const
+{
+	Q_ASSERT(editors().contains(editor));
+	foreach (qrRepo::RepoApi * const repo, mEditorRepoApi.values()) {
+		foreach (Id const &edit, repo->elementsByType("MetamodelDiagram")) {
+			if (editor.editor() == repo->name(edit) && repo->isLogicalElement(edit)) {
+				return repo;
+			}
+		}
+	}
+
+	return NULL;
+}
+
 IdList InterpreterEditorManager::elements(const Id &diagram) const
 {
 	IdList result;

@@ -133,6 +133,12 @@ int EditorManager::editorVersion(Id const &editor) const
 	return mPluginIface[editor.editor()]->editorVersion();
 }
 
+qrRepo::RepoApi * EditorManager::metamodel(Id const &editor) const
+{
+	Q_ASSERT(mPluginsLoaded.contains(editor.editor()));
+	return mPluginIface[editor.editor()]->metamodel();
+}
+
 QStringList EditorManager::paletteGroups(Id const &editor, const Id &diagram) const
 {
 	Q_ASSERT(mPluginsLoaded.contains(diagram.editor()));
