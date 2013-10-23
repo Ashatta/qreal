@@ -165,6 +165,8 @@ public:
 
 	virtual void addUsedMetamodel(QString const &name, int const version);
 
+	virtual int metamodelVersion(QString const &metamodelName) const;
+
 private:
 	RepoApi(RepoApi const &other);  // Copying is not allowed.
 	RepoApi& operator =(RepoApi const &);  // Assigning is not allowed.

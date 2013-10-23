@@ -119,6 +119,19 @@ bool ProjectManager::open(QString const &fileName)
 		mSomeProjectOpened = open(mSaveFilePath);
 		return false;
 	}
+
+	QStringList canMigrate;
+	QStringList cannotMigrate;
+	mMainWindow->editorManager().canMigrateMetamodels(canMigrate, cannotMigrate
+			, mMainWindow->models()->logicalRepoApi(), mMainWindow->models()->graphicalRepoApi());
+
+	if (!cannotMigrate.empty()) {
+		QMessageBox::information(mMainWindow, tr("Outdated plugins")
+				, tr("Following plugins must be updated:\n") + cannotMigrate.join('\n'));
+		mSomeProjectOpened = open(mSaveFilePath);
+		return false;
+	}
+
 	mMainWindow->propertyModel().setSourceModels(mMainWindow->models()->logicalModel()
 			, mMainWindow->models()->graphicalModel());
 	mMainWindow->graphicalModelExplorer()->setModel(mMainWindow->models()->graphicalModel());

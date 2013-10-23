@@ -69,6 +69,9 @@ public:
 							  , qrRepo::GraphicalRepoApi const &graphicalApi) const = 0;
 	virtual bool hasElement(Id const &element) const = 0;
 
+	virtual void canMigrateMetamodels(QStringList &canMigrate, QStringList &cannotMigrate
+			, qrRepo::LogicalRepoApi const &logicalApi, qrRepo::GraphicalRepoApi const &graphicalApi) const = 0;
+
 	virtual Id findElementByType(QString const &type) const = 0;
 	virtual QList<ListenerInterface *> listeners() const = 0;
 

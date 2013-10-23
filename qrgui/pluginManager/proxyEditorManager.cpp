@@ -153,6 +153,12 @@ bool ProxyEditorManager::hasElement(Id const &element) const
 	return mProxiedEditorManager->hasElement(element);
 }
 
+void ProxyEditorManager::canMigrateMetamodels(QStringList &canMigrate, QStringList &cannotMigrate
+		, qrRepo::LogicalRepoApi const &logicalApi, qrRepo::GraphicalRepoApi const &graphicalApi) const
+{
+	mProxiedEditorManager->canMigrateMetamodels(canMigrate, cannotMigrate, logicalApi, graphicalApi);
+}
+
 Id ProxyEditorManager::findElementByType(QString const &type) const
 {
 	return mProxiedEditorManager->findElementByType(type);

@@ -569,6 +569,44 @@ IdList InterpreterEditorManager::checkNeededPlugins(qrRepo::LogicalRepoApi const
 	return IdList();
 }
 
+void InterpreterEditorManager::canMigrateMetamodels(QStringList &canMigrate, QStringList &cannotMigrate
+		, qrRepo::LogicalRepoApi const &logicalApi, qrRepo::GraphicalRepoApi const &graphicalApi) const
+{
+	checkMigrationPossibility(canMigrate, cannotMigrate, logicalApi, Id::rootId());
+	checkMigrationPossibility(canMigrate, cannotMigrate, graphicalApi, Id::rootId());
+}
+
+void InterpreterEditorManager::checkMigrationPossibility(QStringList &canMigrate, QStringList &cannotMigrate
+		, qrRepo::CommonRepoApi const &api, qReal::Id const &id) const
+{
+	if (id != Id::rootId()) {
+		if (editorVersion(id) < api.metamodelVersion(id.editor())) {
+			cannotMigrate << id.editor();
+		} else {
+			canMigrate << id.editor();
+		}
+	}
+
+	foreach (qReal::Id const &child, api.children(id)) {
+		checkMigrationPossibility(canMigrate, cannotMigrate, api, child);
+	}
+}
+
+bool InterpreterEditorManager::needMigrate(qrRepo::CommonRepoApi const &api, Id const &id) const
+{
+	if (!hasElement(id.type())) {
+		return true;
+	}
+
+	foreach (QString const &property, propertyNames(id.type())) {
+		if (!api.hasProperty(id, property)) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
 QList<ListenerInterface *> InterpreterEditorManager::listeners() const
 {
 	return QList<ListenerInterface *>();

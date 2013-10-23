@@ -671,3 +671,8 @@ void Repository::addUsedMetamodel(QString const &name, int const version)
 {
 	mUsedMetamodels[name] = version;
 }
+
+int Repository::metamodelVersion(const QString &name) const
+{
+	return mUsedMetamodels.value(name, 0);
+}

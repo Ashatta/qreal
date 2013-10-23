@@ -606,3 +606,8 @@ void RepoApi::addUsedMetamodel(QString const &name, int const version)
 {
 	mRepository.addUsedMetamodel(name, version);
 }
+
+int RepoApi::metamodelVersion(QString const &metamodelName) const
+{
+	return mRepository.metamodelVersion(metamodelName);
+}

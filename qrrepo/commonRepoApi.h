@@ -109,6 +109,8 @@ public:
 	virtual void setParent(qReal::Id const &id, qReal::Id const &parent) = 0;
 
 	virtual int version() const = 0;
+
+	virtual int metamodelVersion(QString const &metamodelName) const = 0;
 };
 
 }

@@ -75,6 +75,9 @@ public:
 			, qrRepo::GraphicalRepoApi const &graphicalApi) const;
 	virtual bool hasElement(Id const &element) const;
 
+	virtual void canMigrateMetamodels(QStringList &canMigrate, QStringList &cannotMigrate
+			, qrRepo::LogicalRepoApi const &logicalApi, qrRepo::GraphicalRepoApi const &graphicalApi) const;
+
 	virtual Id findElementByType(QString const &type) const;
 	virtual QList<ListenerInterface *> listeners() const;
 
@@ -127,6 +130,9 @@ private:
 
 	EditorInterface* editorInterface(QString const &editor) const;
 	void checkNeededPluginsRecursive(qrRepo::CommonRepoApi const &api, Id const &id, IdList &result) const;
+	void checkMigrationPossibility(QStringList &canMigrate, QStringList &cannotMigrate
+			, qrRepo::CommonRepoApi const &api, qReal::Id const &id) const;
+	bool needMigrate(qrRepo::CommonRepoApi const &api, qReal::Id const &id) const;
 
 	bool isParentOf(EditorInterface const *plugin, QString const &childDiagram, QString const &child
 			, QString const &parentDiagram, QString const &parent) const;

@@ -129,6 +129,7 @@ public:
 	virtual void deleteLogEntry(qReal::Id const &diagram);
 	virtual int version() const;
 	virtual void addUsedMetamodel(QString const &name, int const version);
+	virtual int metamodelVersion(QString const &name) const;
 
 private:
 	void init();
