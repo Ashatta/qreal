@@ -1,6 +1,6 @@
-#include "private/logSupport/logEntry.h"
-#include "private/logSupport/renameEntry.h"
-#include "private/logSupport/versionEntry.h"
+#include "qrgui/migration/logEntries/logEntry.h"
+#include "qrgui/migration/logEntries/renameEntry.h"
+#include "qrgui/migration/logEntries/versionEntry.h"
 
 using namespace qReal;
 

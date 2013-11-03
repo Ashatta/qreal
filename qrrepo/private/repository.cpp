@@ -3,7 +3,7 @@
 #include <QtCore/QDebug>
 
 #include "../../qrkernel/exception/exception.h"
-#include "qrrepo/private/logSupport/versionEntry.h"
+#include "qrgui/migration/logEntries/versionEntry.h"
 #include "singleXmlSerializer.h"
 
 using namespace qReal;

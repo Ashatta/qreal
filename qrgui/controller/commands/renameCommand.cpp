@@ -1,7 +1,7 @@
 #include "renameCommand.h"
 
 #include "models/graphicalModelAssistApi.h"
-#include "qrrepo/private/logSupport/renameEntry.h"
+#include "qrgui/migration/logEntries/renameEntry.h"
 
 using namespace qReal::commands;
 

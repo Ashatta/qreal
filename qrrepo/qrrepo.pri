@@ -38,14 +38,3 @@ HEADERS += \
 	$$PWD/logicalRepoApi.h \
 	$$PWD/repoControlInterface.h \
 	$$PWD/commonRepoApi.h \
-
-# log stuff
-HEADERS += \
-	$$PWD/private/logSupport/logEntry.h \
-	$$PWD/private/logSupport/renameEntry.h \
-	$$PWD/private/logSupport/versionEntry.h \
-
-SOURCES += \
-	$$PWD/private/logSupport/logEntry.cpp \
-	$$PWD/private/logSupport/renameEntry.cpp \
-	$$PWD/private/logSupport/versionEntry.cpp \

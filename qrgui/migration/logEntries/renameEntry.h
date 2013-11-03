@@ -1,6 +1,6 @@
 #pragma once
 
-#include "qrrepo/private/logSupport/logEntry.h"
+#include "qrgui/migration/logEntries/logEntry.h"
 
 namespace qReal {
 

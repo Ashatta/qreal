@@ -7,7 +7,7 @@
 
 #include "../../qrkernel/roles.h"
 #include "classes/object.h"
-#include "logSupport/logEntry.h"
+#include "qrgui/migration/logEntries/logEntry.h"
 #include "valuesSerializer.h"
 
 namespace qrRepo {

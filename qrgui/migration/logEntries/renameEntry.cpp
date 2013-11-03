@@ -1,4 +1,4 @@
-#include "private/logSupport/renameEntry.h"
+#include "qrgui/migration/logEntries/renameEntry.h"
 
 using namespace qReal;
 

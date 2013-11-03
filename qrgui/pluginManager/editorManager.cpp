@@ -411,8 +411,10 @@ bool EditorManager::needMigrate(qrRepo::CommonRepoApi const &api, Id const &id) 
 		return true;
 	}
 
-	foreach (QString const &property, propertyNames(id.type())) {
-		if (!api.hasProperty(id, property)) {
+	QMapIterator<QString, QVariant> properties = api.propertiesIterator(id);
+	while (properties.hasNext()) {
+		properties.next();
+		if (!propertyNames(id.type()).contains(properties.key())) {
 			return true;
 		}
 	}
