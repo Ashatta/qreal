@@ -42,7 +42,7 @@ int ProxyEditorManager::editorVersion(Id const &editor) const
 	return mProxiedEditorManager->editorVersion(editor);
 }
 
-qrRepo::RepoApi * ProxyEditorManager::metamodel(Id const &editor) const
+qrRepo::RepoApi * ProxyEditorManager::metamodel(QString const &editor) const
 {
 	return mProxiedEditorManager->metamodel(editor);
 }

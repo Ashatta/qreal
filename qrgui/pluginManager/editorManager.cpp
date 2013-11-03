@@ -133,10 +133,10 @@ int EditorManager::editorVersion(Id const &editor) const
 	return mPluginIface[editor.editor()]->editorVersion();
 }
 
-qrRepo::RepoApi * EditorManager::metamodel(Id const &editor) const
+qrRepo::RepoApi * EditorManager::metamodel(QString const &editor) const
 {
-	Q_ASSERT(mPluginsLoaded.contains(editor.editor()));
-	return mPluginIface[editor.editor()]->metamodel();
+	Q_ASSERT(mPluginsLoaded.contains(editor));
+	return mPluginIface[editor]->metamodel();
 }
 
 QStringList EditorManager::paletteGroups(Id const &editor, const Id &diagram) const
@@ -411,10 +411,16 @@ bool EditorManager::needMigrate(qrRepo::CommonRepoApi const &api, Id const &id) 
 		return true;
 	}
 
+	QStringList standardProperties;
+	standardProperties << "links" << "from" << "to" << "position" << "configuration" << "fromPort" << "toPort"
+			<< "name" << "childrenOrder" << "expanded" << "folded" << "linkShape" << "isView"
+			<< "incomingExplosions" << "outgoingExplosion";
+
 	QMapIterator<QString, QVariant> properties = api.propertiesIterator(id);
 	while (properties.hasNext()) {
 		properties.next();
-		if (!propertyNames(id.type()).contains(properties.key())) {
+		if (!propertyNames(id.type()).contains(properties.key())
+				&& !standardProperties.contains(properties.key())) {
 			return true;
 		}
 	}

@@ -40,7 +40,7 @@ public:
 	virtual bool unloadPlugin(QString const &pluginName) = 0;
 
 	virtual int editorVersion(Id const &editor) const = 0;
-	virtual qrRepo::RepoApi *metamodel(Id const &editor) const = 0;
+	virtual qrRepo::RepoApi *metamodel(QString const &editor) const = 0;
 
 	virtual QString mouseGesture(Id const &id) const = 0;
 	virtual QString friendlyName(Id const &id) const = 0;

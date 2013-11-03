@@ -11,6 +11,7 @@
 #include "view/editorViewScene.h"
 #include "view/editorView.h"
 #include "dialogs/suggestToCreateDiagramDialog.h"
+#include "migration/migrator.h"
 
 using namespace qReal;
 
@@ -130,6 +131,11 @@ bool ProjectManager::open(QString const &fileName)
 				, tr("Following plugins must be updated:\n") + cannotMigrate.join('\n'));
 		mSomeProjectOpened = open(mSaveFilePath);
 		return false;
+	}
+
+	if (!canMigrate.empty()) {
+		migration::Migrator migrator(mMainWindow->editorManager());
+		migrator.migrate(mMainWindow->models(), canMigrate);
 	}
 
 	mMainWindow->propertyModel().setSourceModels(mMainWindow->models()->logicalModel()
