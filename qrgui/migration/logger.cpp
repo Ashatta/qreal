@@ -1,10 +1,12 @@
 #include "migration/logger.h"
 
 #include "migration/logEntries/versionEntry.h"
+#include "qrrepo/private/repository.h"
 
 using namespace qReal::migration;
 
-Logger::Logger()
+Logger::Logger(qrRepo::details::Repository *repo)
+	: mRepository(repo)
 {
 }
 
@@ -106,7 +108,7 @@ void Logger::removeLastVersions(Id const &diagram)
 	mModelVersion = firstVersionToRemove;
 
 	foreach (Id const &id, mLog.keys()) {
-		for (QList<migration::LogEntry *>::iterator it = mLog[id].end(); it != mLog[id].begin();) {
+		for (QList<LogEntry *>::iterator it = mLog[id].end(); it != mLog[id].begin();) {
 			--it;
 			VersionEntry const * const entry = dynamic_cast<VersionEntry *>(*it);
 			if (entry && entry->version() >= firstVersionToRemove) {
@@ -115,4 +117,30 @@ void Logger::removeLastVersions(Id const &diagram)
 			}
 		}
 	}
+}
+
+void Logger::rollBackTo(int version)
+{
+	if (version >= mModelVersion) {
+		return;
+	}
+
+	foreach (Id const &id, mLog.keys()) {
+		for (QList<LogEntry *>::iterator it = mLog[id].end(); it != mLog[id].begin();) {
+			--it;
+			VersionEntry const * const entry = dynamic_cast<VersionEntry *>(*it);
+			if (entry && entry->version() <= version) {
+				break;
+			}
+
+			if (!entry || entry->version() > version) {
+				(*it)->reverse(mRepository);
+				delete *it;
+				it = mLog[id].erase(it);
+			}
+
+		}
+	}
+
+	mModelVersion = version + 1;
 }

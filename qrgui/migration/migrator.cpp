@@ -13,15 +13,24 @@ void Migrator::migrate(models::Models *model, QStringList const &metamodels)
 	mModel = model;
 
 	foreach (QString const &editor, metamodels.toSet()) {
-		mMetamodels[editor] = mEditorManager.metamodel(editor);
+		mNewMetamodels[editor] = mEditorManager.metamodel(editor);
+
+		mOldMetamodels[editor] = mEditorManager.metamodel(editor);
+		mOldMetamodels[editor]->rollBackTo(model->logicalRepoApi().metamodelVersion(editor));
 	}
 }
 
 void Migrator::clear()
 {
-	foreach (qrRepo::RepoApi *metamodel, mMetamodels) {
+	foreach (qrRepo::RepoApi *metamodel, mNewMetamodels) {
 		delete metamodel;
 	}
 
-	mMetamodels.clear();
+	mNewMetamodels.clear();
+
+	foreach (qrRepo::RepoApi *metamodel, mNewMetamodels) {
+		delete metamodel;
+	}
+
+	mOldMetamodels.clear();
 }

@@ -49,3 +49,8 @@ LogEntry * LogEntry::loadFromString(QString const &string)
 		return new LogEntry();
 	}
 }
+
+void LogEntry::reverse(qrRepo::details::Repository *repo) const
+{
+	Q_UNUSED(repo)
+}

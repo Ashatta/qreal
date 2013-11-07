@@ -128,6 +128,7 @@ public:
 
 	virtual void addLogEntry(qReal::Id const &diagram, qReal::migration::LogEntry * const entry);
 	virtual void deleteLogEntry(qReal::Id const &diagram);
+	virtual void rollBackTo(int version);
 	virtual int version() const;
 
 	virtual void addUsedMetamodel(QString const &name, int const version);

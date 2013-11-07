@@ -597,6 +597,11 @@ void RepoApi::deleteLogEntries(Id const &diagram, int count)
 	}
 }
 
+void RepoApi::rollBackTo(int version)
+{
+	mRepository.rollBackTo(version);
+}
+
 int RepoApi::version() const
 {
 	return mRepository.version();

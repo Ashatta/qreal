@@ -11,3 +11,8 @@ QString RenameEntry::toString() const
 {
 	return "rename@" + mId.toString() + "@" + mOldName + ">" + mNewName;
 }
+
+void RenameEntry::reverse(qrRepo::details::Repository *repo) const
+{
+	repo->setProperty(mId, "name", mOldName);
+}

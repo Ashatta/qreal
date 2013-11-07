@@ -55,6 +55,9 @@ public:
 
 	/// Delete last log string tied to the diagram
 	virtual void deleteLogEntries(qReal::Id const &diagram, int count) = 0;
+
+	/// Rolls a repository to a given version
+	virtual void rollBackTo(int version) = 0;
 };
 
 }

@@ -18,8 +18,10 @@ private:
 	void clear();
 
 	qReal::EditorManagerInterface const &mEditorManager;
-	QMap<QString, qrRepo::RepoApi *> mMetamodels;
 	qReal::models::Models *mModel; // Doesn't take ownership
+
+	QMap<QString, qrRepo::RepoApi *> mOldMetamodels;
+	QMap<QString, qrRepo::RepoApi *> mNewMetamodels;
 };
 
 }

@@ -3,6 +3,7 @@
 #include <QtCore/QString>
 
 #include "qrkernel/ids.h"
+#include "qrrepo/private/repository.h"
 
 namespace qReal {
 namespace migration {
@@ -14,6 +15,8 @@ public:
 
 	virtual QString toString() const;
 	static LogEntry *loadFromString(QString const &string);
+
+	virtual void reverse(qrRepo::details::Repository *repo) const;
 };
 
 }

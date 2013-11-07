@@ -12,6 +12,7 @@ using namespace qrRepo::details;
 Repository::Repository(QString const &workingFile)
 		: mWorkingFile(workingFile)
 		, mSerializer(workingFile)
+		, mLogger(this)
 {
 	init();
 	loadFromDisk();
@@ -601,6 +602,11 @@ void Repository::addLogEntry(qReal::Id const &diagram, migration::LogEntry * con
 void Repository::deleteLogEntry(qReal::Id const &diagram)
 {
 	mLogger.deleteLogEntry(diagram);
+}
+
+void Repository::rollBackTo(int version)
+{
+	mLogger.rollBackTo(version);
 }
 
 int Repository::version() const

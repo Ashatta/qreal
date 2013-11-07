@@ -161,6 +161,9 @@ public:
 	// Override
 	virtual void deleteLogEntries(qReal::Id const &diagram, int count);
 
+	// Override
+	virtual void rollBackTo(int version);
+
 	virtual int version() const;
 
 	virtual void addUsedMetamodel(QString const &name, int const version);

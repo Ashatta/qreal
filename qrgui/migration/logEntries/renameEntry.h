@@ -11,6 +11,7 @@ public:
 	RenameEntry(qReal::Id const &id, QString const &oldName, QString const &newName);
 
 	virtual QString toString() const;
+	void reverse(qrRepo::details::Repository *repo) const;
 
 private:
 	qReal::Id mId;
