@@ -5,6 +5,7 @@
 #include "qrkernel/ids.h"
 
 namespace qReal {
+namespace migration {
 
 class LogEntry
 {
@@ -15,4 +16,5 @@ public:
 	static LogEntry *loadFromString(QString const &string);
 };
 
+}
 }

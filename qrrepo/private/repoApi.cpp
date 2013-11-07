@@ -583,9 +583,9 @@ void RepoApi::setGraphicalPartProperty(
 	mRepository.setGraphicalPartProperty(id, partIndex, propertyName, value);
 }
 
-void RepoApi::addLogEntries(Id const &diagram, QList<LogEntry *> const &entries)
+void RepoApi::addLogEntries(Id const &diagram, QList<migration::LogEntry *> const &entries)
 {
-	foreach (LogEntry * const entry, entries) {
+	foreach (migration::LogEntry * const entry, entries) {
 		mRepository.addLogEntry(diagram, entry);
 	}
 }

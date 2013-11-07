@@ -3,6 +3,7 @@
 #include "qrgui/migration/logEntries/logEntry.h"
 
 namespace qReal {
+namespace migration {
 
 class VersionEntry : public LogEntry
 {
@@ -16,4 +17,5 @@ private:
 	int mVersion;
 };
 
+}
 }

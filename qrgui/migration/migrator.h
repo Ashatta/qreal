@@ -4,6 +4,7 @@
 #include "qrgui/pluginManager/editorManagerInterface.h"
 #include "qrgui/models/models.h"
 
+namespace qReal {
 namespace migration {
 
 class Migrator
@@ -21,4 +22,5 @@ private:
 	qReal::models::Models *mModel; // Doesn't take ownership
 };
 
+}
 }

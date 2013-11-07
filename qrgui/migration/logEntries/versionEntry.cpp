@@ -1,6 +1,6 @@
 #include "qrgui/migration/logEntries/versionEntry.h"
 
-using namespace qReal;
+using namespace qReal::migration;
 
 VersionEntry::VersionEntry(int version)
 	: mVersion(version)

@@ -25,7 +25,7 @@ protected:
 	virtual bool execute();
 	virtual bool restoreState();
 
-	virtual QList<LogEntry *> logEntries() const;
+	virtual QList<migration::LogEntry *> logEntries() const;
 
 private:
 	void initExplosions(models::Exploser * const exploser);

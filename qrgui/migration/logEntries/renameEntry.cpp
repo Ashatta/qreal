@@ -1,6 +1,6 @@
 #include "qrgui/migration/logEntries/renameEntry.h"
 
-using namespace qReal;
+using namespace qReal::migration;
 
 RenameEntry::RenameEntry(qReal::Id const &id, QString const &oldName, QString const &newName)
 	: mId(id), mOldName(oldName), mNewName(newName)

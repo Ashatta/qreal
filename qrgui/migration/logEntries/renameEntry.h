@@ -3,6 +3,7 @@
 #include "qrgui/migration/logEntries/logEntry.h"
 
 namespace qReal {
+namespace migration {
 
 class RenameEntry : public LogEntry
 {
@@ -18,4 +19,5 @@ private:
 	QString mNewName;
 };
 
+}
 }

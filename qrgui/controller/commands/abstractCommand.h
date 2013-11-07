@@ -56,7 +56,7 @@ public:
 	/// Returns time of this command creation in ms since epoch
 	uint timestamp() const;
 
-	QList<LogEntry *> commandLog() const;
+	QList<migration::LogEntry *> commandLog() const;
 
 signals:
 	void redoComplete(bool success);
@@ -70,7 +70,7 @@ protected:
 	/// and return operation success
 	virtual bool restoreState() = 0;
 
-	virtual QList<LogEntry *> logEntries() const;
+	virtual QList<migration::LogEntry *> logEntries() const;
 
 private:
 	void executeDirect(QList<AbstractCommand *> const &list);

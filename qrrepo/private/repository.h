@@ -8,6 +8,7 @@
 #include "classes/logicalObject.h"
 #include "qrRepoGlobal.h"
 #include "serializer.h"
+#include "qrgui/migration/logger.h"
 
 namespace qrRepo {
 namespace details {
@@ -125,9 +126,10 @@ public:
 			, QVariant const &value
 			);
 
-	virtual void addLogEntry(qReal::Id const &diagram, qReal::LogEntry * const entry);
+	virtual void addLogEntry(qReal::Id const &diagram, qReal::migration::LogEntry * const entry);
 	virtual void deleteLogEntry(qReal::Id const &diagram);
 	virtual int version() const;
+
 	virtual void addUsedMetamodel(QString const &name, int const version);
 	virtual int metamodelVersion(QString const &name) const;
 
@@ -136,10 +138,6 @@ private:
 
 	void loadFromDisk();
 	void addChildrenToRootObject();
-
-	bool needNewVersion() const;
-	void createNewVersion();
-	void removeLastVersions(qReal::Id const &diagram);
 
 	qReal::IdList idsOfAllChildrenOf(qReal::Id id) const;
 	QList<Object*> allChildrenOf(qReal::Id id) const;
@@ -153,8 +151,7 @@ private:
 	QString mWorkingFile;
 	Serializer mSerializer;
 
-	QHash<qReal::Id, QList<qReal::LogEntry *> > mLog;
-	int mModelVersion;
+	qReal::migration::Logger mLogger;
 
 	QMap<QString, int> mUsedMetamodels;
 };

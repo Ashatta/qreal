@@ -7,8 +7,13 @@
 
 #include "../../qrkernel/roles.h"
 #include "classes/object.h"
-#include "qrgui/migration/logEntries/logEntry.h"
 #include "valuesSerializer.h"
+
+namespace qReal {
+namespace migration {
+	class LogEntry;
+}
+}
 
 namespace qrRepo {
 namespace details {
@@ -23,10 +28,10 @@ public:
 	void setWorkingFile(QString const &workingFile);
 
 	void removeFromDisk(qReal::Id const &id) const;
-	void saveToDisk(QList<Object *> const &objects, QHash<qReal::Id, QList<qReal::LogEntry *> > const &log
+	void saveToDisk(QList<Object *> const &objects, QHash<qReal::Id, QList<qReal::migration::LogEntry *> > const &log
 			, QMap<QString, int> const &metamodelsVersions) const;
-	void loadFromDisk(QHash<qReal::Id, Object *> &objectsHash, QHash<qReal::Id, QList<qReal::LogEntry *> > &log
-			, int &version, QMap<QString, int> &metamodelsVersions);
+	void loadFromDisk(QHash<qReal::Id, Object *> &objectsHash
+			, QHash<qReal::Id, QList<qReal::migration::LogEntry *> > &log, QMap<QString, int> &metamodelsVersions);
 
 	void decompressFile(QString const &fileName);
 
@@ -36,8 +41,8 @@ private:
 	void loadFromDisk(QString const &currentPath, QHash<qReal::Id, Object *> &objectsHash);
 	void loadModel(QDir const &dir, QHash<qReal::Id, Object *> &objectsHash);
 
-	void saveLog(QHash<qReal::Id, QList<qReal::LogEntry *> > const &log) const;
-	void loadLog(QString const &currentPath, QHash<qReal::Id, QList<qReal::LogEntry *> > &log, int &version) const;
+	void saveLog(QHash<qReal::Id, QList<qReal::migration::LogEntry *> > const &log) const;
+	void loadLog(QString const &currentPath, QHash<qReal::Id, QList<qReal::migration::LogEntry *> > &log) const;
 
 	void saveMetamodelsVersions(QMap<QString, int> const &metamodelsVersions) const;
 	void loadMetamodelsVersions(QString const &currentPath, QMap<QString, int> &metamodelsVersions) const;

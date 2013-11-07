@@ -3,7 +3,9 @@
 #include "../qrkernel/roles.h"
 
 namespace qReal {
+namespace migration {
 	class LogEntry;
+}
 }
 
 namespace qrRepo {
@@ -49,7 +51,7 @@ public:
 	virtual QString workingFile() const = 0;
 
 	/// Add string entry to a log tied to the diagram
-	virtual void addLogEntries(qReal::Id const &diagram, QList<qReal::LogEntry *> const &entries) = 0;
+	virtual void addLogEntries(qReal::Id const &diagram, QList<qReal::migration::LogEntry *> const &entries) = 0;
 
 	/// Delete last log string tied to the diagram
 	virtual void deleteLogEntries(qReal::Id const &diagram, int count) = 0;

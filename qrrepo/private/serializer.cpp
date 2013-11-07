@@ -15,7 +15,7 @@
 #include "folderCompressor.h"
 #include "classes/logicalObject.h"
 #include "classes/graphicalObject.h"
-#include "qrgui/migration/logEntries/versionEntry.h"
+#include "qrgui/migration/logEntries/logEntry.h"
 
 using namespace qrRepo;
 using namespace details;
@@ -45,7 +45,7 @@ void Serializer::setWorkingFile(QString const &workingFile)
 	mWorkingFile = workingFile;
 }
 
-void Serializer::saveToDisk(QList<Object*> const &objects, QHash<Id, QList<LogEntry *> > const &log
+void Serializer::saveToDisk(QList<Object*> const &objects, QHash<Id, QList<migration::LogEntry *> > const &log
 		, QMap<QString, int> const &metamodelsVersions) const
 {
 	Q_ASSERT_X(!mWorkingFile.isEmpty()
@@ -88,7 +88,7 @@ void Serializer::saveToDisk(QList<Object*> const &objects, QHash<Id, QList<LogEn
 	clearDir(mWorkingDir);
 }
 
-void Serializer::loadFromDisk(QHash<qReal::Id, Object*> &objectsHash, QHash<Id, QList<LogEntry *> > &log, int &version
+void Serializer::loadFromDisk(QHash<qReal::Id, Object*> &objectsHash, QHash<Id, QList<migration::LogEntry *> > &log
 		, QMap<QString, int> &metamodelsVersions)
 {
 	clearWorkingDir();
@@ -98,7 +98,7 @@ void Serializer::loadFromDisk(QHash<qReal::Id, Object*> &objectsHash, QHash<Id, 
 
 	QString const currentPath = SettingsManager::value("temp").toString();
 	loadFromDisk(currentPath, objectsHash);
-	loadLog(currentPath, log, version);
+	loadLog(currentPath, log);
 	loadMetamodelsVersions(currentPath, metamodelsVersions);
 }
 
@@ -135,10 +135,9 @@ void Serializer::loadModel(QDir const &dir, QHash<qReal::Id, Object*> &objectsHa
 	}
 }
 
-void Serializer::loadLog(QString const &currentPath, QHash<Id, QList<LogEntry *> > &log, int &version) const
+void Serializer::loadLog(QString const &currentPath, QHash<Id, QList<migration::LogEntry *> > &log) const
 {
 	QDir const dir(currentPath + "/logs");
-	version = 0;
 
 	foreach (QFileInfo const &fileInfo, dir.entryInfoList(QDir::AllEntries | QDir::NoDotAndDotDot)) {
 		if (fileInfo.isFile()) {
@@ -146,17 +145,7 @@ void Serializer::loadLog(QString const &currentPath, QHash<Id, QList<LogEntry *>
 			qReal::Id const id = qReal::Id::loadFromString(strings.first());
 			strings.removeFirst();
 			foreach (QString const &string, strings) {
-				log[id] << LogEntry::loadFromString(string);
-			}
-
-			if (!log[id].empty()) {
-				VersionEntry const * const entry = dynamic_cast<VersionEntry *>(log[id].last());
-				if (entry) {
-					int const lastVersion = entry->version();
-					version = qMax(version, lastVersion);
-				} else {
-					qDebug() << "no version mark at the end of log file";
-				}
+				log[id] << migration::LogEntry::loadFromString(string);
 			}
 		}
 	}
@@ -235,7 +224,7 @@ QString Serializer::createDirectory(Id const &id, bool logical) const
 	return dirName + "/" + partsList[partsList.size() - 1];
 }
 
-void Serializer::saveLog(QHash<Id, QList<LogEntry *> > const &log) const
+void Serializer::saveLog(QHash<Id, QList<migration::LogEntry *> > const &log) const
 {
 	foreach (qReal::Id const &id, log.keys()) {
 		QStringList const partsList = id.toString().split('/');
@@ -247,7 +236,7 @@ void Serializer::saveLog(QHash<Id, QList<LogEntry *> > const &log) const
 
 		OutFile out(mWorkingDir + "/logs/" + partsList[partsList.size() - 1]);
 		out() << id.toString() << "\n";
-		foreach (LogEntry const * const entry, log[id]) {
+		foreach (migration::LogEntry const * const entry, log[id]) {
 			QString const string = entry->toString();
 			if (!string.isEmpty()) {
 				out() << string << "\n";

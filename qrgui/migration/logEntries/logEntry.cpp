@@ -2,7 +2,7 @@
 #include "qrgui/migration/logEntries/renameEntry.h"
 #include "qrgui/migration/logEntries/versionEntry.h"
 
-using namespace qReal;
+using namespace qReal::migration;
 
 QString LogEntry::toString() const
 {

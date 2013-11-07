@@ -3,7 +3,6 @@
 #include <QtCore/QDebug>
 
 #include "../../qrkernel/exception/exception.h"
-#include "qrgui/migration/logEntries/versionEntry.h"
 #include "singleXmlSerializer.h"
 
 using namespace qReal;
@@ -13,7 +12,6 @@ using namespace qrRepo::details;
 Repository::Repository(QString const &workingFile)
 		: mWorkingFile(workingFile)
 		, mSerializer(workingFile)
-		, mModelVersion(1)
 {
 	init();
 	loadFromDisk();
@@ -32,12 +30,6 @@ Repository::~Repository()
 
 	foreach (Id const &id, mObjects.keys()) {
 		delete mObjects[id];
-	}
-
-	foreach (Id const &id, mLog.keys()) {
-		foreach (LogEntry *entry, mLog[id]) {
-			delete entry;
-		}
 	}
 }
 
@@ -351,8 +343,9 @@ void Repository::removeTemporaryRemovedLinks(Id const &id)
 
 void Repository::loadFromDisk()
 {
-	mSerializer.loadFromDisk(mObjects, mLog, mModelVersion, mUsedMetamodels);
-	mModelVersion++;
+	QHash<Id, QList<migration::LogEntry *> > log;
+	mSerializer.loadFromDisk(mObjects, log, mUsedMetamodels);
+	mLogger.reset(log);
 	addChildrenToRootObject();
 }
 
@@ -413,8 +406,8 @@ bool Repository::exist(const Id &id) const
 
 void Repository::saveAll()
 {
-	createNewVersion();
-	mSerializer.saveToDisk(mObjects.values(), mLog, mUsedMetamodels);
+	mLogger.createNewVersion();
+	mSerializer.saveToDisk(mObjects.values(), mLogger.log(), mUsedMetamodels);
 }
 
 void Repository::save(IdList const &list)
@@ -423,8 +416,8 @@ void Repository::save(IdList const &list)
 	foreach(Id const &id, list)
 		toSave.append(allChildrenOf(id));
 
-	createNewVersion();
-	mSerializer.saveToDisk(toSave, mLog, mUsedMetamodels);
+	mLogger.createNewVersion();
+	mSerializer.saveToDisk(toSave, mLogger.log(), mUsedMetamodels);
 }
 
 void Repository::saveWithLogicalId(qReal::IdList const &list)
@@ -433,13 +426,13 @@ void Repository::saveWithLogicalId(qReal::IdList const &list)
 	foreach(Id const &id, list)
 		toSave.append(allChildrenOfWithLogicalId(id));
 
-	mSerializer.saveToDisk(toSave, mLog, mUsedMetamodels);
+	mSerializer.saveToDisk(toSave, mLogger.log(), mUsedMetamodels);
 }
 
 void Repository::saveDiagramsById(QHash<QString, IdList> const &diagramIds)
 {
 	QString const currentWorkingFile = mWorkingFile;
-	createNewVersion();
+	mLogger.createNewVersion();
 
 	foreach (QString const &savePath, diagramIds.keys()) {
 		qReal::IdList diagrams = diagramIds[savePath];
@@ -510,7 +503,7 @@ void Repository::exterminate()
 {
 	printDebug();
 	clearRepo();
-	mSerializer.saveToDisk(mObjects.values(), mLog, mUsedMetamodels);
+	mSerializer.saveToDisk(mObjects.values(), mLogger.log(), mUsedMetamodels);
 	init();
 	printDebug();
 }
@@ -526,8 +519,7 @@ void Repository::open(QString const &saveFile)
 void Repository::clearRepo()
 {
 	mObjects.clear();
-	mLog.clear();
-	mModelVersion = 1;
+	mLogger.clear();
 	mUsedMetamodels.clear();
 }
 
@@ -601,70 +593,19 @@ void Repository::setGraphicalPartProperty(
 	graphicalObject->setGraphicalPartProperty(partIndex, propertyName, value);
 }
 
-void Repository::addLogEntry(qReal::Id const &diagram, LogEntry * const entry)
+void Repository::addLogEntry(qReal::Id const &diagram, migration::LogEntry * const entry)
 {
-	mLog[diagram] << entry;
+	mLogger.addLogEntry(diagram, entry);
 }
 
 void Repository::deleteLogEntry(qReal::Id const &diagram)
 {
-	removeLastVersions(diagram);
-	delete mLog[diagram].last();
-	mLog[diagram].removeLast();
-}
-
-void Repository::createNewVersion()
-{
-	if (needNewVersion()) {
-		foreach (qReal::Id const &id, mLog.keys()) {
-			mLog[id] << new VersionEntry(mModelVersion);
-		}
-
-		mModelVersion++;
-	}
-}
-
-bool Repository::needNewVersion() const
-{
-	foreach (qReal::Id const &id, mLog.keys()) {
-		if (mLog[id].empty() || !dynamic_cast<VersionEntry *>(mLog[id].last())) {
-			return true;
-		}
-	}
-
-	return false;
-}
-
-void Repository::removeLastVersions(Id const &diagram)
-{
-	int firstVersionToRemove = mModelVersion;
-	for (QList<LogEntry *>::iterator it = mLog[diagram].end(); it != mLog[diagram].begin();) {
-		--it;
-		VersionEntry * const entry = dynamic_cast<VersionEntry *>(*it);
-		if (!entry) {
-			break;
-		}
-
-		firstVersionToRemove = entry->version();
-	}
-
-	mModelVersion = firstVersionToRemove;
-
-	foreach (Id const &id, mLog.keys()) {
-		for (QList<LogEntry *>::iterator it = mLog[id].end(); it != mLog[id].begin();) {
-			--it;
-			VersionEntry const * const entry = dynamic_cast<VersionEntry *>(*it);
-			if (entry && entry->version() >= firstVersionToRemove) {
-				delete *it;
-				it = mLog[id].erase(it);
-			}
-		}
-	}
+	mLogger.deleteLogEntry(diagram);
 }
 
 int Repository::version() const
 {
-	return mModelVersion;
+	return mLogger.version();
 }
 
 void Repository::addUsedMetamodel(QString const &name, int const version)

@@ -1,7 +1,6 @@
 #include "migration/migrator.h"
 
-using namespace migration;
-using namespace qReal;
+using namespace qReal::migration;
 
 Migrator::Migrator(EditorManagerInterface const &editorManager)
 	: mEditorManager(editorManager)
