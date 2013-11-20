@@ -28,6 +28,7 @@ public:
 	void clear();
 	void reset(QHash<qReal::Id, QList<qReal::migration::LogEntry *> > const &log);
 	QHash<qReal::Id, QList<qReal::migration::LogEntry *> > log() const;
+	QHash<qReal::Id, QList<qReal::migration::LogEntry *> > logBetween(int startVersion, int endVersion) const;
 
 	void rollBackTo(int version);
 

@@ -164,6 +164,8 @@ public:
 	// Override
 	virtual void rollBackTo(int version);
 
+	virtual QHash<qReal::Id, QList<qReal::migration::LogEntry *> > logBetween(int startVersion, int endVersion) const;
+
 	virtual int version() const;
 
 	virtual void addUsedMetamodel(QString const &name, int const version);

@@ -7,6 +7,11 @@ Migrator::Migrator(EditorManagerInterface const &editorManager)
 {
 }
 
+Migrator::~Migrator()
+{
+	clear();
+}
+
 void Migrator::migrate(models::Models *model, QStringList const &metamodels)
 {
 	clear();

@@ -130,6 +130,7 @@ public:
 	virtual void deleteLogEntry(qReal::Id const &diagram);
 	virtual void rollBackTo(int version);
 	virtual int version() const;
+	virtual QHash<qReal::Id, QList<qReal::migration::LogEntry *> > logBetween(int startVersion, int endVersion) const;
 
 	virtual void addUsedMetamodel(QString const &name, int const version);
 	virtual int metamodelVersion(QString const &name) const;

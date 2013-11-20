@@ -607,6 +607,11 @@ int RepoApi::version() const
 	return mRepository.version();
 }
 
+QHash<qReal::Id, QList<qReal::migration::LogEntry *> > RepoApi::logBetween(int startVersion, int endVersion) const
+{
+	return mRepository.logBetween(startVersion, endVersion);
+}
+
 void RepoApi::addUsedMetamodel(QString const &name, int const version)
 {
 	mRepository.addUsedMetamodel(name, version);

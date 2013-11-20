@@ -58,6 +58,9 @@ public:
 
 	/// Rolls a repository to a given version
 	virtual void rollBackTo(int version) = 0;
+
+	/// Returns all log entries between given two versions of model
+	virtual QHash<qReal::Id, QList<qReal::migration::LogEntry *> > logBetween(int startVersion, int endVersion) const = 0;
 };
 
 }

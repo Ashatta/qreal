@@ -11,6 +11,7 @@ class Migrator
 {
 public:
 	Migrator(qReal::EditorManagerInterface const &editorManager);
+	~Migrator();
 
 	void migrate(qReal::models::Models *model, QStringList const &metamodels);
 
@@ -22,6 +23,8 @@ private:
 
 	QMap<QString, qrRepo::RepoApi *> mOldMetamodels;
 	QMap<QString, qrRepo::RepoApi *> mNewMetamodels;
+
+	QMap<QString, QHash<qReal::Id, QList<LogEntry *> > > mLogs;
 };
 
 }

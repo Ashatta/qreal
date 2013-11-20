@@ -55,7 +55,7 @@ void Logger::reset(QHash<qReal::Id, QList<LogEntry *> > const &log)
 		foreach (LogEntry * const entry, log[id]) {
 			VersionEntry * const versionEntry = dynamic_cast<VersionEntry *>(entry);
 			if (versionEntry) {
-				version++;
+				version = versionEntry->version();
 			}
 		}
 
@@ -68,6 +68,52 @@ void Logger::reset(QHash<qReal::Id, QList<LogEntry *> > const &log)
 QHash<qReal::Id, QList<qReal::migration::LogEntry *> > Logger::log() const
 {
 	return mLog;
+}
+
+QHash<qReal::Id, QList<qReal::migration::LogEntry *> > Logger::logBetween(int startVersion, int endVersion) const
+{
+	QHash<qReal::Id, QList<qReal::migration::LogEntry *> > result;
+
+	if (startVersion == endVersion) {
+		return result;
+	}
+
+	if (startVersion > endVersion) {
+		qSwap(startVersion, endVersion);
+	}
+
+	foreach (qReal::Id const &id, mLog.keys()) {
+		QList<LogEntry *>::const_iterator startEntry = mLog[id].begin();
+		for (QList<LogEntry *>::const_iterator it = mLog[id].begin(); it != mLog[id].end(); it++) {
+			VersionEntry * const versionEntry = dynamic_cast<VersionEntry *>(*it);
+			if (versionEntry) {
+				if (versionEntry->version() >= startVersion) {
+					startEntry = it;
+				}
+
+				break;
+			}
+		}
+
+		QList<LogEntry *>::const_iterator endEntry = mLog[id].end();
+		for (QList<LogEntry *>::const_iterator it = mLog[id].end(); it != mLog[id].begin();) {
+			it--;
+			VersionEntry * const versionEntry = dynamic_cast<VersionEntry *>(*it);
+			if (versionEntry) {
+				if (versionEntry->version() <= endVersion) {
+					endEntry = it;
+				}
+
+				break;
+			}
+		}
+
+		for (QList<LogEntry *>::const_iterator it = startEntry; it != endEntry; it++) {
+			result[id] << *it;
+		}
+	}
+
+	return result;
 }
 
 void Logger::createNewVersion()
