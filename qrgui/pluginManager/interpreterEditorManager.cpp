@@ -41,7 +41,7 @@ Id InterpreterEditorManager::element(Id const &id, qrRepo::RepoApi const * const
 		}
 	}
 
-	return Id();
+	return Id::rootId();
 }
 
 Id InterpreterEditorManager::diagramOrElement(Id const &id, qrRepo::RepoApi const * const repo, Id const &editor) const
@@ -59,7 +59,7 @@ Id InterpreterEditorManager::diagramOrElement(Id const &id, qrRepo::RepoApi cons
 		}
 	}
 
-	return Id();
+	return Id::rootId();
 }
 
 QPair<qrRepo::RepoApi*, Id> InterpreterEditorManager::repoAndMetaId(Id const &id) const
@@ -76,7 +76,7 @@ QPair<qrRepo::RepoApi*, Id> InterpreterEditorManager::repoAndMetaId(Id const &id
 		}
 	}
 
-	return QPair<qrRepo::RepoApi*, Id>();
+	return QPair<qrRepo::RepoApi *, Id>(NULL, Id::rootId());
 }
 
 IdList InterpreterEditorManager::editors() const
@@ -578,7 +578,7 @@ void InterpreterEditorManager::canMigrateMetamodels(QStringList &canMigrate, QSt
 void InterpreterEditorManager::checkMigrationPossibility(QStringList &canMigrate, QStringList &cannotMigrate
 		, qrRepo::CommonRepoApi const &api, qReal::Id const &id) const
 {
-	if (id != Id::rootId()) {
+	if (id != Id::rootId() && needMigrate(api, id)) {
 		if (editorVersion(id) < api.metamodelVersion(id.editor())) {
 			cannotMigrate << id.editor();
 		} else {
@@ -597,8 +597,16 @@ bool InterpreterEditorManager::needMigrate(qrRepo::CommonRepoApi const &api, Id 
 		return true;
 	}
 
-	foreach (QString const &property, propertyNames(id.type())) {
-		if (!api.hasProperty(id, property)) {
+	QStringList standardProperties;
+	standardProperties << "links" << "from" << "to" << "position" << "configuration" << "fromPort" << "toPort"
+			<< "name" << "childrenOrder" << "expanded" << "folded" << "linkShape" << "isView"
+			<< "incomingExplosions" << "outgoingExplosion";
+
+	QMapIterator<QString, QVariant> properties = api.propertiesIterator(id);
+	while (properties.hasNext()) {
+		properties.next();
+		if (!propertyNames(id.type()).contains(properties.key())
+				&& !standardProperties.contains(properties.key())) {
 			return true;
 		}
 	}
@@ -1086,4 +1094,36 @@ QSize InterpreterEditorManager::iconSize(Id const &id) const
 {
 	Q_UNUSED(id);
 	return QSize();
+}
+
+void InterpreterEditorManager::addPlugin(QString const &name, qrRepo::RepoApi *repo)
+{
+	mEditorRepoApi[name] = repo;
+}
+
+void InterpreterEditorManager::ensureModelCorrectness(qrRepo::LogicalRepoApi &repoApi, qReal::Id const &id)
+{
+	if (id != Id::rootId()) {
+		if (!hasElement(id.type())) {
+			repoApi.removeElement(id);
+		}
+
+		QStringList standardProperties;
+		standardProperties << "links" << "from" << "to" << "position" << "configuration" << "fromPort" << "toPort"
+				<< "name" << "childrenOrder" << "expanded" << "folded" << "linkShape" << "isView"
+				<< "incomingExplosions" << "outgoingExplosion";
+
+		QMapIterator<QString, QVariant> properties = repoApi.propertiesIterator(id);
+		while (properties.hasNext()) {
+			properties.next();
+			if (!propertyNames(id.type()).contains(properties.key())
+					&& !standardProperties.contains(properties.key())) {
+				repoApi.removeProperty(id, properties.key());
+			}
+		}
+	}
+
+	foreach (qReal::Id const &child, repoApi.children(id)) {
+		ensureModelCorrectness(repoApi, child);
+	}
 }

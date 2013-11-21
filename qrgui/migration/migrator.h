@@ -18,6 +18,8 @@ public:
 private:
 	void clear();
 
+	void ensureLoadWithOldMetamodels();
+
 	qReal::EditorManagerInterface const &mEditorManager;
 	qReal::models::Models *mModel; // Doesn't take ownership
 

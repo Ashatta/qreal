@@ -111,13 +111,16 @@ public:
 	virtual void saveMetamodel(QString const &newMetamodelFileName);
 	virtual QString saveMetamodelFilePath() const;
 	virtual QStringList paletteGroups(Id const &editor, Id const &diagram) const;
-	virtual QStringList paletteGroupList(Id const &editor,Id const &diagram, QString const &group) const;
+	virtual QStringList paletteGroupList(Id const &editor, Id const &diagram, QString const &group) const;
 	virtual QString paletteGroupDescription(Id const &editor, const Id &diagram, const QString &group) const;
 	virtual QStringList referenceProperties(Id const &id) const;
 	virtual IdList groups(Id const &diagram);
 	virtual Pattern getPatternByName (QString const &str) const;
 	virtual QList<QString> getPatternNames() const;
 	virtual QSize iconSize(Id const &id) const;
+
+	void addPlugin(QString const &name, qrRepo::RepoApi *repo);
+	void ensureModelCorrectness(qrRepo::LogicalRepoApi &repoApi, qReal::Id const &id = qReal::Id::rootId());
 
 private:
 	class CheckPropertyForParent;

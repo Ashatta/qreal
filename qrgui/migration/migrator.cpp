@@ -1,5 +1,7 @@
 #include "migration/migrator.h"
 
+#include "qrgui/pluginManager/interpreterEditorManager.h"
+
 using namespace qReal::migration;
 
 Migrator::Migrator(EditorManagerInterface const &editorManager)
@@ -23,6 +25,8 @@ void Migrator::migrate(models::Models *model, QStringList const &metamodels)
 		mOldMetamodels[editor] = mEditorManager.metamodel(editor);
 		mOldMetamodels[editor]->rollBackTo(model->logicalRepoApi().metamodelVersion(editor));
 	}
+
+	ensureLoadWithOldMetamodels();
 }
 
 void Migrator::clear()
@@ -38,4 +42,14 @@ void Migrator::clear()
 	}
 
 	mOldMetamodels.clear();
+}
+
+void Migrator::ensureLoadWithOldMetamodels()
+{
+	InterpreterEditorManager interpreter("");
+	foreach (QString const &editor, mOldMetamodels.keys()) {
+		interpreter.addPlugin(editor, mOldMetamodels[editor]);
+	}
+
+	interpreter.ensureModelCorrectness(mModel->mutableLogicalRepoApi());
 }
