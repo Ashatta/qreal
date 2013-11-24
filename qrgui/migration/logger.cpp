@@ -87,11 +87,12 @@ QHash<qReal::Id, QList<qReal::migration::LogEntry *> > Logger::logBetween(int st
 		for (QList<LogEntry *>::const_iterator it = mLog[id].begin(); it != mLog[id].end(); it++) {
 			VersionEntry * const versionEntry = dynamic_cast<VersionEntry *>(*it);
 			if (versionEntry) {
-				if (versionEntry->version() >= startVersion) {
+				if (versionEntry->version() == startVersion) {
 					startEntry = it;
+					break;
+				} else if (versionEntry->version() > startVersion) {
+					break;
 				}
-
-				break;
 			}
 		}
 
@@ -100,16 +101,19 @@ QHash<qReal::Id, QList<qReal::migration::LogEntry *> > Logger::logBetween(int st
 			it--;
 			VersionEntry * const versionEntry = dynamic_cast<VersionEntry *>(*it);
 			if (versionEntry) {
-				if (versionEntry->version() <= endVersion) {
+				if (versionEntry->version() == endVersion) {
 					endEntry = it;
+					break;
+				} else if (versionEntry->version() < endVersion) {
+					break;
 				}
-
-				break;
 			}
 		}
 
 		for (QList<LogEntry *>::const_iterator it = startEntry; it != endEntry; it++) {
-			result[id] << *it;
+			if (!dynamic_cast<VersionEntry *>(*it)) {
+				result[id] << *it;
+			}
 		}
 	}
 

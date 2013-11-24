@@ -18,7 +18,9 @@ public:
 private:
 	void clear();
 
+	void initMetamodelsRepos(QStringList const &metamodels);
 	void ensureLoadWithOldMetamodels();
+	QHash<qReal::Id, QList<qReal::migration::LogEntry *> > logBetweenVersions() const;
 
 	qReal::EditorManagerInterface const &mEditorManager;
 	qReal::models::Models *mModel; // Doesn't take ownership

@@ -4,6 +4,7 @@ HEADERS += \
 	$$PWD/logEntries/versionEntry.h \
 	$$PWD/migrator.h \
 	$$PWD/logger.h \
+	$$PWD/analyzer.h
 
 SOURCES += \
 	$$PWD/logEntries/logEntry.cpp \
@@ -11,3 +12,4 @@ SOURCES += \
 	$$PWD/logEntries/versionEntry.cpp \
 	$$PWD/migrator.cpp \
 	$$PWD/logger.cpp \
+	$$PWD/analyzer.cpp
