@@ -32,7 +32,7 @@ LogEntry * LogEntry::loadFromString(QString const &string)
 
 		return new VersionEntry(version);
 	} else if (components[0] == "rename") {
-		if (components.size() != 3) {
+		if (components.size() != 4) {
 			qDebug() << "incorrect rename entry";
 			return new LogEntry();
 		}
@@ -43,7 +43,8 @@ LogEntry * LogEntry::loadFromString(QString const &string)
 			return new LogEntry();
 		}
 
-		return new RenameEntry(Id::loadFromString(components[1]), names[0], names[1]);
+		return new RenameEntry(Id::loadFromString(components[1]), Id::loadFromString(components[3].split("=")[1])
+				, names[0], names[1]);
 	} else {
 		qDebug() << "unsupported log entry type";
 		return new LogEntry();

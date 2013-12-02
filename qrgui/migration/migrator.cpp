@@ -25,6 +25,8 @@ void Migrator::migrate(models::Models *model, QStringList const &metamodels)
 	ensureLoadWithOldMetamodels();
 
 	Analyzer analyzer(logBetweenVersions());
+
+	analyzer.analyze();
 }
 
 void Migrator::clear()
