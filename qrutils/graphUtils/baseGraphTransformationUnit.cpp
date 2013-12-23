@@ -341,8 +341,7 @@ bool BaseGraphTransformationUnit::compareElements(Id const &first, Id const &sec
 	return compareElementTypesAndProperties(first, second);
 }
 
-bool BaseGraphTransformationUnit::compareElementTypesAndProperties(Id const &first
-		, Id const &second) const
+bool BaseGraphTransformationUnit::compareElementTypesAndProperties(Id const &first, Id const &second) const
 {
 	if (first.element() == second.element() && first.diagram() == second.diagram()) {
 		QHash<QString, QVariant> secondProperties = properties(second);

@@ -134,7 +134,7 @@ bool ProjectManager::open(QString const &fileName)
 	}
 
 	if (!canMigrate.empty()) {
-		migration::Migrator migrator(mMainWindow->editorManager());
+		migration::Migrator migrator(mMainWindow->editorManager(), *mMainWindow);
 		migrator.migrate(mMainWindow->models(), canMigrate);
 	}
 

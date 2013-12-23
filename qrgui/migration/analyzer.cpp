@@ -55,3 +55,13 @@ void Analyzer::handleRenames()
 		}
 	}
 }
+
+QList<qReal::migration::Transformation *> Analyzer::transformations() const
+{
+	QList<Transformation *> result;
+	foreach (QList<Transformation *> const &list, mTransformations.values()) {
+		result.append(list);
+	}
+
+	return result;
+}

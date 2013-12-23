@@ -2,11 +2,13 @@
 
 #include "qrgui/pluginManager/interpreterEditorManager.h"
 #include "migration/analyzer.h"
+#include "migration/transformations/transformationFinder.h"
 
 using namespace qReal::migration;
 
-Migrator::Migrator(EditorManagerInterface const &editorManager)
-	: mEditorManager(editorManager)
+Migrator::Migrator(EditorManagerInterface const &editorManager
+		, gui::MainWindowInterpretersInterface &interpretersInterface)
+	: mEditorManager(editorManager), mInterpretersInterface(interpretersInterface)
 {
 }
 
@@ -27,6 +29,13 @@ void Migrator::migrate(models::Models *model, QStringList const &metamodels)
 	Analyzer analyzer(logBetweenVersions());
 
 	analyzer.analyze();
+
+	TransformationFinder transformer(model->logicalModelAssistApi(), model->graphicalModelAssistApi()
+			, mInterpretersInterface);
+
+	foreach (Transformation *transformation, analyzer.transformations()) {
+		transformer.apply(transformation);
+	}
 }
 
 void Migrator::clear()

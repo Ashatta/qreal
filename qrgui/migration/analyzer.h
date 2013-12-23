@@ -14,6 +14,8 @@ public:
 
 	void analyze();
 
+	QList<qReal::migration::Transformation *> transformations() const;
+
 private:
 	void handleRenames();
 

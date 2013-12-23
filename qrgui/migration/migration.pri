@@ -8,7 +8,8 @@ HEADERS += \
 	$$PWD/transformations/transformation.h \
 	$$PWD/transformations/renameNodeTransformation.h \
 	$$PWD/transformations/renamePropertyTransformation.h \
-	$$PWD/transformations/renameEdgeTransformation.h
+	$$PWD/transformations/renameEdgeTransformation.h \
+	$$PWD/transformations/transformationFinder.h
 
 SOURCES += \
 	$$PWD/logEntries/logEntry.cpp \
@@ -20,4 +21,5 @@ SOURCES += \
 	$$PWD/transformations/transformation.cpp \
 	$$PWD/transformations/renameNodeTransformation.cpp \
 	$$PWD/transformations/renamePropertyTransformation.cpp \
-	$$PWD/transformations/renameEdgeTransformation.cpp
+	$$PWD/transformations/renameEdgeTransformation.cpp \
+	$$PWD/transformations/transformationFinder.cpp
