@@ -2,8 +2,11 @@
 
 using namespace qReal::migration;
 
-RenamePropertyTransformation::RenamePropertyTransformation(qReal::Id const &parent, QString const &oldName
+RenamePropertyTransformation::RenamePropertyTransformation(QString const &parent, QString const &oldName
 		, QString const &newName)
-	: mParent(parent), mOldName(oldName), mNewName(newName)
 {
+	mOldElementType = parent;
+	mNewElementType = parent;
+
+	mPropertyMap[oldName] = newName;
 }

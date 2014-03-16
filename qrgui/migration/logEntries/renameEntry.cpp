@@ -2,14 +2,16 @@
 
 using namespace qReal::migration;
 
-RenameEntry::RenameEntry(qReal::Id const &id, qReal::Id const &parent, QString const &oldName, QString const &newName)
-	: mId(id), mParentId(parent), mOldName(oldName), mNewName(newName)
+RenameEntry::RenameEntry(qReal::Id const &id, Id const &parent, QString const &parentName, QString const &oldName
+		, QString const &newName)
+	: mId(id), mParent(parent), mParentName(parentName), mOldName(oldName), mNewName(newName)
 {
 }
 
 QString RenameEntry::toString() const
 {
-	return "rename@" + mId.toString() + "@" + mOldName + ">" + mNewName + "@parent=" + mParentId.toString();
+	return "rename@" + mId.toString() + "@" + mOldName + ">" + mNewName + "@parent=" + mParent.toString()
+			+ "@parentName=" + mParentName;
 }
 
 void RenameEntry::reverse(qrRepo::details::Repository *repo) const
@@ -24,7 +26,12 @@ qReal::Id RenameEntry::id() const
 
 qReal::Id RenameEntry::parent() const
 {
-	return mParentId;
+	return mParent;
+}
+
+QString RenameEntry::parentName() const
+{
+	return mParentName;
 }
 
 QString RenameEntry::oldName() const

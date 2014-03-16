@@ -3,6 +3,8 @@
 using namespace qReal::migration;
 
 RenameEdgeTransformation::RenameEdgeTransformation(QString const &oldName, QString const &newName)
-	: mOldName(oldName), mNewName(newName)
 {
+	mOldElementType = oldName;
+	mNewElementType = newName;
+
 }

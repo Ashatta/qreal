@@ -27,6 +27,14 @@ void Migrator::migrate(models::Models *model, QStringList const &metamodels)
 	Analyzer analyzer(logBetweenVersions());
 
 	analyzer.analyze();
+
+	foreach (Transformation *transform, analyzer.transformations()) {
+		transform->apply(mModel);
+	}
+
+	foreach (QString const &metamodel, metamodels) {
+		mModel->mutableLogicalRepoApi().addUsedMetamodel(metamodel, mNewMetamodels[metamodel]->version() - 1);
+	}
 }
 
 void Migrator::clear()

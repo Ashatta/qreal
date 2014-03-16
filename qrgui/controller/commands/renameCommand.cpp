@@ -42,9 +42,7 @@ void RenameCommand::initExplosions(models::Exploser * const exploser)
 	if (!exploser) {
 		return;
 	}
-	GraphicalModelAssistInterface *graphicalModel = dynamic_cast<GraphicalModelAssistInterface *>(&mModel);
-	Id const logicalId = graphicalModel ? graphicalModel->logicalId(mId) : mId;
-	addPostAction(exploser->renameCommands(logicalId, mNewName));
+	addPostAction(exploser->renameCommands(logicalId(mId), mNewName));
 }
 
 bool RenameCommand::rename(QString const &name)
@@ -56,6 +54,13 @@ bool RenameCommand::rename(QString const &name)
 QList<qReal::migration::LogEntry *> RenameCommand::logEntries() const
 {
 	QList<migration::LogEntry *> result;
-	result << new migration::RenameEntry(mId, mModel.idByIndex(mModel.indexById(mId).parent()), mOldName, mNewName);
+	Id const parentId = logicalId(mModel.idByIndex(mModel.indexById(mId).parent()));
+	result << new migration::RenameEntry(logicalId(mId), parentId, mModel.name(parentId), mOldName, mNewName);
 	return result;
+}
+
+qReal::Id RenameCommand::logicalId(Id const &id) const
+{
+	GraphicalModelAssistInterface *graphicalModel = dynamic_cast<GraphicalModelAssistInterface *>(&mModel);
+	return (graphicalModel ? graphicalModel->logicalId(id) : id);
 }

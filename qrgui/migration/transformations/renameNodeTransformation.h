@@ -9,10 +9,6 @@ class RenameNodeTransformation : public Transformation
 {
 public:
 	RenameNodeTransformation(QString const &oldName, QString const &newName);
-
-private:
-	QString mOldName;
-	QString mNewName;
 };
 
 }

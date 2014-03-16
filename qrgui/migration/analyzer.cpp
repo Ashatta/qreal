@@ -29,29 +29,69 @@ void Analyzer::analyze()
 void Analyzer::handleRenames()
 {
 	foreach (qReal::Id const &id, mLog.keys()) {
-		QHash<qReal::Id, QList<qReal::migration::RenameEntry *> > renames;
-		foreach (LogEntry * const entry, mLog[id]) {
-			RenameEntry * const renameEntry = dynamic_cast<RenameEntry *>(entry);
-			if (renameEntry) {
-				if (renameEntry->oldName() != renameEntry->newName()) {
-					renames[renameEntry->id()] << renameEntry;
+		QHash<qReal::Id, QList<qReal::migration::RenameEntry *> > elemRenames;
+		QHash<qReal::Id, QList<qReal::migration::RenameEntry *> > propRenames;
+		initRenames(id, elemRenames, propRenames);
+
+		addElementRenames(id, elemRenames);
+		addPropertyRenames(id, elemRenames, propRenames);
+	}
+}
+
+void Analyzer::initRenames(qReal::Id const &diagram
+		, QHash<Id, QList<qReal::migration::RenameEntry *> > &elemRenames
+		, QHash<Id, QList<qReal::migration::RenameEntry *> > &propRenames)
+{
+	foreach (LogEntry * const entry, mLog[diagram]) {
+		RenameEntry * const renameEntry = dynamic_cast<RenameEntry *>(entry);
+		if (renameEntry) {
+			if (renameEntry->oldName() != renameEntry->newName()) {
+				Id const elemId = renameEntry->id();
+				if (elemId.element() == "MetaEntity_Attribute") {
+					propRenames[elemId] << renameEntry;
+				} else {
+					elemRenames[elemId] << renameEntry;
 				}
-
-				mLog[id].removeAll(entry);
 			}
-		}
 
-		foreach (qReal::Id const &elemId, renames.keys()) {
-			if (elemId.element() == "MetaEntityNode") {
-				mTransformations[id] << new RenameNodeTransformation(renames[elemId].first()->oldName()
-						, renames[elemId].last()->newName());
-			} else if (elemId.element() == "MetaEntityEdge") {
-				mTransformations[id] << new RenameEdgeTransformation(renames[elemId].first()->oldName()
-						, renames[elemId].last()->newName());
-			} else if (elemId.element() == "MetaEntity_Attribute") {
-				mTransformations[id] << new RenamePropertyTransformation(renames[elemId].first()->parent()
-						, renames[elemId].first()->oldName(), renames[elemId].last()->newName());
-			}
+			mLog[diagram].removeAll(entry);
 		}
 	}
+}
+
+void Analyzer::addElementRenames(qReal::Id const &diagram
+		, QHash<qReal::Id, QList<qReal::migration::RenameEntry *> > const &elemRenames)
+{
+	foreach (qReal::Id const &elemId, elemRenames.keys()) {
+		if (elemId.element() == "MetaEntityNode") {
+			mTransformations[diagram] << new RenameNodeTransformation(elemRenames[elemId].first()->oldName()
+					, elemRenames[elemId].last()->newName());
+		} else if (elemId.element() == "MetaEntityEdge") {
+			mTransformations[diagram] << new RenameEdgeTransformation(elemRenames[elemId].first()->oldName()
+					, elemRenames[elemId].last()->newName());
+		}
+	}
+}
+
+void Analyzer::addPropertyRenames(qReal::Id const &diagram
+		, QHash<Id, QList<qReal::migration::RenameEntry *> > const &elemRenames
+		, QHash<Id, QList<qReal::migration::RenameEntry *> > const &propRenames)
+{
+	foreach (qReal::Id const &propId, propRenames.keys()) {
+		qReal::Id const parent = propRenames[propId].first()->parent();
+		QString const parentName = elemRenames.contains(parent) ? elemRenames[parent].last()->newName()
+				: propRenames[propId].first()->parentName();
+		mTransformations[diagram] << new RenamePropertyTransformation(parentName, propRenames[propId].first()->oldName()
+				, propRenames[propId].last()->newName());
+	}
+}
+
+QList<qReal::migration::Transformation *> Analyzer::transformations() const
+{
+	QList<Transformation *> result;
+	foreach (QList<Transformation *> const &list, mTransformations.values()) {
+		result.append(list);
+	}
+
+	return result;
 }

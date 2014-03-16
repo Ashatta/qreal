@@ -125,6 +125,7 @@ bool ProjectManager::open(QString const &fileName)
 	QStringList cannotMigrate;
 	mMainWindow->editorManager().canMigrateMetamodels(canMigrate, cannotMigrate
 			, mMainWindow->models()->logicalRepoApi(), mMainWindow->models()->graphicalRepoApi());
+	cannotMigrate.removeDuplicates();
 
 	if (!cannotMigrate.empty()) {
 		QMessageBox::information(mMainWindow, tr("Outdated plugins")

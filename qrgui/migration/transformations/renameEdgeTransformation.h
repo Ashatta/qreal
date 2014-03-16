@@ -9,10 +9,6 @@ class RenameEdgeTransformation : public Transformation
 {
 public:
 	RenameEdgeTransformation(QString const &oldName, QString const &newName);
-
-private:
-	QString mOldName;
-	QString mNewName;
 };
 
 }

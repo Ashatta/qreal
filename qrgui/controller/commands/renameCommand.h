@@ -31,6 +31,7 @@ private:
 	void initExplosions(models::Exploser * const exploser);
 
 	bool rename(QString const &name);
+	Id logicalId(Id const &id) const;
 
 	details::ModelsAssistInterface &mModel;
 	Id const mId;

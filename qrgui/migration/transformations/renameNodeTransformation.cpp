@@ -3,6 +3,7 @@
 using namespace qReal::migration;
 
 RenameNodeTransformation::RenameNodeTransformation(QString const &oldName, QString const &newName)
-	: mOldName(oldName), mNewName(newName)
 {
+	mOldElementType = oldName;
+	mNewElementType = newName;
 }
