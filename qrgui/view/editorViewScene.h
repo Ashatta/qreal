@@ -118,6 +118,7 @@ public:
 public slots:
 	qReal::Id createElement(const QString &type);
 
+	void cut();
 	void copy();
 	void paste(bool logicalCopy);
 
@@ -154,8 +155,6 @@ protected:
 	virtual void drawBackground(QPainter *painter, QRectF const &rect);
 
 private slots:
-	void changePropertiesActionTriggered();
-	void changeAppearanceActionTriggered();
 	void printElementsOfRootDiagram();
 	void drawIdealGesture();
 	void initMouseMoveManager();

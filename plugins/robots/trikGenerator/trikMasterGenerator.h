@@ -16,18 +16,8 @@ public:
 			, Id const &diagramId);
 
 protected:
-	virtual GeneratorCustomizer *createCustomizer();
-	virtual QString targetPath();
-
-	virtual void beforeGeneration();
-
-private:
-	QString currentProgramName() const;
-	void createProjectDir(QString const &projectDir);
-
-	int mCurInitialNodeNumber;
-	QString mProjectName;
-	QString mProjectDir;
+	GeneratorCustomizer *createCustomizer() override;
+	QString targetPath() override;
 };
 
 }

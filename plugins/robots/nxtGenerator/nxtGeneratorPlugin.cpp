@@ -3,15 +3,19 @@
 #include <QtWidgets/QApplication>
 #include <QtCore/QDir>
 
+#include <qrkernel/settingsManager.h>
+#include <qrgui/mainwindow/qscintillaTextEdit.h>
 #include <nxtOsekMasterGenerator.h>
+
 
 using namespace qReal;
 using namespace qReal::robots::generators;
+using namespace gui;
 
 NxtGeneratorPlugin::NxtGeneratorPlugin()
-	: mGenerateCodeAction(NULL)
-	, mFlashRobotAction(NULL)
-	, mUploadProgramAction(NULL)
+	: mGenerateCodeAction(nullptr)
+	, mFlashRobotAction(nullptr)
+	, mUploadProgramAction(nullptr)
 	, mNxtToolsPresent(false)
 {
 	mAppTranslator.load(":/nxtGenerator_" + QLocale::system().name());
@@ -25,10 +29,47 @@ NxtGeneratorPlugin::~NxtGeneratorPlugin()
 	delete mFlashTool;
 }
 
+QString NxtGeneratorPlugin::defaultFilePath(QString const &projectName) const
+{
+	return QString("nxt-tools/%1/%1.c").arg(projectName);
+}
+
+QString NxtGeneratorPlugin::extension() const
+{
+	return "c";
+}
+
+QString NxtGeneratorPlugin::extDescrition() const
+{
+	return tr("Lego NXT Source File");
+}
+
+QString NxtGeneratorPlugin::generatorName() const
+{
+	return "nxtOsek";
+}
+
+bool NxtGeneratorPlugin::canGenerateTo(QString const &project)
+{
+	QString const cFilePath = QApplication::applicationDirPath() + "/" + defaultFilePath(project);
+	QFileInfo const cFile(cFilePath);
+	QFileInfo const makeFile(cFile.absolutePath() + "/makefile");
+	if (!cFile.exists() || !makeFile.exists()) {
+		return true;
+	}
+
+	// If c file has much later timestamp then it was edited by user - restrincting generation to this file.
+	int const timestampMaxDifference = 100;
+	return cFile.lastModified().toMSecsSinceEpoch()
+			- makeFile.lastModified().toMSecsSinceEpoch() < timestampMaxDifference;
+}
+
 void NxtGeneratorPlugin::init(PluginConfigurator const &configurator)
 {
 	RobotsGeneratorPluginBase::init(configurator);
+
 	mFlashTool = new NxtFlashTool(mMainWindowInterface->errorReporter());
+	connect(mFlashTool, &NxtFlashTool::uploadingComplete, this, &NxtGeneratorPlugin::onUploadingComplete);
 }
 
 QList<ActionInfo> NxtGeneratorPlugin::actions()
@@ -48,7 +89,8 @@ QList<ActionInfo> NxtGeneratorPlugin::actions()
 
 	checkNxtTools();
 
-	return QList<ActionInfo>() << generateCodeActionInfo << flashRobotActionInfo
+	return QList<ActionInfo>() << generateCodeActionInfo
+			<< flashRobotActionInfo
 			<< uploadProgramActionInfo;
 }
 
@@ -63,6 +105,29 @@ void NxtGeneratorPlugin::initHotKeyActions()
 	mHotKeyActionInfos << generateActionInfo << uploadActionInfo;
 }
 
+void NxtGeneratorPlugin::onUploadingComplete(bool success)
+{
+	if (!success) {
+		return;
+	}
+
+	NxtFlashTool::RunPolicy const runPolicy = static_cast<NxtFlashTool::RunPolicy>(
+			SettingsManager::value("nxtFlashToolRunPolicy").toInt());
+
+	switch (runPolicy) {
+	case NxtFlashTool::Ask:
+		if (mFlashTool->askToRun(mMainWindowInterface->windowWidget())) {
+			mFlashTool->runLastProgram();
+		}
+		break;
+	case NxtFlashTool::AlwaysRun:
+		mFlashTool->runLastProgram();
+		break;
+	default:
+		break;
+	}
+}
+
 QList<HotKeyActionInfo> NxtGeneratorPlugin::hotKeyActions()
 {
 	return mHotKeyActionInfos;
@@ -75,10 +140,20 @@ MasterGeneratorBase *NxtGeneratorPlugin::masterGenerator()
 			, mMainWindowInterface->activeDiagram());
 }
 
+void NxtGeneratorPlugin::regenerateExtraFiles(QFileInfo const &newFileInfo)
+{
+	nxtOsek::NxtOsekMasterGenerator * const generator = new nxtOsek::NxtOsekMasterGenerator(*mRepo
+		, *mMainWindowInterface->errorReporter()
+		, mMainWindowInterface->activeDiagram());
+	generator->initialize();
+	generator->setProjectDir(newFileInfo);
+	generator->generateOilAndMakeFiles();
+}
+
 void NxtGeneratorPlugin::changeActiveTab(QList<ActionInfo> const &info, bool const &trigger)
 {
 	foreach (ActionInfo const &actionInfo, info) {
-			actionInfo.action()->setEnabled(trigger);
+		actionInfo.action()->setEnabled(trigger);
 	}
 }
 
@@ -95,11 +170,12 @@ void NxtGeneratorPlugin::flashRobot()
 void NxtGeneratorPlugin::uploadProgram()
 {
 	if (!mNxtToolsPresent) {
-		mMainWindowInterface->errorReporter()->addError(tr("upload.sh not found."\
-				" Make sure it is present in QReal installation directory"));
+		mMainWindowInterface->errorReporter()->addError(tr("upload.sh not found. Make sure it is present in QReal installation directory"));
 	} else {
-		if (generateCode()) {
-			mFlashTool->uploadProgram();
+		QFileInfo const fileInfo = generateCodeForProcessing();
+
+		if (fileInfo != QFileInfo()) {
+			mFlashTool->uploadProgram(fileInfo);
 		}
 	}
 }

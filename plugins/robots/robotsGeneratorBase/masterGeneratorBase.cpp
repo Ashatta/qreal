@@ -2,7 +2,7 @@
 
 #include <qrutils/outFile.h>
 #include <qrutils/stringUtils.h>
-#include "readableControlFlowGenerator.h"
+#include <readableControlFlowGenerator.h>
 
 using namespace qReal::robots::generators;
 
@@ -15,11 +15,18 @@ MasterGeneratorBase::MasterGeneratorBase(qrRepo::RepoApi const &repo
 {
 }
 
+void MasterGeneratorBase::setProjectDir(QFileInfo const &fileInfo)
+{
+	mProjectName = fileInfo.baseName();
+	mProjectDir = fileInfo.absolutePath();
+}
+
 void MasterGeneratorBase::initialize()
 {
 	mCustomizer = createCustomizer();
 	mCustomizer->factory()->initialize();
 	setPathToTemplates(mCustomizer->factory()->pathToTemplates());
+
 	mReadableControlFlowGenerator = new ReadableControlFlowGenerator(mRepo
 			, mErrorReporter, *mCustomizer, mDiagram, this);
 }
@@ -32,9 +39,14 @@ QString MasterGeneratorBase::generate()
 	}
 
 	beforeGeneration();
+	if (!QDir(mProjectDir).exists()) {
+		QDir().mkpath(mProjectDir);
+	}
 
 	mCustomizer->factory()->variables()->reinit(mRepo);
+
 	mCustomizer->factory()->images()->reinit();
+
 	foreach (parts::InitTerminateCodeGenerator *generator, mCustomizer->factory()->initTerminateGenerators()) {
 		generator->reinit();
 	}

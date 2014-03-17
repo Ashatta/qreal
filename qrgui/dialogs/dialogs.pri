@@ -13,16 +13,13 @@ HEADERS += \
 	$$PWD/preferencesPages/preferencesPage.h \
 	$$PWD/progressDialog/progressBar.h \
 	$$PWD/progressDialog/progressDialog.h \
-	$$PWD/startDialog/startDialog.h \
-	$$PWD/startDialog/suggestToCreateDiagramWidget.h \
-	$$PWD/startDialog/recentProjectsListWidget.h \
-	$$PWD/startDialog/listWidget.h \
 	$$PWD/findReplaceDialog.h \
 	$$PWD/managedClosableDialog.h \
 	$$PWD/preferencesDialog.h \
 	$$PWD/suggestToCreateDiagramDialog.h \
 	$$PWD/suggestToCreateProjectDialog.h \
 	$$PWD/renameDialog.h \
+	$$PWD/metamodelingOnFly/restorePropertiesDialog.h \
 
 SOURCES += \
 	$$PWD/gesturesShow/gesturesWidget.cpp \
@@ -38,16 +35,13 @@ SOURCES += \
 	$$PWD/preferencesPages/featuresPage.cpp \
 	$$PWD/progressDialog/progressBar.cpp \
 	$$PWD/progressDialog/progressDialog.cpp \
-	$$PWD/startDialog/startDialog.cpp \
-	$$PWD/startDialog/suggestToCreateDiagramWidget.cpp \
-	$$PWD/startDialog/recentProjectsListWidget.cpp \
-	$$PWD/startDialog/listWidget.cpp \
 	$$PWD/findReplaceDialog.cpp \
 	$$PWD/managedClosableDialog.cpp \
 	$$PWD/preferencesDialog.cpp \
 	$$PWD/suggestToCreateDiagramDialog.cpp \
 	$$PWD/suggestToCreateProjectDialog.cpp \
 	$$PWD/renameDialog.cpp \
+	$$PWD/metamodelingOnFly/restorePropertiesDialog.cpp \
 
 FORMS += \
 	$$PWD/gesturesShow/gesturesWidget.ui \
@@ -63,3 +57,4 @@ FORMS += \
 	$$PWD/preferencesPages/featuresPage.ui \
 	$$PWD/findReplaceDialog.ui \
 	$$PWD/preferencesDialog.ui \
+	$$PWD/metamodelingOnFly/restorePropertiesDialog.ui \

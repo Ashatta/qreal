@@ -2,6 +2,8 @@ QT += xml widgets network
 
 TEMPLATE = lib
 CONFIG += plugin
+CONFIG += c++11
+
 DESTDIR = ../../../bin/plugins/
 OBJECTS_DIR = .obj
 MOC_DIR = .moc
@@ -29,8 +31,12 @@ HEADERS += \
 	details/autoconfigurer.h \
 	details/tracer.h \
 	details/debugHelper.h \
+	details/timelineInterface.h \
+	details/realTimeline.h \
 	details/abstractTimer.h \
 	details/realTimer.h \
+	details/sensorsConfigurationManager.h \
+	details/sensorsConfigurationProvider.h \
 	details/sensorsConfigurationWidget.h \
 	details/nullTimer.h \
 	details/nxtDisplay.h \
@@ -40,6 +46,7 @@ SOURCES += \
 	customizer.cpp \
 	robotSettingsPage.cpp \
 	robotsPlugin.cpp \
+	sensorConstants.cpp \
 	details/abstractTimer.cpp \
 	details/autoconfigurer.cpp \
 	details/blocksTable.cpp \
@@ -48,8 +55,11 @@ SOURCES += \
 	details/interpreter.cpp \
 	details/nullTimer.cpp \
 	details/nxtDisplay.cpp \
+	details/realTimeline.cpp \
 	details/realTimer.cpp \
 	details/robotsBlockParser.cpp \
+	details/sensorsConfigurationManager.cpp \
+	details/sensorsConfigurationProvider.cpp \
 	details/sensorsConfigurationWidget.cpp \
 	details/thread.cpp \
 	details/tracer.cpp \

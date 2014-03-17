@@ -27,6 +27,9 @@ signals:
 protected:
 	virtual bool eventFilter(QObject* object, QEvent* event);
 
+private slots:
+	void grabTapAndHold();
+
 private:
 	bool handleGesture(QGestureEvent *gestureEvent);
 	void processGestureState(QGesture *gesture);
@@ -39,6 +42,8 @@ private:
 	void simulateDoubleClick(QTouchEvent *event);
 	void simulateRightClick(QTapAndHoldGesture *gesture);
 
+	void moveCursor(QTouchEvent *event);
+
 	bool isElementUnder(QPointF const &pos);
 
 	EditorView *mEditorView;
@@ -47,6 +52,7 @@ private:
 	int mFingersInGesture;
 	Qt::MouseButton mButton;
 	qint64 mLastTapTimestamp;
+	QPointF mLastTouchBeginPoint;
 };
 
 }

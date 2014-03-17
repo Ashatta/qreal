@@ -14,23 +14,18 @@ public:
 			, ErrorReporterInterface &errorReporter
 			, Id const &diagramId);
 
-protected:
-	virtual GeneratorCustomizer *createCustomizer();
-	virtual QString targetPath();
+	void generateOilAndMakeFiles();
 
-	virtual void beforeGeneration();
-	virtual void afterGeneration();
+protected:
+	GeneratorCustomizer *createCustomizer() override;
+	QString targetPath() override;
+
+	void afterGeneration() override;
 
 private:
-	void createProjectDir(QString const &projectDir);
-
 	void generateOilFile(QString const &projectName, QString const &projectDir);
 	void generateMakeFile(QString const &projectName, QString const &projectDir);
 	void saveImages(QString const &projectDir);
-
-	int mCurInitialNodeNumber;
-	QString mProjectName;
-	QString mProjectDir;
 };
 
 }

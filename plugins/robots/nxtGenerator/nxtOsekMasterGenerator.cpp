@@ -10,6 +10,11 @@ NxtOsekMasterGenerator::NxtOsekMasterGenerator(qrRepo::RepoApi const &repo
 {
 }
 
+void NxtOsekMasterGenerator::generateOilAndMakeFiles()
+{
+	afterGeneration();
+}
+
 qReal::robots::generators::GeneratorCustomizer *NxtOsekMasterGenerator::createCustomizer()
 {
 	return new NxtOsekGeneratorCustomizer(mRepo, mErrorReporter);
@@ -20,15 +25,6 @@ QString NxtOsekMasterGenerator::targetPath()
 	return QString("%1/%2.c").arg(mProjectDir, mProjectName);
 }
 
-void NxtOsekMasterGenerator::beforeGeneration()
-{
-	// TODO: increment it or smth...
-	mCurInitialNodeNumber = 0;
-	mProjectName = "example" + QString::number(mCurInitialNodeNumber);
-	mProjectDir = "nxt-tools/" + mProjectName;
-	createProjectDir(mProjectDir);
-}
-
 void NxtOsekMasterGenerator::afterGeneration()
 {
 	generateOilFile(mProjectName, mProjectDir);
@@ -36,20 +32,10 @@ void NxtOsekMasterGenerator::afterGeneration()
 	saveImages(mProjectDir);
 }
 
-void NxtOsekMasterGenerator::createProjectDir(QString const &projectDir)
-{
-	if (!QDir(projectDir).exists()) {
-		if (!QDir("nxt-tools/").exists()) {
-			QDir().mkdir("nxt-tools/");
-		}
-		QDir().mkdir(projectDir);
-	}
-}
-
 void NxtOsekMasterGenerator::generateOilFile(QString const &projectName
 		, QString const &projectDir)
 {
-	QString const taskNumber = QString::number(mCurInitialNodeNumber);
+	QString const taskNumber = "0";
 	QString const task = readTemplate("oilTask.t").replace("@@NUMBER@@", taskNumber);
 	QString const resultOil = readTemplate("oil.t").replace("@@TASK@@", task);
 	outputCode(projectDir + "/" + projectName + ".oil", resultOil);

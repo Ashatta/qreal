@@ -1,5 +1,13 @@
 #pragma once
 
+#include <QtCore/QTranslator>
+#include <QtCore/QMultiHash>
+
+#include <qrgui/toolPluginInterface/toolPluginInterface.h>
+#include <qrgui/toolPluginInterface/pluginConfigurator.h>
+#include <qrgui/toolPluginInterface/hotKeyActionInfo.h>
+#include <qrgui/toolPluginInterface/systemEventsInterface.h>
+#include <qrgui/textEditor/textManagerInterface.h>
 #include <robotsGeneratorPluginBase.h>
 #include "nxtFlashTool.h"
 
@@ -20,12 +28,18 @@ public:
 	NxtGeneratorPlugin();
 	virtual ~NxtGeneratorPlugin();
 
-	virtual void init(qReal::PluginConfigurator const &configurator);
-	virtual QList<qReal::ActionInfo> actions();
-	virtual QList<qReal::HotKeyActionInfo> hotKeyActions();
+	void init(qReal::PluginConfigurator const &configurator) override;
+	QList<qReal::ActionInfo> actions() override;
+	QList<qReal::HotKeyActionInfo> hotKeyActions() override;
 
 protected:
-	virtual MasterGeneratorBase *masterGenerator();
+	MasterGeneratorBase *masterGenerator() override;
+	void regenerateExtraFiles(QFileInfo const &newFileInfo) override;
+	QString defaultFilePath(QString const &projectName) const override;
+	QString extension() const override;
+	QString extDescrition() const override;
+	QString generatorName() const override;
+	bool canGenerateTo(QString const &project) override;
 
 private slots:
 	/// Uploads and installs nxtOSEK on a robot. Requires nxt-tools.
@@ -34,6 +48,9 @@ private slots:
 	/// Compiles and uploads program to a robot. Program then can be launched manually.
 	/// Requires nxt-tools
 	void uploadProgram();
+
+	/// Runs program if it is allowed in settings
+	void onUploadingComplete(bool success);
 
 private:
 	/// Method that checks presense of nxt-tools (shall be installed to nxt-tools

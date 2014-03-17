@@ -24,6 +24,8 @@ class EdgeElement : public Element
 	Q_OBJECT
 
 public:
+	static const int stripeWidth = 25;
+
 	enum DragType {
 		wholeEdge = -2
 		, noPort = -1
@@ -140,6 +142,12 @@ public:
 
 	/// Align link's intermediate points to grid
 	void alignToGrid();
+
+	/// Proxies QGraphicsItem`s setPos filtering out NaNs
+	void setPos(qreal x, qreal y);
+
+	/// Proxies QGraphicsItem`s setPos filtering out NaNs
+	void setPos(QPointF const &pos);
 
 protected:
 	virtual void mousePressEvent(QGraphicsSceneMouseEvent *event);

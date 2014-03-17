@@ -155,14 +155,20 @@ QString EditorManager::paletteGroupDescription(Id const &editor, const Id &diagr
 	return mPluginIface[editor.editor()]->diagramPaletteGroupDescription(diagram.diagram(), group);
 }
 
+bool EditorManager::shallPaletteBeSorted(Id const &editor, Id const &diagram) const
+{
+	return mPluginIface[editor.editor()]->shallPaletteBeSorted(diagram.diagram());
+}
+
 IdList EditorManager::elements(Id const &diagram) const
 {
 	IdList elements;
 	Q_ASSERT(mPluginsLoaded.contains(diagram.editor()));
 
-	foreach (QString const &e, mPluginIface[diagram.editor()]->elements(diagram.diagram())) {
+	for (QString const &e : mPluginIface[diagram.editor()]->elements(diagram.diagram())) {
 		elements.append(Id(diagram.editor(), diagram.diagram(), e));
 	}
+
 	return elements;
 }
 
@@ -197,11 +203,7 @@ QString EditorManager::friendlyName(const Id &id) const
 		if (mGroups.keys().contains(id.element())) {
 			return id.element();
 		} else {
-			if (isDiagramNode(id)) {
-				return mPluginIface[id.editor()]->diagramNodeName(id.diagram());
-			} else {
-				return mPluginIface[id.editor()]->elementName(id.diagram(), id.element());
-			}
+			return mPluginIface[id.editor()]->elementName(id.diagram(), id.element());
 		}
 	default:
 		Q_ASSERT(!"Malformed Id");
@@ -250,19 +252,16 @@ QString EditorManager::mouseGesture(const Id &id) const
 	return mPluginIface[id.editor()]->elementMouseGesture(id.diagram(), id.element());
 }
 
-QIcon EditorManager::icon(const Id &id) const
+QIcon EditorManager::icon(Id const &id) const
 {
 	Q_ASSERT(mPluginsLoaded.contains(id.editor()));
-	SdfIconEngineV2 *engine = new SdfIconEngineV2(":/generated/shapes/" + id.element() + "Class.sdf");
-	// QIcon will take ownership of engine, no need for us to delete
-	return mPluginIface[id.editor()]->getIcon(engine);
+	return SdfIconLoader::iconOf(":/generated/shapes/" + id.element() + "Class.sdf");
 }
 
 QSize EditorManager::iconSize(Id const &id) const
 {
 	Q_ASSERT(mPluginsLoaded.contains(id.editor()));
-	SdfIconEngineV2 *engine = new SdfIconEngineV2(":/generated/shapes/" + id.element() + "Class.sdf");
-	return engine->preferedSize();
+	return SdfIconLoader::preferedSizeOf(":/generated/shapes/" + id.element() + "Class.sdf");
 }
 
 ElementImpl *EditorManager::elementImpl(const Id &id) const
@@ -569,7 +568,7 @@ IdList EditorManager::groups(Id const &diagram)
 	PatternParser parser;
 	parser.loadXml((mPluginIface.value(diagram.editor()))->getGroupsXML());
 	parser.parseGroups(this, diagram.editor(), diagram.diagram());
-	foreach(Pattern const &pattern, parser.getPatterns()) {
+	foreach(Pattern const &pattern, parser.patterns()) {
 		mGroups.insert(pattern.name(), pattern);
 	}
 
@@ -671,6 +670,17 @@ void EditorManager::updateShape(Id const &id, QString const &graphics) const
 	Q_UNUSED(graphics);
 }
 
+void EditorManager::resetIsHidden(Id const &id) const
+{
+	Q_UNUSED(id);
+}
+
+QString EditorManager::getIsHidden(Id const &id) const
+{
+	Q_UNUSED(id);
+	return "false";
+}
+
 void EditorManager::deleteElement(MainWindow *mainWindow, Id const &id) const
 {
 	Q_UNUSED(mainWindow);
@@ -716,4 +726,31 @@ void EditorManager::saveMetamodel(QString const &newMetamodelFileName)
 QString EditorManager::saveMetamodelFilePath() const
 {
 	return "";
+}
+
+IdList EditorManager::propertiesWithTheSameName(Id const &id, QString const &propertyCurrentName
+		, QString const &propertyNewName) const
+{
+	Q_UNUSED(id);
+	Q_UNUSED(propertyCurrentName);
+	Q_UNUSED(propertyNewName);
+	return IdList();
+}
+
+QStringList EditorManager::getSameNamePropertyParams(Id const &propertyId, QString const &propertyName) const
+{
+	Q_UNUSED(propertyId);
+	Q_UNUSED(propertyName);
+	return QStringList();
+}
+
+void EditorManager::restoreRemovedProperty(Id const &propertyId, QString const &previousName) const
+{
+	Q_UNUSED(propertyId);
+	Q_UNUSED(previousName);
+}
+void EditorManager::restoreRenamedProperty(Id const &propertyId, QString const &previousName) const
+{
+	Q_UNUSED(propertyId);
+	Q_UNUSED(previousName);
 }
