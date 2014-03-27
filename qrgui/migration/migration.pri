@@ -6,9 +6,8 @@ HEADERS += \
 	$$PWD/logger.h \
 	$$PWD/analyzer.h \
 	$$PWD/transformations/transformation.h \
-	$$PWD/transformations/renameNodeTransformation.h \
-	$$PWD/transformations/renamePropertyTransformation.h \
-	$$PWD/transformations/renameEdgeTransformation.h
+	$$PWD/transformations/replaceTypeTransformation.h \
+	$$PWD/differenceModel.h \
 
 SOURCES += \
 	$$PWD/logEntries/logEntry.cpp \
@@ -17,7 +16,5 @@ SOURCES += \
 	$$PWD/migrator.cpp \
 	$$PWD/logger.cpp \
 	$$PWD/analyzer.cpp \
-	$$PWD/transformations/transformation.cpp \
-	$$PWD/transformations/renameNodeTransformation.cpp \
-	$$PWD/transformations/renamePropertyTransformation.cpp \
-	$$PWD/transformations/renameEdgeTransformation.cpp
+	$$PWD/transformations/replaceTypeTransformation.cpp \
+	$$PWD/differenceModel.cpp \

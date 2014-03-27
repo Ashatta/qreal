@@ -1,16 +1,14 @@
-#include "migration/transformations/transformation.h"
+#include "migration/transformations/replaceTypeTransformation.h"
 
 using namespace qReal::migration;
 
-Transformation::Transformation()
+ReplaceTypeTransformation::ReplaceTypeTransformation(QString const &oldTypeName, QString const &newTypeName
+		, QMap<QString, QString> const &propertyMap)
+	: mOldElementType(oldTypeName), mNewElementType(newTypeName), mPropertyMap(propertyMap)
 {
 }
 
-Transformation::~Transformation()
-{
-}
-
-void Transformation::apply(qReal::models::Models *model)
+void ReplaceTypeTransformation::apply(qReal::models::Models *model)
 {
 	mModel = model;
 
@@ -25,7 +23,7 @@ void Transformation::apply(qReal::models::Models *model)
 	}
 }
 
-qReal::IdList Transformation::findMatching(qReal::Id const &id) const
+qReal::IdList ReplaceTypeTransformation::findMatching(qReal::Id const &id) const
 {
 	IdList result;
 	foreach (Id const &child, mModel->logicalModelAssistApi().children(id)) {
@@ -44,7 +42,7 @@ qReal::IdList Transformation::findMatching(qReal::Id const &id) const
 	return result;
 }
 
-bool Transformation::checkPropertiesMatch(qReal::Id const &id) const
+bool ReplaceTypeTransformation::checkPropertiesMatch(qReal::Id const &id) const
 {
 	foreach (QString const &property, mSearchProperties.keys()) {
 		if (property == "@ANY_PROPERTY@") {
@@ -68,7 +66,7 @@ bool Transformation::checkPropertiesMatch(qReal::Id const &id) const
 	return true;
 }
 
-qReal::Id Transformation::createLogical(qReal::Id const &oldLogical) const
+qReal::Id ReplaceTypeTransformation::createLogical(qReal::Id const &oldLogical) const
 {
 	Id const type = Id(oldLogical.editor(), oldLogical.diagram(), mNewElementType);
 	Id const newId = mModel->logicalModelAssistApi().createElement(mModel->logicalRepoApi().parent(oldLogical), type);
@@ -83,7 +81,7 @@ qReal::Id Transformation::createLogical(qReal::Id const &oldLogical) const
 	return newId;
 }
 
-void Transformation::createGraphical(qReal::Id const &logical, qReal::Id const &oldGraphical) const
+void ReplaceTypeTransformation::createGraphical(qReal::Id const &logical, qReal::Id const &oldGraphical) const
 {
 	GraphicalModelAssistInterface &graphicalApi = mModel->graphicalModelAssistApi();
 
@@ -102,12 +100,12 @@ void Transformation::createGraphical(qReal::Id const &logical, qReal::Id const &
 	}
 }
 
-void Transformation::removeOldLogical(qReal::Id const &id) const
+void ReplaceTypeTransformation::removeOldLogical(qReal::Id const &id) const
 {
 	mModel->logicalModelAssistApi().removeElement(id);
 }
 
-void Transformation::initProperties(qReal::Id const &oldElement, qReal::Id const &newElement) const
+void ReplaceTypeTransformation::initProperties(qReal::Id const &oldElement, qReal::Id const &newElement) const
 {
 	qrRepo::LogicalRepoApi &repoApi = mModel->mutableLogicalRepoApi();
 
@@ -123,7 +121,7 @@ void Transformation::initProperties(qReal::Id const &oldElement, qReal::Id const
 	}
 }
 
-void Transformation::setProperty(qReal::Id const &id, QString const &property, QVariant const &value) const
+void ReplaceTypeTransformation::setProperty(qReal::Id const &id, QString const &property, QVariant const &value) const
 {
 	if (property == "to") {
 		mModel->mutableLogicalRepoApi().setTo(id, value.value<Id>());
@@ -134,7 +132,7 @@ void Transformation::setProperty(qReal::Id const &id, QString const &property, Q
 	}
 }
 
-void Transformation::copyLinkProperties(qReal::Id const &oldId, qReal::Id const &newId) const
+void ReplaceTypeTransformation::copyLinkProperties(qReal::Id const &oldId, qReal::Id const &newId) const
 {
 	GraphicalModelAssistInterface &graphicalApi = mModel->graphicalModelAssistApi();
 
@@ -151,7 +149,7 @@ void Transformation::copyLinkProperties(qReal::Id const &oldId, qReal::Id const 
 	}
 }
 
-void Transformation::copyLinks(qrRepo::CommonRepoApi &api, qReal::Id const &oldElement, qReal::Id const &newElement) const
+void ReplaceTypeTransformation::copyLinks(qrRepo::CommonRepoApi &api, qReal::Id const &oldElement, qReal::Id const &newElement) const
 {
 	foreach (Id const &link, api.links(oldElement)) {
 		if (api.to(link) == oldElement) {

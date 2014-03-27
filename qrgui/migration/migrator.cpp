@@ -21,10 +21,11 @@ void Migrator::migrate(models::Models *model, QStringList const &metamodels)
 
 	mModel = model;
 	initMetamodelsRepos(metamodels);
+	initDifferenceModels();
 
 	ensureLoadWithOldMetamodels();
 
-	Analyzer analyzer(logBetweenVersions());
+	Analyzer analyzer(logBetweenVersions(), mDifferenceModels);
 
 	analyzer.analyze();
 
@@ -50,6 +51,12 @@ void Migrator::clear()
 	}
 
 	mOldMetamodels.clear();
+
+	foreach (DifferenceModel *diffModel, mDifferenceModels) {
+		delete diffModel;
+	}
+
+	mDifferenceModels.clear();
 }
 
 void Migrator::ensureLoadWithOldMetamodels()
@@ -88,4 +95,11 @@ QHash<qReal::Id, QList<qReal::migration::LogEntry *> > Migrator::logBetweenVersi
 	}
 
 	return result;
+}
+
+void Migrator::initDifferenceModels()
+{
+	foreach (QString const &editor, mOldMetamodels.keys()) {
+		mDifferenceModels.append(new DifferenceModel(mOldMetamodels[editor], mNewMetamodels[editor]));
+	}
 }

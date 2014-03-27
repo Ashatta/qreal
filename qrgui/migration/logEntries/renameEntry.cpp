@@ -17,6 +17,11 @@ QString RenameEntry::toString() const
 void RenameEntry::reverse(qrRepo::details::Repository *repo) const
 {
 	repo->setProperty(mId, "name", mOldName);
+	foreach (Id const &elem, repo->elements()) {
+		if (!repo->isLogicalId(elem) && (repo->logicalId(elem) == mId)) {
+			repo->setProperty(elem, "name", mOldName);
+		}
+	}
 }
 
 qReal::Id RenameEntry::id() const
