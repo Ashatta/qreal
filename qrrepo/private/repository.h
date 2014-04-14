@@ -8,7 +8,7 @@
 #include "classes/logicalObject.h"
 #include "qrRepoGlobal.h"
 #include "serializer.h"
-#include "qrgui/migration/logger.h"
+#include "qrutils/migration/logger.h"
 
 namespace qrRepo {
 namespace details {
@@ -17,7 +17,7 @@ namespace details {
 class Repository
 {
 public:
-	QRREPO_EXPORT Repository(QString const &workingFile);
+	QRREPO_EXPORT Repository(QString const &workingFile, qReal::migration::Logger *logger);
 	QRREPO_EXPORT virtual ~Repository();
 
 	/// replacing property values that contains input value with new value
@@ -153,7 +153,7 @@ private:
 	QString mWorkingFile;
 	Serializer mSerializer;
 
-	qReal::migration::Logger mLogger;
+	qReal::migration::Logger *mLogger; // Takes ownership
 
 	QMap<QString, int> mUsedMetamodels;
 };

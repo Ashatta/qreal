@@ -1,7 +1,7 @@
-#include "migration/migrator.h"
+#include "mainwindow/projectManager/migrator.h"
 
 #include "qrgui/pluginManager/interpreterEditorManager.h"
-#include "migration/analyzer.h"
+#include "qrutils/migration/analyzer.h"
 
 using namespace qReal::migration;
 
@@ -15,7 +15,7 @@ Migrator::~Migrator()
 	clear();
 }
 
-void Migrator::migrate(models::Models *model, QStringList const &metamodels)
+void Migrator::migrate(models::ModelsInterface *model, QStringList const &metamodels)
 {
 	clear();
 

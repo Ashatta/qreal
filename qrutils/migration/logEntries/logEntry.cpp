@@ -1,6 +1,6 @@
-#include "qrgui/migration/logEntries/logEntry.h"
-#include "qrgui/migration/logEntries/renameEntry.h"
-#include "qrgui/migration/logEntries/versionEntry.h"
+#include "migration/logEntries/logEntry.h"
+#include "migration/logEntries/renameEntry.h"
+#include "migration/logEntries/versionEntry.h"
 
 using namespace qReal::migration;
 
@@ -51,7 +51,7 @@ LogEntry * LogEntry::loadFromString(QString const &string)
 	}
 }
 
-void LogEntry::reverse(qrRepo::details::Repository *repo) const
+void LogEntry::reverse(qrRepo::CommonRepoApi *repo) const
 {
 	Q_UNUSED(repo)
 }

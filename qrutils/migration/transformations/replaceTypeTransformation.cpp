@@ -1,5 +1,10 @@
 #include "migration/transformations/replaceTypeTransformation.h"
 
+#include "qrrepo/logicalRepoApi.h"
+#include "qrrepo/graphicalRepoApi.h"
+#include "qrgui/models/graphicalModelAssistApi.h"
+#include "qrgui/models/logicalModelAssistApi.h"
+
 using namespace qReal::migration;
 
 ReplaceTypeTransformation::ReplaceTypeTransformation(QString const &oldTypeName, QString const &newTypeName
@@ -8,7 +13,7 @@ ReplaceTypeTransformation::ReplaceTypeTransformation(QString const &oldTypeName,
 {
 }
 
-void ReplaceTypeTransformation::apply(qReal::models::Models *model)
+void ReplaceTypeTransformation::apply(models::ModelsInterface *model)
 {
 	mModel = model;
 

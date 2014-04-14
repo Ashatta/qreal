@@ -4,7 +4,7 @@
 #include <QtWidgets/QUndoCommand>
 
 #include <qrkernel/ids.h>
-#include <qrgui/migration/logEntries/logEntry.h>
+#include <qrutils/migration/logEntries/logEntry.h>
 
 namespace qReal {
 namespace commands {

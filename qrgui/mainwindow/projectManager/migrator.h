@@ -1,8 +1,8 @@
 #pragma once
 
 #include "qrkernel/ids.h"
-#include "qrgui/pluginManager/editorManagerInterface.h"
-#include "qrgui/models/models.h"
+#include "pluginManager/editorManagerInterface.h"
+#include "models/modelsInterface.h"
 
 namespace qReal {
 namespace migration {
@@ -15,7 +15,7 @@ public:
 	Migrator(qReal::EditorManagerInterface const &editorManager);
 	~Migrator();
 
-	void migrate(qReal::models::Models *model, QStringList const &metamodels);
+	void migrate(qReal::models::ModelsInterface *model, QStringList const &metamodels);
 
 private:
 	void clear();
@@ -26,7 +26,7 @@ private:
 	void initDifferenceModels();
 
 	qReal::EditorManagerInterface const &mEditorManager;
-	qReal::models::Models *mModel; // Doesn't take ownership
+	qReal::models::ModelsInterface *mModel; // Doesn't take ownership
 
 	QMap<QString, qrRepo::RepoApi *> mOldMetamodels;
 	QMap<QString, qrRepo::RepoApi *> mNewMetamodels;

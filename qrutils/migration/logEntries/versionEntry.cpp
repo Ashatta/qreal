@@ -1,4 +1,4 @@
-#include "qrgui/migration/logEntries/versionEntry.h"
+#include "migration/logEntries/versionEntry.h"
 
 using namespace qReal::migration;
 

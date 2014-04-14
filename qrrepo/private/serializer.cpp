@@ -15,7 +15,7 @@
 #include "folderCompressor.h"
 #include "classes/logicalObject.h"
 #include "classes/graphicalObject.h"
-#include "qrgui/migration/logEntries/logEntry.h"
+#include "qrutils/migration/logEntries/logEntry.h"
 
 using namespace qrRepo;
 using namespace details;

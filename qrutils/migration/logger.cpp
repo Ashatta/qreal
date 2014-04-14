@@ -1,12 +1,12 @@
 #include "migration/logger.h"
 
 #include "migration/logEntries/versionEntry.h"
-#include "qrrepo/private/repository.h"
+#include "qrrepo/logicalRepoApi.h"
 
 using namespace qReal::migration;
 
-Logger::Logger(qrRepo::details::Repository *repo)
-	: mRepository(repo)
+Logger::Logger(qrRepo::LogicalRepoApi *repo)
+	: mRepo(repo)
 {
 }
 
@@ -184,7 +184,7 @@ void Logger::rollBackTo(int version)
 			}
 
 			if (!entry || entry->version() > version) {
-				(*it)->reverse(mRepository);
+				(*it)->reverse(mRepo);
 				delete *it;
 				it = mLog[id].erase(it);
 			}

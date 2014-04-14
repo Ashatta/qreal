@@ -3,9 +3,7 @@
 #include "qrkernel/ids.h"
 
 namespace qrRepo {
-namespace details {
-	class Repository;
-}
+	class LogicalRepoApi;
 }
 
 namespace qReal {
@@ -16,7 +14,7 @@ class LogEntry;
 class Logger
 {
 public:
-	Logger(qrRepo::details::Repository *repo);
+	Logger(qrRepo::LogicalRepoApi *repo);
 	~Logger();
 
 	void addLogEntry(qReal::Id const &diagram, qReal::migration::LogEntry * const entry);
@@ -39,7 +37,7 @@ private:
 	QHash<qReal::Id, QList<qReal::migration::LogEntry *> > mLog;
 	int mModelVersion;
 
-	qrRepo::details::Repository *mRepository; // Doesn't take ownership
+	qrRepo::LogicalRepoApi *mRepo; // Doesn't take ownership
 };
 
 }

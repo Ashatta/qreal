@@ -71,3 +71,7 @@ include($$PWD/uxInfo/uxInfo.pri)
 
 # Real-time plot
 include($$PWD/graphicsWatcher/sensorsGraph.pri)
+
+# Model migration utils
+include($$PWD/migration/migration.pri)
+

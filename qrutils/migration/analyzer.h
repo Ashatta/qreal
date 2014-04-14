@@ -1,7 +1,7 @@
 #pragma once
 
-#include "migration/differenceModel.h"
-#include "migration/transformations/transformation.h"
+#include "qrutils/migration/differenceModel.h"
+#include "qrutils/migration/transformations/transformation.h"
 
 namespace qReal {
 namespace migration {

@@ -9,10 +9,10 @@ using namespace qReal;
 using namespace qrRepo;
 using namespace qrRepo::details;
 
-Repository::Repository(QString const &workingFile)
+Repository::Repository(QString const &workingFile, qReal::migration::Logger *logger)
 		: mWorkingFile(workingFile)
 		, mSerializer(workingFile)
-		, mLogger(this)
+		, mLogger(logger)
 {
 	init();
 	loadFromDisk();
@@ -32,6 +32,8 @@ Repository::~Repository()
 	foreach (Id const &id, mObjects.keys()) {
 		delete mObjects[id];
 	}
+
+	delete mLogger;
 }
 
 IdList Repository::findElementsByName(QString const &name, bool sensitivity, bool regExpression) const
@@ -346,7 +348,7 @@ void Repository::loadFromDisk()
 {
 	QHash<Id, QList<migration::LogEntry *> > log;
 	mSerializer.loadFromDisk(mObjects, log, mUsedMetamodels);
-	mLogger.reset(log);
+	mLogger->reset(log);
 	addChildrenToRootObject();
 }
 
@@ -407,8 +409,8 @@ bool Repository::exist(const Id &id) const
 
 void Repository::saveAll()
 {
-	mLogger.createNewVersion();
-	mSerializer.saveToDisk(mObjects.values(), mLogger.log(), mUsedMetamodels);
+	mLogger->createNewVersion();
+	mSerializer.saveToDisk(mObjects.values(), mLogger->log(), mUsedMetamodels);
 }
 
 void Repository::save(IdList const &list)
@@ -417,8 +419,8 @@ void Repository::save(IdList const &list)
 	foreach(Id const &id, list)
 		toSave.append(allChildrenOf(id));
 
-	mLogger.createNewVersion();
-	mSerializer.saveToDisk(toSave, mLogger.log(), mUsedMetamodels);
+	mLogger->createNewVersion();
+	mSerializer.saveToDisk(toSave, mLogger->log(), mUsedMetamodels);
 }
 
 void Repository::saveWithLogicalId(qReal::IdList const &list)
@@ -427,13 +429,13 @@ void Repository::saveWithLogicalId(qReal::IdList const &list)
 	foreach(Id const &id, list)
 		toSave.append(allChildrenOfWithLogicalId(id));
 
-	mSerializer.saveToDisk(toSave, mLogger.log(), mUsedMetamodels);
+	mSerializer.saveToDisk(toSave, mLogger->log(), mUsedMetamodels);
 }
 
 void Repository::saveDiagramsById(QHash<QString, IdList> const &diagramIds)
 {
 	QString const currentWorkingFile = mWorkingFile;
-	mLogger.createNewVersion();
+	mLogger->createNewVersion();
 
 	foreach (QString const &savePath, diagramIds.keys()) {
 		qReal::IdList diagrams = diagramIds[savePath];
@@ -504,7 +506,7 @@ void Repository::exterminate()
 {
 	printDebug();
 	clearRepo();
-	mSerializer.saveToDisk(mObjects.values(), mLogger.log(), mUsedMetamodels);
+	mSerializer.saveToDisk(mObjects.values(), mLogger->log(), mUsedMetamodels);
 	init();
 	printDebug();
 }
@@ -520,7 +522,7 @@ void Repository::open(QString const &saveFile)
 void Repository::clearRepo()
 {
 	mObjects.clear();
-	mLogger.clear();
+	mLogger->clear();
 	mUsedMetamodels.clear();
 }
 
@@ -596,27 +598,27 @@ void Repository::setGraphicalPartProperty(
 
 void Repository::addLogEntry(qReal::Id const &diagram, migration::LogEntry * const entry)
 {
-	mLogger.addLogEntry(diagram, entry);
+	mLogger->addLogEntry(diagram, entry);
 }
 
 void Repository::deleteLogEntry(qReal::Id const &diagram)
 {
-	mLogger.deleteLogEntry(diagram);
+	mLogger->deleteLogEntry(diagram);
 }
 
 void Repository::rollBackTo(int version)
 {
-	mLogger.rollBackTo(version);
+	mLogger->rollBackTo(version);
 }
 
 int Repository::version() const
 {
-	return mLogger.version();
+	return mLogger->version();
 }
 
 QHash<qReal::Id, QList<qReal::migration::LogEntry *> > Repository::logBetween(int startVersion, int endVersion) const
 {
-	return mLogger.logBetween(startVersion, endVersion);
+	return mLogger->logBetween(startVersion, endVersion);
 }
 
 void Repository::addUsedMetamodel(QString const &name, int const version)

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "models/modelsInterface.h"
 #include "models/details/graphicalModel.h"
 #include "models/details/logicalModel.h"
 #include "models/graphicalModelAssistApi.h"
@@ -8,7 +9,7 @@
 namespace qReal {
 namespace models {
 
-class Models
+class Models : public ModelsInterface
 {
 public:
 	explicit Models(QString const &workingCopy, EditorManagerInterface &editorManager);

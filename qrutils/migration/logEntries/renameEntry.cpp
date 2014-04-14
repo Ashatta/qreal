@@ -1,4 +1,6 @@
-#include "qrgui/migration/logEntries/renameEntry.h"
+#include "migration/logEntries/renameEntry.h"
+
+#include "qrrepo/graphicalRepoApi.h"
 
 using namespace qReal::migration;
 
@@ -14,12 +16,17 @@ QString RenameEntry::toString() const
 			+ "@parentName=" + mParentName;
 }
 
-void RenameEntry::reverse(qrRepo::details::Repository *repo) const
+void RenameEntry::reverse(qrRepo::CommonRepoApi *repo) const
 {
-	repo->setProperty(mId, "name", mOldName);
-	foreach (Id const &elem, repo->elements()) {
-		if (!repo->isLogicalId(elem) && (repo->logicalId(elem) == mId)) {
-			repo->setProperty(elem, "name", mOldName);
+	qrRepo::GraphicalRepoApi *graphicalRepo = dynamic_cast<qrRepo::GraphicalRepoApi *>(repo);
+	if (!graphicalRepo) {
+		return;
+	}
+
+	graphicalRepo->setProperty(mId, "name", mOldName);
+	foreach (Id const &elem, graphicalRepo->graphicalElements()) {
+		if (graphicalRepo->logicalId(elem) == mId) {
+			graphicalRepo->setProperty(elem, "name", mOldName);
 		}
 	}
 }

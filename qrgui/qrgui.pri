@@ -30,9 +30,6 @@ include(mainwindow/mainwindow.pri)
 # Graphical and logical models
 include(models/models.pri)
 
-# Migration utils
-include(migration/migration.pri)
-
 # View
 include(view/view.pri)
 

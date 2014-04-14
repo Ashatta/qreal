@@ -1,5 +1,9 @@
 #include "migration/transformations/transformation.h"
 
+namespace qrRepo {
+	class CommonRepoApi;
+}
+
 namespace qReal
 {
 namespace migration
@@ -11,7 +15,7 @@ public:
 	ReplaceTypeTransformation(QString const &oldTypeName, QString const &newTypeName
 			, QMap<QString, QString> const &propertyMap);
 
-	void apply(models::Models *model);
+	void apply(models::ModelsInterface *model);
 
 private:
 	IdList findMatching(qReal::Id const &id = qReal::Id::rootId()) const;
@@ -26,7 +30,7 @@ private:
 	void copyLinkProperties(Id const &oldId, Id const &newId) const;
 	void copyLinks(qrRepo::CommonRepoApi &api, Id const &oldElement, Id const &newElement) const;
 
-	qReal::models::Models *mModel;
+	qReal::models::ModelsInterface *mModel;
 
 	QString mOldElementType;
 	QString mNewElementType;

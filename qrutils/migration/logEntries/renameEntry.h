@@ -1,6 +1,6 @@
 #pragma once
 
-#include "qrgui/migration/logEntries/logEntry.h"
+#include "qrutils/migration/logEntries/logEntry.h"
 
 namespace qReal {
 namespace migration {
@@ -12,7 +12,7 @@ public:
 			, QString const &newName);
 
 	virtual QString toString() const;
-	void reverse(qrRepo::details::Repository *repo) const;
+	void reverse(qrRepo::CommonRepoApi *repo) const;
 
 	qReal::Id id() const;
 	qReal::Id parent() const;

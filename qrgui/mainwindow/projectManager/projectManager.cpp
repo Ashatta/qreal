@@ -4,6 +4,7 @@
 #include <qrutils/qRealFileDialog.h>
 
 #include "mainwindow/mainWindow.h"
+#include "mainwindow/projectManager/migrator.h"
 
 // TODO: lolwut?
 //#include "ui_mainWindow.h"
@@ -12,7 +13,6 @@
 #include "view/editorViewScene.h"
 #include "view/editorView.h"
 #include "dialogs/suggestToCreateDiagramDialog.h"
-#include "migration/migrator.h"
 
 using namespace qReal;
 using namespace utils;
