@@ -1,6 +1,6 @@
 #pragma once
 
-#include "qrkernel/ids.h"
+#include "qrutils/migration/loggerInterface.h"
 
 namespace qrRepo {
 	class LogicalRepoApi;
@@ -9,9 +9,7 @@ namespace qrRepo {
 namespace qReal {
 namespace migration {
 
-class LogEntry;
-
-class Logger
+class Logger : public LoggerInterface
 {
 public:
 	Logger(qrRepo::LogicalRepoApi *repo);
