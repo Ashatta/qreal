@@ -9,7 +9,7 @@ using namespace qrRepo::details;
 using namespace qReal;
 
 RepoApi::RepoApi(QString const &workingDirectory, bool ignoreAutosave)
-		: mRepository(workingDirectory, new migration::Logger(this))
+        : mRepository(workingDirectory, new migration::Logger(this))
 		, mIgnoreAutosave(ignoreAutosave)
 {
 }

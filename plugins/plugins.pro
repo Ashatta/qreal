@@ -6,7 +6,7 @@ SUBDIRS	= \
 	blockDiagram/blockDiagram.pro \
 #	hascol/hascol.pro \
 	metaEditor/metaEditor.pro \
-	requirements/requirements.pro \
+        requirements/requirements.pro \
 
 
 # tool plugins

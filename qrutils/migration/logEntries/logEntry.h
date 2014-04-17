@@ -2,13 +2,14 @@
 
 #include <QtCore/QString>
 
+#include "qrutils/utilsDeclSpec.h"
 #include "qrkernel/ids.h"
 #include "qrrepo/commonRepoApi.h"
 
 namespace qReal {
 namespace migration {
 
-class LogEntry
+class QRUTILS_EXPORT LogEntry
 {
 public:
 	virtual ~LogEntry() {}

@@ -176,9 +176,9 @@ void XmlCompiler::generatePluginHeader()
 		<< "\tQString id() const { return \"" << mPluginName << "\"; }\n"
 		<< "\n"
 		<< "\tvirtual int editorVersion() const { return " << mEditors[mCurrentEditor]->version() << "; }\n"
-		<< "\n"
-		<< "\tvirtual qrRepo::RepoApi *metamodel() const;\n"
-		<< "\n"
+        << "\n"
+        << "\tvirtual QString metamodelFile() const;\n"
+        << "\n"
 		<< "\tQStringList diagrams() const override;\n"
 		<< "\tQStringList elements(QString const &diagram) const override;\n"
 		<< "\tQStringList getPropertiesWithDefaultValues(QString const &element) const override;\n"
@@ -519,9 +519,9 @@ void XmlCompiler::generatePropertyDefaultsRequests(OutFile &out)
 
 void XmlCompiler::generateMetamodelRequest(OutFile &out)
 {
-	out() << "qrRepo::RepoApi * " << mPluginName << "Plugin::metamodel() const\n{\n"
-		  << "\treturn new qrRepo::RepoApi(\":/save.qrs\");\n"
-		<< "}\n\n";
+        out() << "QString " << mPluginName << "Plugin::metamodelFile() const\n{\n"
+            << "\treturn QString(\":/save.qrs\");\n"
+        << "}\n\n";
 }
 
 void XmlCompiler::generateNameMappingsRequests(OutFile &out)

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "qrutils/utilsDeclSpec.h"
+
 #include "qrutils/migration/differenceModel.h"
 #include "qrutils/migration/transformations/transformation.h"
 
@@ -8,7 +10,7 @@ namespace migration {
 
 class LogEntry;
 
-class Analyzer
+class QRUTILS_EXPORT Analyzer
 {
 public:
 	Analyzer(QHash<qReal::Id, QList<qReal::migration::LogEntry *> > const &log

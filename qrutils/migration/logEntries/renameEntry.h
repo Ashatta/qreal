@@ -1,11 +1,12 @@
 #pragma once
 
+#include "qrutils/utilsDeclSpec.h"
 #include "qrutils/migration/logEntries/logEntry.h"
 
 namespace qReal {
 namespace migration {
 
-class RenameEntry : public LogEntry
+class QRUTILS_EXPORT RenameEntry : public LogEntry
 {
 public:
 	RenameEntry(qReal::Id const &id, qReal::Id const &parent, QString const &parentName, QString const &oldName

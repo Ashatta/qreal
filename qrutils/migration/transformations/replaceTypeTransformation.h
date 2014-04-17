@@ -1,3 +1,6 @@
+#pragma once
+
+#include "qrutils/utilsDeclSpec.h"
 #include "migration/transformations/transformation.h"
 
 namespace qrRepo {
@@ -9,7 +12,7 @@ namespace qReal
 namespace migration
 {
 
-class ReplaceTypeTransformation : public Transformation
+class QRUTILS_EXPORT ReplaceTypeTransformation : public Transformation
 {
 public:
 	ReplaceTypeTransformation(QString const &oldTypeName, QString const &newTypeName

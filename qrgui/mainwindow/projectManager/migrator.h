@@ -8,6 +8,7 @@ namespace qReal {
 namespace migration {
 
 class DifferenceModel;
+class LogEntry;
 
 class Migrator
 {
