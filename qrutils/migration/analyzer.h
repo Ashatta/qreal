@@ -3,7 +3,7 @@
 #include "qrutils/utilsDeclSpec.h"
 
 #include "qrutils/migration/differenceModel.h"
-#include "qrutils/migration/transformations/transformation.h"
+#include "qrutils/migration/transformations/replaceTypeTransformation.h"
 
 namespace qReal {
 namespace migration {

@@ -9,7 +9,7 @@ DifferenceModel::DifferenceModel(qrRepo::RepoApi *oldRepo, qrRepo::RepoApi *newR
 	findReplacedTypes();
 }
 
-QList<Transformation *> DifferenceModel::replacedTypes() const
+QList<ReplaceTypeTransformation *> DifferenceModel::replacedTypes() const
 {
 	return mReplacedTypes;
 }
@@ -23,14 +23,14 @@ void DifferenceModel::findReplacedTypes()
 			continue;
 		}
 
-		Transformation *transform = transformation(typeElem);
+        ReplaceTypeTransformation *transform = transformation(typeElem);
 		if (transform) {
 			mReplacedTypes.append(transform);
 		}
 	}
 }
 
-Transformation * DifferenceModel::transformation(Id const &elem) const
+ReplaceTypeTransformation * DifferenceModel::transformation(Id const &elem) const //this would probably be changed to Transformation
 {
 	if (!mNewRepo->exist(elem)) {
 		return nullptr;

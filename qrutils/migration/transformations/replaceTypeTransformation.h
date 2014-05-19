@@ -1,7 +1,7 @@
 #pragma once
 
 #include "qrutils/utilsDeclSpec.h"
-#include "migration/transformations/transformation.h"
+#include "qrutils/migration/transformations/transformation.h"
 
 namespace qrRepo {
 	class CommonRepoApi;
@@ -20,9 +20,14 @@ public:
 
 	void apply(models::ModelsInterface *model);
 
+    QString getOldElementType() const;
+    void setOldElementType(const QString &value);
+    QString getNewElementType() const;
+    void setNewElementType(const QString &value);
+
 private:
-	IdList findMatching(qReal::Id const &id = qReal::Id::rootId()) const;
-	bool checkPropertiesMatch(qReal::Id const &id) const;
+    IdList findMatching(qReal::Id const &id = qReal::Id::rootId()) const;
+    bool checkPropertiesMatch(qReal::Id const &id) const;
 
 	Id createLogical(Id const &oldLogical) const;
 	void createGraphical(Id const &logical, Id const &oldGraphical) const;
