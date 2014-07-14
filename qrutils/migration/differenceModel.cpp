@@ -23,7 +23,7 @@ void DifferenceModel::findReplacedTypes()
 			continue;
 		}
 
-        ReplaceTypeTransformation *transform = transformation(typeElem);
+		ReplaceTypeTransformation *transform = transformation(typeElem);
 		if (transform) {
 			mReplacedTypes.append(transform);
 		}

@@ -169,21 +169,21 @@ void ReplaceTypeTransformation::copyLinks(qrRepo::CommonRepoApi &api, qReal::Id 
 
 QString ReplaceTypeTransformation::getNewElementType() const
 {
-    return mNewElementType;
+	return mNewElementType;
 }
 
 void ReplaceTypeTransformation::setNewElementType(const QString &value)
 {
-    mNewElementType = value;
+	mNewElementType = value;
 }
 
 QString ReplaceTypeTransformation::getOldElementType() const
 {
-    return mOldElementType;
+	return mOldElementType;
 }
 
 void ReplaceTypeTransformation::setOldElementType(const QString &value)
 {
-    mOldElementType = value;
+	mOldElementType = value;
 }
 
