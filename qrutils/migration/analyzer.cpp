@@ -34,50 +34,65 @@ void Analyzer::handleRenames()
 		QHash<QString, QString> oldType;
 
 		foreach (ReplaceTypeTransformation * const trans, replacedTypes) {
-			qDebug() << trans->getOldElementType() << " :: " << trans->getNewElementType() << endl;
-			transforms[trans->getOldElementType()][trans->getNewElementType()] = trans;
-			newType[trans->getOldElementType()] = trans->getNewElementType();
-			oldType[trans->getNewElementType()] = trans->getOldElementType();
+			qDebug() << trans->oldElementType() << " :: " << trans->newElementType() << endl;
+			transforms[trans->oldElementType()][trans->newElementType()] = trans;
+			newType[trans->oldElementType()] = trans->newElementType();
+			oldType[trans->newElementType()] = trans->oldElementType();
 		}
+
+		QList<ReplaceTypeTransformation *> chain;
 
 		foreach (ReplaceTypeTransformation * const trans, replacedTypes) {
-			if (!transforms.contains(trans->getOldElementType()))
+			if (!transforms.contains(trans->oldElementType()))
 				continue;
-			QList<ReplaceTypeTransformation *> chain;
-			chain.append(trans);
-			transforms.remove(trans->getOldElementType());
 
-			QString nextElem = trans->getOldElementType();
-
-			while (oldType.contains(nextElem)) {
-				if (!transforms.contains(oldType[nextElem]))
-					break;
-				chain.append(transforms[oldType[nextElem]][nextElem]);
-				transforms.remove(oldType[nextElem]);
-				nextElem = oldType[nextElem];
-			}
-
-			nextElem = trans->getNewElementType();
-
-			while (newType.contains(nextElem)) {
-				if (!transforms.contains(nextElem))
-					break;
-				chain.prepend(transforms[nextElem][newType[nextElem]]);
-				transforms.remove(nextElem);
-				nextElem = newType[nextElem];
-			}
-
-			if (chain.length() > 1 && chain.first()->getNewElementType() == chain.last()->getOldElementType()) {
-				QString tempName = chain.first()->getNewElementType();
-				chain.first()->setNewElementType(tempName + "temp name that is impossible for regular elem to have");
-				chain.append(new ReplaceTypeTransformation(chain.first()->getNewElementType(), tempName, QMap<QString,QString>()));
-			}
+			findChain(trans, chain, transforms, newType, oldType);
 
 			foreach (ReplaceTypeTransformation * const trans, chain) {
-				qDebug() << " ! " << trans->getOldElementType() << " :: " << trans->getNewElementType() << endl;
+				qDebug() << " ! " << trans->oldElementType() << " :: " << trans->newElementType() << endl;
 				mTransformations[Id()].append(trans);
 			}
+
+			chain.clear();
 		}
+	}
+}
+
+void Analyzer::findChain(
+	ReplaceTypeTransformation * const trans
+	, QList<ReplaceTypeTransformation *> &chain
+	, QHash<QString, QHash<QString, ReplaceTypeTransformation *> > &transforms
+	, QHash<QString, QString> const &newType
+	, QHash<QString, QString> const &oldType
+	) const
+{
+	chain.append(trans);
+	transforms.remove(trans->oldElementType());
+
+	QString nextElem = trans->oldElementType();
+
+	while (oldType.contains(nextElem)) {
+		if (!transforms.contains(oldType[nextElem]))
+			break;
+		chain.append(transforms[oldType[nextElem]][nextElem]);
+		transforms.remove(oldType[nextElem]);
+		nextElem = oldType[nextElem];
+	}
+
+	nextElem = trans->newElementType();
+
+	while (newType.contains(nextElem)) {
+		if (!transforms.contains(nextElem))
+			break;
+		chain.prepend(transforms[nextElem][newType[nextElem]]);
+		transforms.remove(nextElem);
+		nextElem = newType[nextElem];
+	}
+
+	if (chain.length() > 1 && chain.first()->newElementType() == chain.last()->oldElementType()) {
+		QString tempName = chain.first()->newElementType();
+		chain.first()->setNewElementType(tempName + "temp name that is impossible for regular elem to have");
+		chain.append(new ReplaceTypeTransformation(chain.first()->newElementType(), tempName, QMap<QString,QString>()));
 	}
 }
 

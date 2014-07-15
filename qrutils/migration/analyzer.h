@@ -23,6 +23,15 @@ public:
 private:
 	void handleRenames();
 
+	/// finds chain (or cicle) of transformations containing \p trans and saves it in \p chain
+	void findChain(
+		ReplaceTypeTransformation * const trans
+		, QList<ReplaceTypeTransformation *> &chain
+		, QHash<QString, QHash<QString, ReplaceTypeTransformation *> > &transforms
+		, QHash<QString, QString> const &newType
+		, QHash<QString, QString> const &oldType
+	) const;
+
 	QHash<qReal::Id, QList<qReal::migration::Transformation *> > mTransformations;
 	QHash<qReal::Id, QList<qReal::migration::LogEntry *> > mLog;
 

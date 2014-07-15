@@ -20,9 +20,9 @@ public:
 
 	void apply(models::ModelsInterface *model);
 
-	QString getOldElementType() const;
+	QString oldElementType() const;
 	void setOldElementType(const QString &value);
-	QString getNewElementType() const;
+	QString newElementType() const;
 	void setNewElementType(const QString &value);
 
 private:
