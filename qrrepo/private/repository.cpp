@@ -28,11 +28,7 @@ void Repository::init()
 Repository::~Repository()
 {
 	mSerializer.clearWorkingDir();
-
-	foreach (Id const &id, mObjects.keys()) {
-		delete mObjects[id];
-	}
-
+	qDeleteAll(mObjects);
 	delete mLogger;
 }
 
@@ -347,7 +343,7 @@ void Repository::removeTemporaryRemovedLinks(Id const &id)
 void Repository::loadFromDisk()
 {
 	QHash<Id, QList<migration::LogEntry *> > log;
-	mSerializer.loadFromDisk(mObjects, log, mUsedMetamodels);
+	mSerializer.loadFromDisk(mObjects, mMetaInfo, log, mUsedMetamodels);
 	mLogger->reset(log);
 	addChildrenToRootObject();
 }
@@ -410,26 +406,28 @@ bool Repository::exist(const Id &id) const
 void Repository::saveAll()
 {
 	mLogger->createNewVersion();
-	mSerializer.saveToDisk(mObjects.values(), mLogger->log(), mUsedMetamodels);
+	mSerializer.saveToDisk(mObjects.values(), mMetaInfo, mLogger->log(), mUsedMetamodels);
 }
 
 void Repository::save(IdList const &list)
 {
 	QList<Object*> toSave;
-	foreach(Id const &id, list)
+	for (Id const &id : list) {
 		toSave.append(allChildrenOf(id));
+	}
 
 	mLogger->createNewVersion();
-	mSerializer.saveToDisk(toSave, mLogger->log(), mUsedMetamodels);
+	mSerializer.saveToDisk(toSave, mMetaInfo, mLogger->log(), mUsedMetamodels);
 }
 
 void Repository::saveWithLogicalId(qReal::IdList const &list)
 {
 	QList<Object*> toSave;
-	foreach(Id const &id, list)
-		toSave.append(allChildrenOfWithLogicalId(id));
+	for (Id const &id : list) {
+		toSave << allChildrenOfWithLogicalId(id);
+	}
 
-	mSerializer.saveToDisk(toSave, mLogger->log(), mUsedMetamodels);
+	mSerializer.saveToDisk(toSave, mMetaInfo, mLogger->log(), mUsedMetamodels);
 }
 
 void Repository::saveDiagramsById(QHash<QString, IdList> const &diagramIds)
@@ -437,24 +435,25 @@ void Repository::saveDiagramsById(QHash<QString, IdList> const &diagramIds)
 	QString const currentWorkingFile = mWorkingFile;
 	mLogger->createNewVersion();
 
-	foreach (QString const &savePath, diagramIds.keys()) {
-		qReal::IdList diagrams = diagramIds[savePath];
+	for (QString const &savePath : diagramIds.keys()) {
+		qReal::IdList const diagrams = diagramIds[savePath];
 		setWorkingFile(savePath);
 		qReal::IdList elementsToSave;
-		foreach (qReal::Id const &id, diagrams) {
+		for (qReal::Id const &id : diagrams) {
 			elementsToSave += idsOfAllChildrenOf(id);
 			// id is a graphical ID for this diagram
 			// we have to add logical diagram ID
 			// to this list manually
 			elementsToSave += logicalId(id);
 		}
+
 		saveWithLogicalId(elementsToSave);
 	}
 
 	setWorkingFile(currentWorkingFile);
 }
 
-void Repository::remove(IdList list) const
+void Repository::remove(IdList const &list) const
 {
 	foreach(Id const &id, list) {
 		qDebug() << id.toString();
@@ -506,7 +505,11 @@ void Repository::exterminate()
 {
 	printDebug();
 	clearRepo();
-	mSerializer.saveToDisk(mObjects.values(), mLogger->log(), mUsedMetamodels);
+	//serializer.clearWorkingDir();
+	if (!mWorkingFile.isEmpty()) {
+		mSerializer.saveToDisk(mObjects.values(), mMetaInfo, mLogger->log(), mUsedMetamodels);
+	}
+
 	init();
 	printDebug();
 }
@@ -629,4 +632,19 @@ void Repository::addUsedMetamodel(QString const &name, int const version)
 int Repository::metamodelVersion(const QString &name) const
 {
 	return mUsedMetamodels.value(name, 0);
+}
+
+QStringList Repository::metaInformationKeys() const
+{
+	return mMetaInfo.keys();
+}
+
+QVariant Repository::metaInformation(QString const &key) const
+{
+	return mMetaInfo[key];
+}
+
+void Repository::setMetaInformation(QString const &key, QVariant const &info)
+{
+	mMetaInfo[key] = info;
 }

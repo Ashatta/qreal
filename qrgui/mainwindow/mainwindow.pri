@@ -2,8 +2,6 @@ HEADERS += \
 	$$PWD/mainWindow.h \
 	$$PWD/propertyEditorProxyModel.h \
 	$$PWD/errorReporter.h \
-	$$PWD/gesturesPainterInterface.h \
-	$$PWD/gesturesPainterInterface.h \
 	$$PWD/error.h \
 	$$PWD/errorListWidget.h \
 	$$PWD/mainWindowInterpretersInterface.h \
@@ -21,6 +19,7 @@ HEADERS += \
 	$$PWD/projectManager/projectManagementInterface.h \
 	$$PWD/projectManager/projectManager.h \
 	$$PWD/projectManager/migrator.h \
+	$$PWD/projectManager/versionsConverterManager.h \
 	$$PWD/palette/paletteTree.h \
 	$$PWD/palette/paletteTreeWidget.h \
 	$$PWD/palette/draggableElement.h \
@@ -51,6 +50,7 @@ SOURCES += \
 	$$PWD/projectManager/autosaver.cpp \
 	$$PWD/projectManager/projectManager.cpp \
 	$$PWD/projectManager/migrator.cpp \
+	$$PWD/projectManager/versionsConverterManager.cpp \
 	$$PWD/palette/paletteTree.cpp \
 	$$PWD/palette/paletteTreeWidget.cpp \
 	$$PWD/palette/draggableElement.cpp \

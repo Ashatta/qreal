@@ -45,8 +45,8 @@ void Serializer::setWorkingFile(QString const &workingFile)
 	mWorkingFile = workingFile;
 }
 
-void Serializer::saveToDisk(QList<Object*> const &objects, QHash<Id, QList<migration::LogEntry *> > const &log
-		, QMap<QString, int> const &metamodelsVersions) const
+void Serializer::saveToDisk(QList<Object *> const &objects, QHash<QString, QVariant> const &metaInfo
+		, QHash<Id, QList<migration::LogEntry *> > const &log, QMap<QString, int> const &metamodelsVersions) const
 {
 	Q_ASSERT_X(!mWorkingFile.isEmpty()
 		, "Serializer::saveToDisk(...)"
@@ -65,6 +65,7 @@ void Serializer::saveToDisk(QList<Object*> const &objects, QHash<Id, QList<migra
 
 	saveLog(log);
 	saveMetamodelsVersions(metamodelsVersions);
+	saveMetaInfo(metaInfo);
 
 	QFileInfo fileInfo(mWorkingFile);
 	QString fileName = fileInfo.baseName();
@@ -88,8 +89,8 @@ void Serializer::saveToDisk(QList<Object*> const &objects, QHash<Id, QList<migra
 	clearDir(mWorkingDir);
 }
 
-void Serializer::loadFromDisk(QHash<qReal::Id, Object*> &objectsHash, QHash<Id, QList<migration::LogEntry *> > &log
-		, QMap<QString, int> &metamodelsVersions)
+void Serializer::loadFromDisk(QHash<qReal::Id, Object*> &objectsHash, QHash<QString, QVariant> &metaInfo
+		, QHash<Id, QList<migration::LogEntry *> > &log, QMap<QString, int> &metamodelsVersions)
 {
 	clearWorkingDir();
 	if (!mWorkingFile.isEmpty()) {
@@ -98,6 +99,7 @@ void Serializer::loadFromDisk(QHash<qReal::Id, Object*> &objectsHash, QHash<Id, 
 
 	QString const currentPath = SettingsManager::value("temp").toString();
 	loadFromDisk(currentPath, objectsHash);
+	loadMetaInfo(metaInfo);
 	loadLog(currentPath, log);
 	loadMetamodelsVersions(currentPath, metamodelsVersions);
 }
@@ -169,6 +171,39 @@ void Serializer::loadMetamodelsVersions(QString const &currentPath, QMap<QString
 
 			metamodelsVersions[nameAndVersion[0]] = version;
 		}
+	}
+}
+
+void Serializer::saveMetaInfo(QHash<QString, QVariant> const &metaInfo) const
+{
+	QDomDocument document;
+	QDomElement root = document.createElement("metaInformation");
+	document.appendChild(root);
+	for (QString const &key : metaInfo.keys()) {
+		QDomElement element = document.createElement("info");
+		element.setAttribute("key", key);
+		element.setAttribute("type", metaInfo[key].typeName());
+		element.setAttribute("value", ValuesSerializer::serializeQVariant(metaInfo[key]));
+		root.appendChild(element);
+	}
+
+	QString const filePath = mWorkingDir + "/metaInfo.xml";
+	OutFile out(filePath);
+	out() << document.toString(4);
+}
+
+void Serializer::loadMetaInfo(QHash<QString, QVariant> &metaInfo) const
+{
+	metaInfo.clear();
+
+	QString const filePath = mWorkingDir + "/metaInfo.xml";
+	QDomDocument const document = xmlUtils::loadDocument(filePath);
+	for (QDomElement child = document.documentElement().firstChildElement("info")
+			; !child.isNull()
+			; child = child.nextSiblingElement("info"))
+	{
+		metaInfo[child.attribute("key")] = ValuesSerializer::deserializeQVariant(
+				child.attribute("type"), child.attribute("value"));
 	}
 }
 

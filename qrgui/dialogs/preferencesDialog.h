@@ -24,6 +24,7 @@ public:
 
 	void init(QAction * const showGridAction, QAction * const showAlignmentAction
 		, QAction * const activateGridAction, QAction * const activateAlignmentAction);
+	void updatePluginDependendSettings();
 
 	void registerPage(QString const &pageName, PreferencesPage * const page);
 	void switchCurrentTab(QString const &tabName);
@@ -35,6 +36,7 @@ protected:
 signals:
 	void gridChanged();
 	void iconsetChanged();
+	void toolbarSizeChanged(int size);
 	void settingsApplied();
 	void fontChanged();
 	void paletteRepresentationChanged();
@@ -53,7 +55,7 @@ private slots:
 	void importSettings();
 
 private:
-
-	Ui::PreferencesDialog *ui;
+	Ui::PreferencesDialog *mUi;
 	QMap<QString, PreferencesPage *> mCustomPages;
+	QMap<QString, int> mPagesIndexes;
 };

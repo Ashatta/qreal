@@ -71,6 +71,14 @@ public:
 	void initMainWindow(MainWindow *mainWindow);
 	void installEventFilter(QObject *obj);
 
+	void setElementVisible(Id const &metatype, bool visible);
+
+	void setVisibleForAllElements(bool visible);
+
+	void setElementEnabled(Id const &metatype, bool enabled);
+
+	void setEnabledForAllElements(bool enabled);
+
 signals:
 	void paletteParametersChanged();
 
@@ -105,6 +113,8 @@ private:
 	explicit PaletteTree(PaletteTree const &paletteTree);
 
 	virtual void resizeEvent(QResizeEvent *);
+
+	void initUi();
 
 	/// Creates all PaletteTree widgets.
 	void createPaletteTree();

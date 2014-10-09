@@ -34,7 +34,7 @@ public:
 	/// @param importedFile - file to be imported
 	virtual void importFromDisk(QString const &importedFile) = 0;
 	virtual void saveAll() = 0;
-	virtual void save(qReal::IdList list) = 0;
+	virtual void save(qReal::IdList const &list) = 0;
 	virtual void saveTo(QString const &workingFile) = 0;
 
 	/// exports repo contents to a single XML file

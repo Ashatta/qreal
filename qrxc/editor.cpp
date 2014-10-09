@@ -27,12 +27,14 @@ bool Editor::isLoaded()
 
 bool Editor::load(QDir const &currentDir)
 {
-	QDomElement metamodel = mXmlDomDocument.firstChildElement("metamodel");
+	QDomElement const metamodel = mXmlDomDocument.firstChildElement("metamodel");
 	if (metamodel.isNull())
 	{
 		qDebug() << "ERROR: metamodel tag not found";
 		return false;
 	}
+
+	mVersion = metamodel.attribute("version");
 
 	//Load includes
 	for (QDomElement includeElement = metamodel.firstChildElement("include"); !includeElement.isNull();
@@ -100,6 +102,11 @@ bool Editor::load(QDir const &currentDir)
 XmlCompiler* Editor::xmlCompiler()
 {
 	return mXmlCompiler;
+}
+
+QString Editor::version() const
+{
+	return mVersion;
 }
 
 Type* Editor::findType(QString const &name)
@@ -194,7 +201,7 @@ void Editor::generateListenerFactory(utils::OutFile &out, QString const &pluginN
 		<< "}\n";
 }
 
-int Editor::version() const
+int Editor::versionForMigration() const
 {
 	return mEditorVersion;
 }
