@@ -9,7 +9,7 @@ using namespace qReal;
 using namespace qrRepo;
 using namespace qrRepo::details;
 
-Repository::Repository(QString const &workingFile, qReal::migration::LoggerInterface *logger)
+Repository::Repository(QString const &workingFile, qReal::migration::Logger *logger)
 		: mWorkingFile(workingFile)
 		, mSerializer(workingFile)
 		, mLogger(logger)

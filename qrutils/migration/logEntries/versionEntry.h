@@ -1,11 +1,12 @@
 #pragma once
 
+#include "qrutils/utilsDeclSpec.h"
 #include "migration/logEntries/logEntry.h"
 
 namespace qReal {
 namespace migration {
 
-class VersionEntry : public LogEntry
+class QRUTILS_EXPORT VersionEntry : public LogEntry
 {
 public:
 	VersionEntry(int version);

@@ -1,4 +1,7 @@
-#include "migration/transformations/transformation.h"
+#pragma once
+
+#include "qrutils/utilsDeclSpec.h"
+#include "qrutils/migration/transformations/transformation.h"
 
 namespace qrRepo {
 	class CommonRepoApi;
@@ -9,13 +12,18 @@ namespace qReal
 namespace migration
 {
 
-class ReplaceTypeTransformation : public Transformation
+class QRUTILS_EXPORT ReplaceTypeTransformation : public Transformation
 {
 public:
 	ReplaceTypeTransformation(QString const &oldTypeName, QString const &newTypeName
 			, QMap<QString, QString> const &propertyMap);
 
 	void apply(models::ModelsInterface *model);
+
+	QString oldElementType() const;
+	void setOldElementType(const QString &value);
+	QString newElementType() const;
+	void setNewElementType(const QString &value);
 
 private:
 	IdList findMatching(qReal::Id const &id = qReal::Id::rootId()) const;
