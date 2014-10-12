@@ -139,7 +139,7 @@ bool ProjectManager::openProject(QString const &fileName)
 	mMainWindow->models()->repoControlApi().open(fileName);
 	mMainWindow->models()->reinit();
 
-	if (!pluginsEnough() || !checkVersions() || !checkForUnknownElements()) {
+	if (!pluginsEnough()) { // || !checkVersions() || !checkForUnknownElements()) {
 		// restoring the session
 		if (someProjectWasOpened) {
 			mSomeProjectOpened = open(mSaveFilePath);

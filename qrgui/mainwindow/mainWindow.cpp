@@ -1675,8 +1675,7 @@ void MainWindow::createDiagram(QString const &idString)
 	closeStartTab();
 	Id const id = Id::loadFromString(idString);
 	Id created;
-	if (mEditorManagerProxy.isNodeOrEdge(id.editor(), id.element())
-			|| mEditorManagerProxy.isDiagramNode(id)) {
+	if (mEditorManagerProxy.isNodeOrEdge(id.editor(), id.element())) {
 		created = mModels->graphicalModelAssistApi().createElement(Id::rootId(), id);
 	} else {
 		// It is a group
