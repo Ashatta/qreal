@@ -166,3 +166,24 @@ void ReplaceTypeTransformation::copyLinks(qrRepo::CommonRepoApi &api, qReal::Id 
 		}
 	}
 }
+
+QString ReplaceTypeTransformation::newElementType() const
+{
+	return mNewElementType;
+}
+
+void ReplaceTypeTransformation::setNewElementType(const QString &value)
+{
+	mNewElementType = value;
+}
+
+QString ReplaceTypeTransformation::oldElementType() const
+{
+	return mOldElementType;
+}
+
+void ReplaceTypeTransformation::setOldElementType(const QString &value)
+{
+	mOldElementType = value;
+}
+
