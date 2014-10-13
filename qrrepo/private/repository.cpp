@@ -427,6 +427,7 @@ void Repository::saveWithLogicalId(qReal::IdList const &list)
 		toSave << allChildrenOfWithLogicalId(id);
 	}
 
+	mLogger->createNewVersion();
 	mSerializer.saveToDisk(toSave, mMetaInfo, mLogger->log(), mUsedMetamodels);
 }
 
