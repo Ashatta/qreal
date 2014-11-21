@@ -11,7 +11,7 @@ Id const robotDiagramType = Id("RobotsMetamodel", "RobotsDiagram", "RobotsDiagra
 Id const subprogramDiagramType = Id("RobotsMetamodel", "RobotsDiagram", "SubprogramDiagram");
 
 NxtKitInterpreterPlugin::NxtKitInterpreterPlugin()
-	: mRealRobotModel(kitId())
+	: mRealRobotModel(kitId(), "nxtKitRobot") // todo: somewhere generate robotId for each robot
 	, mTwoDRobotModel(mRealRobotModel)
 	, mBlocksFactory(new blocks::NxtBlocksFactory)
 {
@@ -40,10 +40,10 @@ NxtKitInterpreterPlugin::~NxtKitInterpreterPlugin()
 }
 
 void NxtKitInterpreterPlugin::init(interpreterBase::EventsForKitPluginInterface const &eventsForKitPlugin
-		, SystemEventsInterface const &systemEvents
+		, SystemEvents const &systemEvents
 		, qReal::GraphicalModelAssistInterface &graphicalModel
 		, qReal::LogicalModelAssistInterface &logicalModel
-		, qReal::gui::MainWindowInterpretersInterface const &interpretersInterface
+		, gui::MainWindowInterpretersInterface &interpretersInterface
 		, interpreterBase::InterpreterControlInterface &interpreterControl)
 {
 	connect(&eventsForKitPlugin
@@ -51,7 +51,7 @@ void NxtKitInterpreterPlugin::init(interpreterBase::EventsForKitPluginInterface 
 			, [this](QString const &modelName) { mCurrentlySelectedModelName = modelName; });
 
 	connect(&systemEvents
-			, &qReal::SystemEventsInterface::activeTabChanged
+			, &qReal::SystemEvents::activeTabChanged
 			, this
 			, &NxtKitInterpreterPlugin::onActiveTabChanged);
 

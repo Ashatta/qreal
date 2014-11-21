@@ -4,8 +4,9 @@
 
 #include <qrkernel/ids.h>
 
-#include "controller/undoStack.h"
-#include "controller/commands/abstractCommand.h"
+#include "qrgui/controller/controllerDeclSpec.h"
+#include "qrgui/controller/undoStack.h"
+#include "qrgui/controller/commands/abstractCommand.h"
 
 namespace qReal {
 
@@ -13,7 +14,7 @@ class MainWindow;
 
 /// A controller class for all user actions watching.
 /// A part of global MVC architecture.
-class Controller : public QObject
+class QRGUI_CONTROLLER_EXPORT Controller : public QObject
 {
 	Q_OBJECT
 

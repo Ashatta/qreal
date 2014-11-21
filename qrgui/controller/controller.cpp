@@ -1,6 +1,6 @@
 #include "controller.h"
 
-#include "mainwindow/mainWindow.h"
+#include "mainWindow/mainWindow.h"
 
 using namespace qReal;
 using namespace qReal::commands;
