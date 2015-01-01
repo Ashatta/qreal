@@ -1069,7 +1069,13 @@ void MainWindow::openFirstDiagram()
 	if (rootIds.count() == 0) {
 		return;
 	}
-	openNewTab(mModels->graphicalModelAssistApi().indexById(rootIds[0]));
+
+	for (Id const &id : rootIds) {
+		if (mModels->graphicalRepoApi().isGraphicalElement(id)) {
+			openNewTab(mModels->graphicalModelAssistApi().indexById(id));
+			break;
+		}
+	}
 }
 
 void MainWindow::initCurrentTab(EditorView *const tab, const QModelIndex &rootIndex)
