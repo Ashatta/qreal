@@ -17,11 +17,13 @@ public:
 	Logger(qrRepo::LogicalRepoApi *repo);
 	~Logger();
 
+	void addDiagram(qReal::Id const &diagram);
 	void addLogEntry(qReal::Id const &diagram, qReal::migration::LogEntry * const entry);
 	void deleteLogEntry(qReal::Id const &diagram);
+	QMap<int, QString> versionNames() const;
 	int version() const;
 
-	void createNewVersion();
+	void createNewVersion(QString const &versionName);
 
 	void clear();
 	void reset(QHash<qReal::Id, QList<qReal::migration::LogEntry *> > const &log);
@@ -35,6 +37,7 @@ private:
 	void removeLastVersions(qReal::Id const &diagram);
 
 	QHash<qReal::Id, QList<qReal::migration::LogEntry *> > mLog;
+	QMap<int, QString> mVersionNames;
 	int mModelVersion;
 
 	qrRepo::LogicalRepoApi *mRepo; // Doesn't take ownership

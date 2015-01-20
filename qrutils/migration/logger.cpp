@@ -15,6 +15,16 @@ Logger::~Logger()
 	clear();
 }
 
+void Logger::addDiagram(qReal::Id const &diagram)
+{
+	if (!mLog.keys().contains(diagram)) {
+		mLog[diagram] = QList<LogEntry *>();
+		for (int i = 1; i < mModelVersion; ++i) {
+			mLog[diagram] << new VersionEntry(i, mVersionNames[i]);
+		}
+	}
+}
+
 void Logger::addLogEntry(qReal::Id const &diagram, LogEntry * const entry)
 {
 	mLog[diagram] << entry;
@@ -25,6 +35,11 @@ void Logger::deleteLogEntry(qReal::Id const &diagram)
 	removeLastVersions(diagram);
 	delete mLog[diagram].last();
 	mLog[diagram].removeLast();
+}
+
+QMap<int, QString> Logger::versionNames() const
+{
+	return mVersionNames;
 }
 
 int Logger::version() const
@@ -42,6 +57,7 @@ void Logger::clear()
 
 	mLog.clear();
 	mModelVersion = 1;
+	mVersionNames.clear();
 }
 
 void Logger::reset(QHash<qReal::Id, QList<LogEntry *> > const &log)
@@ -56,6 +72,7 @@ void Logger::reset(QHash<qReal::Id, QList<LogEntry *> > const &log)
 			VersionEntry * const versionEntry = dynamic_cast<VersionEntry *>(entry);
 			if (versionEntry) {
 				version = versionEntry->version();
+				mVersionNames[version] = versionEntry->name();
 			}
 		}
 
@@ -120,15 +137,13 @@ QHash<qReal::Id, QList<qReal::migration::LogEntry *> > Logger::logBetween(int st
 	return result;
 }
 
-void Logger::createNewVersion()
+void Logger::createNewVersion(QString const &versionName)
 {
-	if (needNewVersion()) {
-		foreach (qReal::Id const &id, mLog.keys()) {
-			mLog[id] << new VersionEntry(mModelVersion);
-		}
-
-		mModelVersion++;
+	foreach (qReal::Id const &id, mLog.keys()) {
+		mLog[id] << new VersionEntry(mModelVersion, versionName);
 	}
+
+	mVersionNames[mModelVersion++] = versionName;
 }
 
 bool Logger::needNewVersion() const
@@ -162,6 +177,7 @@ void Logger::removeLastVersions(Id const &diagram)
 			--it;
 			VersionEntry const * const entry = dynamic_cast<VersionEntry *>(*it);
 			if (entry && entry->version() >= firstVersionToRemove) {
+				mVersionNames.remove(entry->version());
 				delete *it;
 				it = mLog[id].erase(it);
 			}
@@ -179,8 +195,12 @@ void Logger::rollBackTo(int version)
 		for (QList<LogEntry *>::iterator it = mLog[id].end(); it != mLog[id].begin();) {
 			--it;
 			VersionEntry const * const entry = dynamic_cast<VersionEntry *>(*it);
-			if (entry && entry->version() <= version) {
-				break;
+			if (entry) {
+				if (entry->version() <= version) {
+					break;
+				} else {
+					mVersionNames.remove(entry->version());
+				}
 			}
 
 			if (!entry || entry->version() > version) {

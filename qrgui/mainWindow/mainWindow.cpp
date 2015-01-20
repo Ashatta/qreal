@@ -1410,6 +1410,8 @@ void MainWindow::createDiagram(QString const &idString)
 		return;
 	}
 
+	mModels->repoControlApi().addLogEntries(created, QList<qReal::migration::LogEntry *>());
+
 	QModelIndex const index = mModels->graphicalModelAssistApi().indexById(created);
 	mUi->graphicalModelExplorer->setCurrentIndex(index);
 	Id const logicalIdCreated = mModels->graphicalModelAssistApi().logicalId(created);

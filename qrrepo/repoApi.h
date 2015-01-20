@@ -156,22 +156,15 @@ public:
 	QVariant metaInformation(QString const &key) const override;
 	void setMetaInformation(QString const &key, QVariant const &info) override;
 
-	// Override
-	virtual void addLogEntries(qReal::Id const &diagram, QList<qReal::migration::LogEntry *> const &entries);
-
-	// Override
-	virtual void deleteLogEntries(qReal::Id const &diagram, int count);
-
-	// Override
-	virtual void rollBackTo(int version);
-
+	virtual void addLogEntries(qReal::Id const &diagram, QList<qReal::migration::LogEntry *> const &entries) override;
+	virtual void deleteLogEntries(qReal::Id const &diagram, int count) override;
+	virtual void rollBackTo(int version) override;
 	virtual QHash<qReal::Id, QList<qReal::migration::LogEntry *> > logBetween(int startVersion, int endVersion) const;
-
 	virtual int version() const;
-
 	virtual void addUsedMetamodel(QString const &name, int const version);
-
 	virtual int metamodelVersion(QString const &metamodelName) const;
+	virtual void createNewVersion(QString const &versionName) override;
+	virtual QMap<int, QString> versionNames() const override;
 
 private:
 	RepoApi(RepoApi const &other);  // Copying is not allowed.

@@ -18,7 +18,7 @@ LogEntry * LogEntry::loadFromString(QString const &string)
 	}
 
 	if (components[0] == "version") {
-		if (components.size() != 2) {
+		if (components.size() != 3) {
 			qDebug() << "incorrect version entry";
 			return new LogEntry();
 		}
@@ -30,7 +30,7 @@ LogEntry * LogEntry::loadFromString(QString const &string)
 			return new LogEntry();
 		}
 
-		return new VersionEntry(version);
+		return new VersionEntry(version, components[2]);
 	} else if (components[0] == "rename") {
 		if (components.size() != 5) {
 			qDebug() << "incorrect rename entry";

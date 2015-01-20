@@ -10,7 +10,6 @@ SUBDIRS += \
 	$$PWD/metaEditor/metaEditor.pro \
 	$$PWD/requirements/requirements.pro \
 	$$PWD/domainAnalysis/domainAnalysis.pro \
-	$$PWD/robotsRestored/robotsMetamodel.pro
 
 # interpreted plugins
 SUBDIRS += \

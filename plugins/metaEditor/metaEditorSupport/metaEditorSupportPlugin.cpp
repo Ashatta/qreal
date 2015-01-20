@@ -12,15 +12,18 @@
 
 #include "editorGenerator.h"
 #include "xmlParser.h"
+#include "versionChooserDialog.h"
 
 using namespace qReal;
 using namespace metaEditor;
 
 MetaEditorSupportPlugin::MetaEditorSupportPlugin()
-		: mGenerateEditorForQrxcAction(NULL)
-		, mGenerateEditorWithQrmcAction(NULL)
-		, mParseEditorXmlAction(NULL)
-		, mRepoControlApi(NULL)
+		: mGenerateEditorForQrxcAction(nullptr)
+		, mGenerateEditorWithQrmcAction(nullptr)
+		, mParseEditorXmlAction(nullptr)
+		, mCommitNewVersionAction(nullptr)
+		, mCreateMigrationAction(nullptr)
+		, mRepoControlApi(nullptr)
 		, mCompilerSettingsPage(new PreferencesCompilerPage())
 {
 }
@@ -51,9 +54,19 @@ QList<ActionInfo> MetaEditorSupportPlugin::actions()
 	ActionInfo parseEditorXmlActionInfo(&mParseEditorXmlAction, "generators", "tools");
 	connect(&mParseEditorXmlAction, SIGNAL(triggered()), this, SLOT(parseEditorXml()));
 
+	mCommitNewVersionAction.setText(tr("Commit new version"));
+	ActionInfo commitNewVersionActionInfo(&mCommitNewVersionAction, "generators", "tools");
+	connect(&mCommitNewVersionAction, SIGNAL(triggered()), this, SLOT(commitNewVersion()));
+
+	mCreateMigrationAction.setText(tr("Create migration"));
+	ActionInfo createMigrationActionInfo(&mCreateMigrationAction, "generators", "tools");
+	connect(&mCreateMigrationAction, SIGNAL(triggered()), this, SLOT(openMigrationDialog()));
+
 	return QList<ActionInfo>() << generateEditorForQrxcActionInfo
-	<< generateEditorWithQrmcActionInfo
-	<< parseEditorXmlActionInfo;
+			<< generateEditorWithQrmcActionInfo
+			<< parseEditorXmlActionInfo
+			<< commitNewVersionActionInfo
+			<< createMigrationActionInfo;
 }
 
 QPair<QString, gui::PreferencesPage *> MetaEditorSupportPlugin::preferencesPage()
@@ -222,6 +235,44 @@ void MetaEditorSupportPlugin::parseEditorXml()
 	parser.loadIncludeList(fileName);
 
 	mMainWindowInterface->reinitModels();
+}
+
+void MetaEditorSupportPlugin::commitNewVersion()
+{
+	if (!checkModel()) {
+		QMessageBox::warning(mMainWindowInterface->windowWidget(), tr("error")
+				, tr("Can't commit: current model is not valid"));
+		return;
+	}
+
+	Id firstDiagram;
+	for (Id const &id : mLogicalRepoApi->children(Id::rootId())) {
+		if (mLogicalRepoApi->isLogicalElement(id)) {
+			firstDiagram = id;
+			break;
+		}
+	}
+
+	mRepoControlApi->createNewVersion(mLogicalRepoApi->stringProperty(firstDiagram, "version"));
+
+	mMainWindowInterface->errorReporter()->addInformation("Version created");
+}
+
+bool MetaEditorSupportPlugin::checkModel()
+{
+	return true;
+}
+
+void MetaEditorSupportPlugin::openMigrationDialog()
+{
+	VersionChooserDialog versionChooser(mRepoControlApi->versionNames(), mMainWindowInterface->windowWidget());
+	connect(&versionChooser, SIGNAL(versionChosen(int,int)), this, SLOT(createMigrationsForVersions(int,int)));
+	versionChooser.exec();
+}
+
+void MetaEditorSupportPlugin::createMigrationsForVersions(int from, int to)
+{
+	qDebug() << from << to;
 }
 
 void MetaEditorSupportPlugin::loadNewEditor(QString const &directoryName

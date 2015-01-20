@@ -405,7 +405,7 @@ bool Repository::exist(const Id &id) const
 
 void Repository::saveAll()
 {
-	mLogger->createNewVersion();
+//	mLogger->createNewVersion();
 	mSerializer.saveToDisk(mObjects.values(), mMetaInfo, mLogger->log(), mUsedMetamodels);
 }
 
@@ -416,7 +416,7 @@ void Repository::save(IdList const &list)
 		toSave.append(allChildrenOf(id));
 	}
 
-	mLogger->createNewVersion();
+//	mLogger->createNewVersion();
 	mSerializer.saveToDisk(toSave, mMetaInfo, mLogger->log(), mUsedMetamodels);
 }
 
@@ -427,14 +427,14 @@ void Repository::saveWithLogicalId(qReal::IdList const &list)
 		toSave << allChildrenOfWithLogicalId(id);
 	}
 
-	mLogger->createNewVersion();
+//	mLogger->createNewVersion();
 	mSerializer.saveToDisk(toSave, mMetaInfo, mLogger->log(), mUsedMetamodels);
 }
 
 void Repository::saveDiagramsById(QHash<QString, IdList> const &diagramIds)
 {
 	QString const currentWorkingFile = mWorkingFile;
-	mLogger->createNewVersion();
+//	mLogger->createNewVersion();
 
 	for (QString const &savePath : diagramIds.keys()) {
 		qReal::IdList const diagrams = diagramIds[savePath];
@@ -600,9 +600,12 @@ void Repository::setGraphicalPartProperty(
 	graphicalObject->setGraphicalPartProperty(partIndex, propertyName, value);
 }
 
-void Repository::addLogEntry(qReal::Id const &diagram, migration::LogEntry * const entry)
+void Repository::addLogEntries(qReal::Id const &diagram, QList<migration::LogEntry *> const &entries)
 {
-	mLogger->addLogEntry(diagram, entry);
+	mLogger->addDiagram(diagram);
+	for (migration::LogEntry * const entry : entries) {
+		mLogger->addLogEntry(diagram, entry);
+	}
 }
 
 void Repository::deleteLogEntry(qReal::Id const &diagram)
@@ -613,6 +616,16 @@ void Repository::deleteLogEntry(qReal::Id const &diagram)
 void Repository::rollBackTo(int version)
 {
 	mLogger->rollBackTo(version);
+}
+
+void Repository::createNewVersion(QString const &versionName)
+{
+	mLogger->createNewVersion(versionName);
+}
+
+QMap<int, QString> Repository::versionNames() const
+{
+	return mLogger->versionNames();
 }
 
 int Repository::version() const

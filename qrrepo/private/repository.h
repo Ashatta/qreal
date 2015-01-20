@@ -17,7 +17,7 @@ namespace details {
 class Repository
 {
 public:
-    QRREPO_EXPORT Repository(QString const &workingFile, qReal::migration::Logger *logger);
+	QRREPO_EXPORT Repository(QString const &workingFile, qReal::migration::Logger *logger);
 	QRREPO_EXPORT virtual ~Repository();
 
 	/// replacing property values that contains input value with new value
@@ -126,9 +126,11 @@ public:
 			, QVariant const &value
 			);
 
-	virtual void addLogEntry(qReal::Id const &diagram, qReal::migration::LogEntry * const entry);
+	virtual void addLogEntries(qReal::Id const &diagram, QList<qReal::migration::LogEntry *> const &entries);
 	virtual void deleteLogEntry(qReal::Id const &diagram);
 	virtual void rollBackTo(int version);
+	virtual void createNewVersion(QString const &versionName);
+	virtual QMap<int, QString> versionNames() const;
 	virtual int version() const;
 	virtual QHash<qReal::Id, QList<qReal::migration::LogEntry *> > logBetween(int startVersion, int endVersion) const;
 
@@ -163,7 +165,7 @@ private:
 	QString mWorkingFile;
 	Serializer mSerializer;
 
-    qReal::migration::Logger *mLogger; // Takes ownership
+	qReal::migration::Logger *mLogger; // Takes ownership
 
 	QMap<QString, int> mUsedMetamodels;
 };

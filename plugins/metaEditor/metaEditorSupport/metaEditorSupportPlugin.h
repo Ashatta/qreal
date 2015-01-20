@@ -35,6 +35,12 @@ private slots:
 	/// in metaeditor
 	void parseEditorXml();
 
+	void commitNewVersion();
+
+	void openMigrationDialog();
+
+	void createMigrationsForVersions(int from, int to);
+
 private:
 	/// Compiles and loads to QReal new editor plugin
 	void loadNewEditor(
@@ -47,6 +53,8 @@ private:
 			, QString const &buildConfiguration  ///< debug or release, passed to CONFIG variable of qmake
 			);
 
+	bool checkModel();
+
 	/// Action that starts generation of .xml file with metamodel for qrxc
 	QAction mGenerateEditorForQrxcAction;
 
@@ -55,6 +63,10 @@ private:
 
 	/// Action that starts parsing of existing .xml metamodel
 	QAction mParseEditorXmlAction;
+
+	QAction mCommitNewVersionAction;
+
+	QAction mCreateMigrationAction;
 
 	/// Interface of MainWindow, used, for example, to reinit models when finished parsing
 	qReal::gui::MainWindowInterpretersInterface *mMainWindowInterface;  // Does not have ownership

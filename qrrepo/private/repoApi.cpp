@@ -9,7 +9,7 @@ using namespace qrRepo::details;
 using namespace qReal;
 
 RepoApi::RepoApi(QString const &workingDirectory, bool ignoreAutosave)
-        : mRepository(workingDirectory, new migration::Logger(this))
+		: mRepository(workingDirectory, new migration::Logger(this))
 		, mIgnoreAutosave(ignoreAutosave)
 {
 }
@@ -587,9 +587,7 @@ void RepoApi::setGraphicalPartProperty(
 
 void RepoApi::addLogEntries(Id const &diagram, QList<migration::LogEntry *> const &entries)
 {
-	foreach (migration::LogEntry * const entry, entries) {
-		mRepository.addLogEntry(diagram, entry);
-	}
+	mRepository.addLogEntries(diagram, entries);
 }
 
 void RepoApi::deleteLogEntries(Id const &diagram, int count)
@@ -602,6 +600,16 @@ void RepoApi::deleteLogEntries(Id const &diagram, int count)
 void RepoApi::rollBackTo(int version)
 {
 	mRepository.rollBackTo(version);
+}
+
+void RepoApi::createNewVersion(QString const &versionName)
+{
+	mRepository.createNewVersion(versionName);
+}
+
+QMap<int, QString> RepoApi::versionNames() const
+{
+	return mRepository.versionNames();
 }
 
 int RepoApi::version() const
