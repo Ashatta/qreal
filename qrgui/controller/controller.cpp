@@ -5,13 +5,13 @@
 using namespace qReal;
 using namespace qReal::commands;
 
-Controller::Controller(MainWindow *mainWindow)
+Controller::Controller(qrRepo::RepoControlInterface &repoControlApi)
 	: mGlobalStack(new UndoStack)
 	, mActiveStack(NULL)
 	, mModifiedState(false)
 	, mCanRedoState(true)
 	, mCanUndoState(true)
-	, mWindow(mainWindow)
+	, mRepoControlApi(repoControlApi)
 {
 	connectStack(mGlobalStack);
 }
@@ -71,7 +71,7 @@ void Controller::execute(commands::AbstractCommand *command, UndoStack *stack)
 	}
 
 	qReal::Id const diagram = qReal::Id::loadFromString(mDiagramStacks.key(stack, qReal::Id::rootId().toString()));
-	mWindow->models()->repoControlApi().addLogEntries(diagram
+	mRepoControlApi.addLogEntries(diagram
 			, command ? command->commandLog() : QList<migration::LogEntry *>());
 }
 
@@ -170,7 +170,7 @@ void Controller::redo()
 	}
 
 	qReal::Id const diagram = qReal::Id::loadFromString(mDiagramStacks.key(stack, qReal::Id::rootId().toString()));
-	mWindow->models()->repoControlApi().addLogEntries(diagram
+	mRepoControlApi.addLogEntries(diagram
 			, command ? command->commandLog() : QList<migration::LogEntry *>());
 }
 
@@ -184,7 +184,7 @@ void Controller::undo()
 	}
 
 	qReal::Id const diagram = qReal::Id::loadFromString(mDiagramStacks.key(stack, qReal::Id::rootId().toString()));
-	mWindow->models()->repoControlApi().deleteLogEntries(diagram, command ? command->commandLog().size() : 0);
+	mRepoControlApi.deleteLogEntries(diagram, command ? command->commandLog().size() : 0);
 }
 
 UndoStack *Controller::selectActiveStack(bool forUndo)

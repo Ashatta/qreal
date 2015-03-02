@@ -12,8 +12,7 @@
 
 #include <qrkernel/ids.h>
 
-#include "mainWindow/palette/paletteElement.h"
-#include "mainWindow/mainWindow.h"
+#include "palette/paletteElement.h"
 #include "plugins/pluginManager/proxyEditorManager.h"
 
 namespace qReal {
@@ -25,8 +24,7 @@ class DraggableElement : public QWidget
 	Q_OBJECT
 
 public:
-	DraggableElement(MainWindow &mainWindow
-		, PaletteElement const &paletteElement
+	DraggableElement(PaletteElement const &paletteElement
 		, bool iconsOnly
 		, EditorManagerInterface &editorManagerProxy
 		, QWidget *parent = nullptr
@@ -49,11 +47,15 @@ public:
 
 	QSize iconsPreferredSize() const;
 
+signals:
+	void requestForPropertiesChange(const qReal::Id &id);
+	void requestForAppearanceChange(const qReal::Id &id, const QString &shape);
+	void requestForElementDeletion(const qReal::Id &deletedElement, bool isRootDiagram);
+
 private slots:
 	void changePropertiesPaletteActionTriggered();
 	void changeAppearancePaletteActionTriggered();
 	void deleteElementPaletteActionTriggered();
-	void deleteElement();
 	void checkElementForRootDiagramNode();
 
 protected:
@@ -84,7 +86,6 @@ private:
 	PaletteElement const mData;
 	QLabel *mLabel;
 	EditorManagerInterface &mEditorManagerProxy;  // Does not have ownership.
-	MainWindow &mMainWindow;
 	Id mDeletedElementId;
 	bool mIsRootDiagramNode;
 };

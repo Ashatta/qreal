@@ -29,6 +29,7 @@
 #include "editor/propertyEditorView.h"
 #include "models/propertyEditorModel.h"
 #include "controller/controller.h"
+#include "palette/paletteTree.h"
 #include "plugins/toolPluginInterface/systemEvents.h"
 
 #include "preferencesDialog/preferencesDialog.h"
@@ -52,7 +53,6 @@ class Models;
 
 namespace gui {
 class ErrorReporter;
-class PaletteTree;
 }
 
 class MainWindow : public QMainWindow
@@ -260,6 +260,11 @@ private slots:
 	void setUsabilityMode(bool mode);
 	void startUsabilityTest();
 	void finishUsabilityTest();
+
+	void changeTypeProperties(const qReal::Id &id);
+	void changeTypeAppearance(const qReal::Id &id, const QString &shape);
+	void deleteElementType(const qReal::Id &deletedElement, bool isRootDiagram);
+	void createElementType(const qReal::Id &editor);
 
 private:
 	/// Initializes a tab if it is a diagram --- sets its logical and graphical

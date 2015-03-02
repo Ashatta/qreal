@@ -1,6 +1,8 @@
 #include "versionChooserDialog.h"
 #include "ui_versionchooserdialog.h"
 
+using namespace metaEditor;
+
 VersionChooserDialog::VersionChooserDialog(QMap<int, QString> const &versions, QWidget *parent) :
 	QDialog(parent),
 	ui(new Ui::VersionChooserDialog)
@@ -22,5 +24,6 @@ VersionChooserDialog::~VersionChooserDialog()
 
 void VersionChooserDialog::onAccept()
 {
-	emit versionChosen(ui->fromComboBox->currentData().toInt(), ui->toComboBox->currentData().toInt());
+	emit versionChosen(ui->fromComboBox->currentText(), ui->fromComboBox->currentData().toInt()
+			, ui->toComboBox->currentText(), ui->toComboBox->currentData().toInt());
 }

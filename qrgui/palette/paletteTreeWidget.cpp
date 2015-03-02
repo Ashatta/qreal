@@ -3,19 +3,17 @@
 #include <QtGui/QMouseEvent>
 #include <QtWidgets/QMenu>
 
-#include "mainWindow/palette/paletteTree.h"
-#include "mainWindow/palette/draggableElement.h"
-#include "dialogs/metamodelingOnFly/chooseTypeDialog.h"
+#include "palette/paletteTree.h"
+#include "palette/draggableElement.h"
 
 using namespace qReal;
 using namespace gui;
 
 EditorManagerInterface *PaletteTreeWidget::mEditorManager = NULL;
 
-PaletteTreeWidget::PaletteTreeWidget(PaletteTree &palette, MainWindow &mainWindow
+PaletteTreeWidget::PaletteTreeWidget(PaletteTree &palette
 		, EditorManagerInterface &editorManagerProxy, bool editable)
-	: mMainWindow(mainWindow)
-	, mPaletteTree(palette)
+	: mPaletteTree(palette)
 	, mEditable(editable)
 {
 	mEditorManager = &editorManagerProxy;
@@ -72,8 +70,7 @@ void PaletteTreeWidget::addGroups(QList<QPair<QString, QList<PaletteElement>>> &
 void PaletteTreeWidget::addItemType(PaletteElement const &data, QTreeWidgetItem *parent)
 {
 	QTreeWidgetItem *leaf = new QTreeWidgetItem;
-	DraggableElement *element = new DraggableElement(mMainWindow, data
-			, mPaletteTree.iconsView(), *mEditorManager);
+	DraggableElement *element = createDraggableElement(data, mPaletteTree.iconsView());
 
 	mPaletteElements.insert(data.id(), element);
 	mPaletteItems.insert(data.id(), leaf);
@@ -97,7 +94,7 @@ void PaletteTreeWidget::addItemsRow(QList<PaletteElement> const &items, QTreeWid
 		QHBoxLayout *layout = new QHBoxLayout;
 		int count = mPaletteTree.itemsCountInARow();
 		for (; it != items.end() && --count > 0; ++it) {
-			DraggableElement *element = new DraggableElement(mMainWindow, *it, true, *mEditorManager);
+			DraggableElement *element = createDraggableElement(*it, true);
 			element->setToolTip((*it).description());
 			layout->addWidget(element, count > 0 ? 50 : 0);
 		}
@@ -116,11 +113,7 @@ void PaletteTreeWidget::addItemsRow(QList<PaletteElement> const &items, QTreeWid
 
 void PaletteTreeWidget::addElementPaletteActionTriggered()
 {
-	ChooseTypeDialog *chooseTypeDialog = new ChooseTypeDialog(mPaletteTree.currentEditor()
-			, *mEditorManager, &mMainWindow);
-	connect(chooseTypeDialog, &ChooseTypeDialog::jobDone, &mMainWindow, &MainWindow::loadPlugins);
-	chooseTypeDialog->setModal(true);
-	chooseTypeDialog->show();
+	emit requestForElementCreation(mPaletteTree.currentEditor());
 }
 
 void PaletteTreeWidget::mousePressEvent(QMouseEvent *event)
@@ -228,4 +221,18 @@ void PaletteTreeWidget::setEnabledForAllElements(bool enabled)
 	foreach (QWidget * const element, mPaletteElements.values()) {
 		element->setEnabled(enabled);
 	}
+}
+
+DraggableElement *PaletteTreeWidget::createDraggableElement(const PaletteElement &paletteElement, bool iconsOnly)
+{
+	DraggableElement *element = new DraggableElement(paletteElement, iconsOnly, *mEditorManager);
+
+	connect(element, &DraggableElement::requestForPropertiesChange
+			, this, &PaletteTreeWidget::requestForPropertiesChange);
+	connect(element, &DraggableElement::requestForAppearanceChange
+			, this, &PaletteTreeWidget::requestForAppearanceChange);
+	connect(element, &DraggableElement::requestForElementDeletion
+			, this, &PaletteTreeWidget::requestForElementDeletion);
+
+	return element;
 }

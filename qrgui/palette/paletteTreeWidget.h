@@ -2,8 +2,8 @@
 
 #include <QtWidgets/QTreeWidget>
 
-#include "mainWindow/palette/paletteElement.h"
-#include "mainWindow/palette/draggableElement.h"
+#include "palette/paletteElement.h"
+#include "palette/draggableElement.h"
 #include "plugins/pluginManager/editorManagerInterface.h"
 
 namespace qReal {
@@ -17,8 +17,7 @@ class PaletteTreeWidget : public QTreeWidget
 	Q_OBJECT
 
 public:
-	PaletteTreeWidget(PaletteTree &parent, MainWindow &mainWindow
-			, EditorManagerInterface &editorManagerProxy
+	PaletteTreeWidget(PaletteTree &parent, EditorManagerInterface &editorManagerProxy
 			, bool editable);
 
 	void addGroups(QList<QPair<QString, QList<PaletteElement>>> &groups
@@ -46,6 +45,12 @@ public:
 
 	void setEnabledForAllElements(bool enabled);
 
+signals:
+	void requestForPropertiesChange(const qReal::Id &id);
+	void requestForAppearanceChange(const qReal::Id &id, const QString &shape);
+	void requestForElementDeletion(const qReal::Id &deletedElement, bool isRootDiagram);
+	void requestForElementCreation(const qReal::Id &editor);
+
 protected:
 	void mousePressEvent(QMouseEvent *event);
 
@@ -71,6 +76,8 @@ private:
 	/// @param item Node which will be expanded with all his children.
 	void expandChildren(QTreeWidgetItem *item);
 
+	DraggableElement *createDraggableElement(const PaletteElement &paletteElement, bool iconsOnly);
+
 	/// Method-comparator for sorting Ids by displayed name.
 	/// Needs EditorManager instance to work,
 	/// but qSort() prohibits it to be a member of an object.
@@ -82,7 +89,6 @@ private:
 
 	/// Made static to be used inside idLessThan()
 	static EditorManagerInterface *mEditorManager;  // Does not take ownership
-	MainWindow &mMainWindow;
 	PaletteTree &mPaletteTree;
 	bool mEditable;
 

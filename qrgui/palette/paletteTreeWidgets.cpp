@@ -1,33 +1,33 @@
 #include "paletteTreeWidgets.h"
 
-#include "mainWindow/palette/paletteTree.h"
-#include "mainWindow/palette/draggableElement.h"
+#include "palette/paletteTree.h"
+#include "palette/draggableElement.h"
 
 using namespace qReal;
 using namespace gui;
 
-PaletteTreeWidgets::PaletteTreeWidgets(PaletteTree &parent, MainWindow *mainWindow
+PaletteTreeWidgets::PaletteTreeWidgets(PaletteTree &parent, models::Models &models
 		, EditorManagerInterface &editorManagerProxy)
 	: QSplitter(Qt::Vertical)
 	, mEditorManager(&editorManagerProxy)
 	, mParentPalette(&parent)
-	, mMainWindow(mainWindow)
-	, mEditorTree(new PaletteTreeWidget(parent, *mainWindow, editorManagerProxy, false))
-	, mUserTree(new PaletteTreeWidget(parent, *mainWindow, editorManagerProxy, true))
+	, mModels(models)
+	, mEditorTree(new PaletteTreeWidget(parent, editorManagerProxy, false))
+	, mUserTree(new PaletteTreeWidget(parent, editorManagerProxy, true))
 {
 	initWidgets();
 }
 
-PaletteTreeWidgets::PaletteTreeWidgets(PaletteTree &parent, MainWindow *mainWindow
+PaletteTreeWidgets::PaletteTreeWidgets(PaletteTree &parent, models::Models &models
 		, EditorManagerInterface &editorManagerProxy
 		, Id const &editor, Id const &diagram)
 	: QSplitter(Qt::Vertical)
 	, mParentPalette(&parent)
-	, mMainWindow(mainWindow)
+	, mModels(models)
 	, mEditor(editor)
 	, mDiagram(diagram)
-	, mEditorTree(new PaletteTreeWidget(parent, *mainWindow, editorManagerProxy, false))
-	, mUserTree(new PaletteTreeWidget(parent, *mainWindow, editorManagerProxy, true))
+	, mEditorTree(new PaletteTreeWidget(parent, editorManagerProxy, false))
+	, mUserTree(new PaletteTreeWidget(parent, editorManagerProxy, true))
 {
 	mEditorManager = &editorManagerProxy;
 	initWidgets();
@@ -43,6 +43,15 @@ void PaletteTreeWidgets::initWidgets()
 
 void PaletteTreeWidgets::initWidget(PaletteTreeWidget * const tree)
 {
+	connect(tree, &PaletteTreeWidget::requestForPropertiesChange
+			, this, &PaletteTreeWidgets::requestForPropertiesChange);
+	connect(tree, &PaletteTreeWidget::requestForAppearanceChange
+			, this, &PaletteTreeWidgets::requestForAppearanceChange);
+	connect(tree, &PaletteTreeWidget::requestForElementDeletion
+			, this, &PaletteTreeWidgets::requestForElementDeletion);
+	connect(tree, &PaletteTreeWidget::requestForElementCreation
+			, this, &PaletteTreeWidgets::requestForElementCreation);
+
 	tree->setHeaderHidden(true);
 	tree->setSelectionMode(QAbstractItemView::NoSelection);
 	addWidget(tree);
@@ -86,15 +95,14 @@ void PaletteTreeWidgets::initEditorTree()
 void PaletteTreeWidgets::initUserTree()
 {
 	refreshUserPalette();
-	connect(&mMainWindow->models()->exploser(), &models::Exploser::explosionsSetCouldChange
+	connect(&mModels.exploser(), &models::Exploser::explosionsSetCouldChange
 			, this, &PaletteTreeWidgets::refreshUserPalette);
 }
 
 void PaletteTreeWidgets::addTopItemType(PaletteElement const &data, QTreeWidget *tree)
 {
 	QTreeWidgetItem *item = new QTreeWidgetItem;
-	DraggableElement *element = new DraggableElement(*mMainWindow, data
-			, mParentPalette->iconsView(), *mEditorManager);
+	DraggableElement *element = createDraggableElement(data, mParentPalette->iconsView());
 
 	mPaletteElements.insert(data.id(), element);
 
@@ -222,12 +230,12 @@ void PaletteTreeWidgets::refreshUserPalette()
 	QList<QPair<QString, QList<gui::PaletteElement>>> groups;
 	QMap<QString, QString> descriptions = { { mUserGroupTitle, mUserGroupDescription } };
 
-	QMultiMap<Id, Id> const types = mMainWindow->models()->exploser().explosions(mDiagram);
+	QMultiMap<Id, Id> const types = mModels.exploser().explosions(mDiagram);
 	for (Id const &source : types.keys()) {
 		QList<gui::PaletteElement> groupElements;
 		for (Id const &target : types.values(source)) {
 			groupElements << gui::PaletteElement(source
-					, mMainWindow->models()->logicalRepoApi().name(target)
+					, mModels.logicalRepoApi().name(target)
 					, QString(), mEditorManager->icon(source)
 					, mEditorManager->iconSize(source)
 					, target);
@@ -237,4 +245,18 @@ void PaletteTreeWidgets::refreshUserPalette()
 	}
 
 	mUserTree->addGroups(groups, descriptions, true, mEditorManager->friendlyName(mDiagram), true);
+}
+
+DraggableElement *PaletteTreeWidgets::createDraggableElement(const PaletteElement &paletteElement, bool iconsOnly)
+{
+	DraggableElement *element = new DraggableElement(paletteElement, iconsOnly, *mEditorManager);
+
+	connect(element, &DraggableElement::requestForPropertiesChange
+			, this, &PaletteTreeWidgets::requestForPropertiesChange);
+	connect(element, &DraggableElement::requestForAppearanceChange
+			, this, &PaletteTreeWidgets::requestForAppearanceChange);
+	connect(element, &DraggableElement::requestForElementDeletion
+			, this, &PaletteTreeWidgets::requestForElementDeletion);
+
+	return element;
 }

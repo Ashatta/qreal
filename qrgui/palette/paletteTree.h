@@ -12,15 +12,15 @@
 
 #include <qrkernel/ids.h>
 
-#include "mainWindow/mainWindow.h"
-#include "mainWindow/palette/paletteTreeWidgets.h"
+#include "paletteDeclSpec.h"
+#include "palette/paletteTreeWidgets.h"
 #include "plugins/pluginManager/proxyEditorManager.h"
 
 namespace  qReal {
 namespace gui {
 
 /// Class for representing tree with elements of the editors.
-class PaletteTree: public QWidget
+class QRGUI_PALETTE_EXPORT PaletteTree: public QWidget
 {
 	Q_OBJECT
 
@@ -68,7 +68,7 @@ public:
 	  @param editorManager Editor manager which all editors with elements are taken from.
 	*/
 	void loadPalette(bool isIconsView, int itemsCount, EditorManagerInterface *editorManagerProxy);
-	void initMainWindow(MainWindow *mainWindow);
+	void initModels(models::Models *models);
 	void installEventFilter(QObject *obj);
 
 	void setElementVisible(Id const &metatype, bool visible);
@@ -85,6 +85,11 @@ public:
 
 signals:
 	void paletteParametersChanged();
+
+	void requestForPropertiesChange(const qReal::Id &id);
+	void requestForAppearanceChange(const qReal::Id &id, const QString &shape);
+	void requestForElementDeletion(const qReal::Id &deletedElement, bool isRootDiagram);
+	void requestForElementCreation(const Id &editor);
 
 public slots:
 	/// Change expanded/collapsed state of current tree.
@@ -135,7 +140,7 @@ private:
 
 	EditorManagerInterface *mEditorManager;
 
-	MainWindow *mMainWindow;
+	models::Models *mModels;
 
 	/// Hash table with editor ids.
 	QHash<Id, int> mCategories;

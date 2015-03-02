@@ -11,7 +11,7 @@
 #include <qrkernel/definitions.h>
 #include <qrkernel/settingsManager.h>
 
-#include "mainWindow/palette/draggableElement.h"
+#include "palette/draggableElement.h"
 #include "dialogs/metamodelingOnFly/propertiesDialog.h"
 
 using namespace qReal;
@@ -93,8 +93,15 @@ void PaletteTree::addEditorElements(EditorManagerInterface &editorManagerProxy, 
 
 	mComboBox->addItem(mEditorManager->friendlyName(diagram));
 
-	PaletteTreeWidgets *editorTree = new PaletteTreeWidgets(*this, mMainWindow
-			, *mEditorManager, editor, diagram);
+	PaletteTreeWidgets *editorTree = new PaletteTreeWidgets(*this, *mModels, *mEditorManager, editor, diagram);
+	connect(editorTree, &PaletteTreeWidgets::requestForPropertiesChange
+			, this, &PaletteTree::requestForPropertiesChange);
+	connect(editorTree, &PaletteTreeWidgets::requestForAppearanceChange
+			, this, &PaletteTree::requestForAppearanceChange);
+	connect(editorTree, &PaletteTreeWidgets::requestForElementDeletion
+			, this, &PaletteTree::requestForElementDeletion);
+	connect(editorTree, &PaletteTreeWidgets::requestForElementCreation
+			, this, &PaletteTree::requestForElementCreation);
 	editorTree->hide();
 
 	mEditorsTrees.push_back(editorTree);
@@ -159,7 +166,7 @@ void PaletteTree::recreateTrees()
 
 void PaletteTree::createPaletteTree()
 {
-	mTree = new PaletteTreeWidgets(*this, mMainWindow, *mEditorManager);
+	mTree = new PaletteTreeWidgets(*this, *mModels, *mEditorManager);
 	mTree->setMinimumHeight(0);
 	mLayout->addWidget(mTree);
 }
@@ -277,9 +284,9 @@ void PaletteTree::loadPalette(bool isIconsView, int itemsCount, EditorManagerInt
 	setComboBoxIndex();
 }
 
-void PaletteTree::initMainWindow(MainWindow *mainWindow)
+void PaletteTree::initModels(models::Models *models)
 {
-	mMainWindow = mainWindow;
+	mModels = models;
 }
 
 void PaletteTree::changeExpansionState()

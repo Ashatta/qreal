@@ -5,6 +5,11 @@
 
 #include "compilerPage.h"
 
+namespace qrRepo {
+class RepoApi;
+
+}
+
 namespace metaEditor {
 
 /// Main plugin class for metaeditor support code. Provides generation of editor
@@ -39,7 +44,7 @@ private slots:
 
 	void openMigrationDialog();
 
-	void createMigrationsForVersions(int from, int to);
+	void createMigrationsForVersions(const QString &fromName, int from, const QString &toName, int to);
 
 private:
 	/// Compiles and loads to QReal new editor plugin
@@ -54,6 +59,7 @@ private:
 			);
 
 	bool checkModel();
+	qrRepo::RepoApi *migrationLanguageForVersion(int version);
 
 	/// Action that starts generation of .xml file with metamodel for qrxc
 	QAction mGenerateEditorForQrxcAction;

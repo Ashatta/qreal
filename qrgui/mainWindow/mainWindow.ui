@@ -41,7 +41,7 @@
      <x>0</x>
      <y>0</y>
      <width>843</width>
-     <height>23</height>
+     <height>19</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_File">
@@ -749,21 +749,21 @@
  <layoutdefault spacing="0" margin="0"/>
  <customwidgets>
   <customwidget>
+   <class>PropertyEditorView</class>
+   <extends>QWidget</extends>
+   <header>editor/propertyEditorView.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
    <class>qReal::gui::PaletteTree</class>
    <extends>QToolBox</extends>
-   <header>mainWindow/palette/paletteTree.h</header>
+   <header>palette/paletteTree.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>ErrorListWidget</class>
    <extends>QListWidget</extends>
    <header>mainWindow/errorListWidget.h</header>
-  </customwidget>
-  <customwidget>
-   <class>PropertyEditorView</class>
-   <extends>QWidget</extends>
-   <header>editor/propertyEditorView.h</header>
-   <container>1</container>
   </customwidget>
   <customwidget>
    <class>MiniMap</class>

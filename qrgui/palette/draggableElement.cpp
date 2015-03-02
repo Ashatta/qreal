@@ -12,9 +12,7 @@
 #include <qrkernel/settingsManager.h>
 #include <qrkernel/definitions.h>
 
-#include "mainWindow/mainWindow.h"
-#include "mainWindow/palette/paletteTree.h"
-#include "dialogs/metamodelingOnFly/propertiesDialog.h"
+#include "palette/paletteTree.h"
 #include "mouseGestures/gesturePainter.h"
 #include "editor/editorView.h"
 #include "editor/editorViewScene.h"
@@ -25,8 +23,7 @@ using namespace gui;
 int const gestureTipSize = 30;
 
 DraggableElement::DraggableElement(
-		MainWindow &mainWindow
-		, PaletteElement const &data
+		PaletteElement const &data
 		, bool iconsOnly
 		, EditorManagerInterface &editorManagerProxy
 		, QWidget *parent
@@ -34,7 +31,6 @@ DraggableElement::DraggableElement(
 	: QWidget(parent)
 	, mData(data)
 	, mEditorManagerProxy(editorManagerProxy)
-	, mMainWindow(mainWindow)
 {
 	QHBoxLayout *layout = new QHBoxLayout(this);
 	layout->setContentsMargins(0, 4, 0, 4);
@@ -112,10 +108,7 @@ void DraggableElement::changePropertiesPaletteActionTriggered()
 {
 	QAction *action = static_cast<QAction *>(sender());
 	Id id = action->data().value<Id>();
-	PropertiesDialog *propDialog = new PropertiesDialog(mEditorManagerProxy
-			, mMainWindow.models()->mutableLogicalRepoApi(), id, &mMainWindow);
-	propDialog->setModal(true);
-	propDialog->show();
+	emit requestForPropertiesChange(id);
 }
 
 void DraggableElement::changeAppearancePaletteActionTriggered()
@@ -123,7 +116,7 @@ void DraggableElement::changeAppearancePaletteActionTriggered()
 	QAction const * const action = static_cast<QAction *>(sender());
 	Id const id = action->data().value<Id>();
 	QString const propertyValue = mEditorManagerProxy.shape(id);
-	mMainWindow.openShapeEditor(id, propertyValue, &mEditorManagerProxy, false);
+	emit requestForAppearanceChange(id, propertyValue);
 }
 
 void DraggableElement::deleteElementPaletteActionTriggered()
@@ -147,25 +140,6 @@ void DraggableElement::deleteElementPaletteActionTriggered()
 	}
 }
 
-void DraggableElement::deleteElement()
-{
-	mMainWindow.clearSelectionOnTabs();
-	if (mIsRootDiagramNode) {
-		mMainWindow.closeDiagramTab(mDeletedElementId);
-	}
-
-	mEditorManagerProxy.deleteElement(mDeletedElementId);
-	/// @todo: Maybe we do not need to remove elements if we can restore them?
-	/// We can make elements grayscaled by disabling corresponding element in palette.
-	IdList const logicalIdList = mMainWindow.models()->logicalRepoApi().logicalElements(mDeletedElementId.type());
-	for (Id const &logicalId : logicalIdList) {
-		QModelIndex const index = mMainWindow.models()->logicalModelAssistApi().indexById(logicalId);
-		mMainWindow.models()->logicalModel()->removeRow(index.row(), index.parent());
-	}
-
-	mMainWindow.loadPlugins();
-}
-
 void DraggableElement::checkElementForRootDiagramNode()
 {
 	if (mEditorManagerProxy.isRootDiagramNode(mDeletedElementId)) {
@@ -183,10 +157,10 @@ void DraggableElement::checkElementForRootDiagramNode()
 		messageBox.button(QMessageBox::Ok)->setText(tr("Yes"));
 		messageBox.button(QMessageBox::Cancel)->setText(tr("No"));
 		if (messageBox.exec() == QMessageBox::Ok) {
-			deleteElement();
+			emit requestForElementDeletion(mDeletedElementId, mIsRootDiagramNode);
 		}
 	} else {
-		deleteElement();
+		emit requestForElementDeletion(mDeletedElementId, mIsRootDiagramNode);
 	}
 }
 

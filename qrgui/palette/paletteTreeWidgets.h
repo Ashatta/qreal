@@ -2,7 +2,8 @@
 
 #include <QtWidgets/QSplitter>
 
-#include "mainWindow/palette/paletteTreeWidget.h"
+#include "models/models.h"
+#include "palette/paletteTreeWidget.h"
 #include "draggableElement.h"
 
 namespace qReal {
@@ -12,11 +13,13 @@ namespace gui {
 /// (which is visible always) and time-to-time appearing user palette
 class PaletteTreeWidgets : public QSplitter
 {
+	Q_OBJECT
+
 public:
-	PaletteTreeWidgets(PaletteTree &parent, MainWindow *mainWindow
+	PaletteTreeWidgets(PaletteTree &parent, models::Models &models
 			, EditorManagerInterface &editorManagerProxy);
 
-	PaletteTreeWidgets(PaletteTree &parent, MainWindow *mainWindow
+	PaletteTreeWidgets(PaletteTree &parent, models::Models &models
 			, EditorManagerInterface &editorManagerProxy
 			, Id const &editor, Id const &diagram);
 
@@ -55,18 +58,26 @@ public:
 	void customizeExplosionTitles(QString const &userGroupTitle
 			, QString const &userGroupDescription);
 
+signals:
+	void requestForPropertiesChange(const qReal::Id &id);
+	void requestForAppearanceChange(const qReal::Id &id, const QString &shape);
+	void requestForElementDeletion(const qReal::Id &deletedElement, bool isRootDiagram);
+	void requestForElementCreation(const qReal::Id &editor);
+
 private:
 	void initWidgets();
 	void initWidget(PaletteTreeWidget * const tree);
 	void initEditorTree();
 	void initUserTree();
 
+	DraggableElement *createDraggableElement(const PaletteElement &paletteElement, bool iconsOnly);
+
 	/// Saves expanded groups into settings
 	void saveConfiguration(PaletteTreeWidget const *tree, QString const &title) const;
 
 	EditorManagerInterface *mEditorManager; // Does not take ownership
 	PaletteTree *mParentPalette; // Does not take ownership
-	MainWindow *mMainWindow; // Does not take ownership
+	models::Models &mModels;
 	Id mEditor;
 	Id mDiagram;
 	PaletteTreeWidget *mEditorTree; // Takes ownership

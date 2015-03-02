@@ -8,7 +8,7 @@ QT += widgets printsupport xml svg
 
 LIBS += -L$$PWD/../../bin \
 			-lqrkernel -lqslog -lqrutils -lqrrepo -lqscintilla2 \
-			-lqrgui-models -lqrgui-editor -lqrgui-controller -lqrgui-dialogs -lqrgui-preferences-dialog \
+			-lqrgui-models -lqrgui-editor -lqrgui-controller -lqrgui-palette -lqrgui-dialogs -lqrgui-preferences-dialog \
 			-lqrgui-text-editor -lqrgui-mouse-gestures -lqrgui-hotkey-manager -lqrgui-brand-manager  \
 			-lqrgui-plugin-manager -lqrgui-tool-plugin-interface -lqrgui-thirdparty \
 
@@ -51,14 +51,9 @@ HEADERS += \
 	$$PWD/projectManager/projectManager.h \
 	$$PWD/projectManager/migrator.h \
 	$$PWD/projectManager/versionsConverterManager.h \
-	$$PWD/palette/paletteTree.h \
-	$$PWD/palette/paletteTreeWidget.h \
-	$$PWD/palette/draggableElement.h \
-	$$PWD/palette/paletteTreeWidgets.h \
-	$$PWD/palette/paletteElement.h \
 	$$PWD/startWidget/startWidget.h \
 	$$PWD/startWidget/circleWidget.h \
-	$$PWD/startWidget/styledButton.h \
+	$$PWD/startWidget/styledButton.h
 
 SOURCES += \
 	$$PWD/main.cpp \
@@ -79,11 +74,6 @@ SOURCES += \
 	$$PWD/projectManager/projectManager.cpp \
 	$$PWD/projectManager/migrator.cpp \
 	$$PWD/projectManager/versionsConverterManager.cpp \
-	$$PWD/palette/paletteTree.cpp \
-	$$PWD/palette/paletteTreeWidget.cpp \
-	$$PWD/palette/draggableElement.cpp \
-	$$PWD/palette/paletteTreeWidgets.cpp \
-	$$PWD/palette/paletteElement.cpp \
 	$$PWD/startWidget/startWidget.cpp \
 	$$PWD/startWidget/circleWidget.cpp \
 	$$PWD/startWidget/styledButton.cpp \

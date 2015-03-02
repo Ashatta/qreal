@@ -33,6 +33,8 @@
 
 #include <dialogs/projectManagement/suggestToCreateProjectDialog.h>
 #include <dialogs/progressDialog/progressDialog.h>
+#include <dialogs/metamodelingOnFly/propertiesDialog.h>
+#include <dialogs/metamodelingOnFly/chooseTypeDialog.h>
 
 #include <models/models.h>
 #include <models/commands/createGroupCommand.h>
@@ -69,7 +71,7 @@ QString const unsavedDir = "unsaved";
 MainWindow::MainWindow(QString const &fileToOpen)
 	: mUi(new Ui::MainWindowUi)
 	, mModels(nullptr)
-	, mController(new Controller(this))
+	, mController(nullptr)
 	, mEditorManagerProxy(new EditorManager())
 	, mPropertyModel(mEditorManagerProxy)
 	, mSystemEvents(new SystemEvents())
@@ -87,7 +89,6 @@ MainWindow::MainWindow(QString const &fileToOpen)
 	, mInitialFileToOpen(fileToOpen)
 {
 	mUi->setupUi(this);
-	mUi->paletteTree->initMainWindow(this);
 	setWindowTitle("QReal");
 	initSettingsManager();
 	registerMetaTypes();
@@ -108,6 +109,8 @@ MainWindow::MainWindow(QString const &fileToOpen)
 
 	initDocks();
 	mModels = new models::Models(mProjectManager->saveFilePath(), mEditorManagerProxy);
+	mUi->paletteTree->initModels(mModels);
+	mController = new Controller(mModels->repoControlApi());
 
 	mErrorReporter = new gui::ErrorReporter(mUi->errorListWidget, mUi->errorDock);
 	mErrorReporter->updateVisibility(SettingsManager::value("warningWindow").toBool());
@@ -259,6 +262,11 @@ void MainWindow::connectActions()
 	connect(mProjectManager, &ProjectManager::afterOpen, mUi->paletteTree, &PaletteTree::refreshUserPalettes);
 	connect(mProjectManager, &ProjectManager::closed, mUi->paletteTree, &PaletteTree::refreshUserPalettes);
 	connect(mProjectManager, SIGNAL(closed()), mController, SLOT(projectClosed()));
+
+	connect(mUi->paletteTree, &PaletteTree::requestForPropertiesChange, this, &MainWindow::changeTypeProperties);
+	connect(mUi->paletteTree, &PaletteTree::requestForAppearanceChange, this, &MainWindow::changeTypeAppearance);
+	connect(mUi->paletteTree, &PaletteTree::requestForElementDeletion, this, &MainWindow::deleteElementType);
+	connect(mUi->paletteTree, &PaletteTree::requestForElementCreation, this, &MainWindow::createElementType);
 
 	connect(mUi->propertyEditor, &PropertyEditorView::shapeEditorRequested, this, static_cast<void (MainWindow::*)
 			(QPersistentModelIndex const &, int, QString const &, bool)>(&MainWindow::openShapeEditor));
@@ -2047,4 +2055,44 @@ void MainWindow::endPaletteModification()
 
 		scene->update();
 	}
+}
+
+void MainWindow::changeTypeProperties(const Id &id)
+{
+	PropertiesDialog *propDialog = new PropertiesDialog(mEditorManagerProxy
+			, models()->mutableLogicalRepoApi(), id);
+	propDialog->setModal(true);
+	propDialog->show();
+}
+
+void MainWindow::changeTypeAppearance(const Id &id, const QString &shape)
+{
+	openShapeEditor(id, shape, &mEditorManagerProxy, false);
+}
+
+void MainWindow::deleteElementType(const Id &deletedElement, bool isRootDiagram)
+{
+	clearSelectionOnTabs();
+	if (isRootDiagram) {
+		closeDiagramTab(deletedElement);
+	}
+
+	mEditorManagerProxy.deleteElement(deletedElement);
+	/// @todo: Maybe we do not need to remove elements if we can restore them?
+	/// We can make elements grayscaled by disabling corresponding element in palette.
+	IdList const logicalIdList = models()->logicalRepoApi().logicalElements(deletedElement.type());
+	for (Id const &logicalId : logicalIdList) {
+		QModelIndex const index = models()->logicalModelAssistApi().indexById(logicalId);
+		models()->logicalModel()->removeRow(index.row(), index.parent());
+	}
+
+	loadPlugins();
+}
+
+void MainWindow::createElementType(const Id &editor)
+{
+	ChooseTypeDialog *chooseTypeDialog = new ChooseTypeDialog(editor, mEditorManagerProxy, this);
+	connect(chooseTypeDialog, &ChooseTypeDialog::jobDone, this, &MainWindow::loadPlugins);
+	chooseTypeDialog->setModal(true);
+	chooseTypeDialog->show();
 }

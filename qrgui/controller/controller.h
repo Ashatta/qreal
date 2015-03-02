@@ -8,9 +8,9 @@
 #include "qrgui/controller/undoStack.h"
 #include "qrgui/controller/commands/abstractCommand.h"
 
-namespace qReal {
+#include <qrrepo/repoControlInterface.h>
 
-class MainWindow;
+namespace qReal {
 
 /// A controller class for all user actions watching.
 /// A part of global MVC architecture.
@@ -19,7 +19,7 @@ class QRGUI_CONTROLLER_EXPORT Controller : public QObject
 	Q_OBJECT
 
 public:
-	Controller(MainWindow *mainWindow);
+	Controller(qrRepo::RepoControlInterface &repoControlApi);
 	virtual ~Controller();
 
 	bool canUndo() const;
@@ -91,7 +91,7 @@ private:
 	bool mCanRedoState;
 	bool mCanUndoState;
 
-	MainWindow *mWindow;
+	qrRepo::RepoControlInterface &mRepoControlApi;
 };
 
 }

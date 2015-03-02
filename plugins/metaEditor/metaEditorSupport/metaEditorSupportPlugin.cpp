@@ -9,10 +9,13 @@
 
 #include <qrkernel/settingsManager.h>
 #include <qrmc/metaCompiler.h>
+#include <qrgui/plugins/pluginManager/interpreterEditorManager.h>
+#include <qrrepo/repoApi.h>
 
 #include "editorGenerator.h"
 #include "xmlParser.h"
 #include "versionChooserDialog.h"
+#include "migrationDialog.h"
 
 using namespace qReal;
 using namespace metaEditor;
@@ -266,13 +269,36 @@ bool MetaEditorSupportPlugin::checkModel()
 void MetaEditorSupportPlugin::openMigrationDialog()
 {
 	VersionChooserDialog versionChooser(mRepoControlApi->versionNames(), mMainWindowInterface->windowWidget());
-	connect(&versionChooser, SIGNAL(versionChosen(int,int)), this, SLOT(createMigrationsForVersions(int,int)));
+	connect(&versionChooser, SIGNAL(versionChosen(QString,int,QString,int))
+			, this, SLOT(createMigrationsForVersions(QString,int,QString,int)));
 	versionChooser.exec();
 }
 
-void MetaEditorSupportPlugin::createMigrationsForVersions(int from, int to)
+void MetaEditorSupportPlugin::createMigrationsForVersions(const QString &fromName, int from
+		, const QString  &toName, int to)
 {
-	qDebug() << from << to;
+	const QString name = mLogicalRepoApi->name(mLogicalRepoApi->elementsByType("MetamodelDiagram")[0]);  // guarantee correctness?
+	const QString fromLanguage = name + "_" + fromName;
+	const QString toLanguage = name + "_" + toName;
+
+	InterpreterEditorManager interpreter("");
+	interpreter.addPlugin(fromLanguage, migrationLanguageForVersion(from));
+	interpreter.addPlugin(toLanguage, migrationLanguageForVersion(to));
+
+	MigrationDialog dialog(fromLanguage, migrationLanguageForVersion(from)
+			, toLanguage, migrationLanguageForVersion(to));
+	dialog.exec();
+}
+
+qrRepo::RepoApi *MetaEditorSupportPlugin::migrationLanguageForVersion(int version)
+{
+	const QString tempFile = "currentModel.qrs";
+	mRepoControlApi->saveTo(tempFile);
+	qrRepo::RepoApi *repo = new qrRepo::RepoApi(tempFile);
+	repo->rollBackTo(version);
+	QFile::remove(tempFile);
+
+	return repo;
 }
 
 void MetaEditorSupportPlugin::loadNewEditor(QString const &directoryName

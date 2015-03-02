@@ -7,6 +7,8 @@ namespace Ui {
 class VersionChooserDialog;
 }
 
+namespace metaEditor {
+
 class VersionChooserDialog : public QDialog
 {
 	Q_OBJECT
@@ -16,7 +18,7 @@ public:
 	~VersionChooserDialog();
 
 signals:
-	void versionChosen(int from, int to);
+	void versionChosen(const QString &fromName, int from, const QString &toName, int to);
 
 private slots:
 	void onAccept();
@@ -26,3 +28,5 @@ private:
 
 	Ui::VersionChooserDialog *ui;
 };
+
+}

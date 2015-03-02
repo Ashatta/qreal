@@ -4,6 +4,7 @@ SUBDIRS += \
 	mainWindow \
 	models \
 	editor \
+	palette \
 	controller \
 	dialogs \
 	preferencesDialog \
@@ -25,6 +26,7 @@ interpretedPluginInterface.file = $$PWD/plugins/interpretedPluginInterface/inter
 mainWindow.depends = \
 	models \
 	editor \
+	palette \
 	controller \
 	dialogs \
 	preferencesDialog \
@@ -35,6 +37,10 @@ mainWindow.depends = \
 	thirdparty \
 
 models.depends = \
+	pluginManager \
+
+palette.depends = \
+	models \
 	pluginManager \
 
 editor.depends = \

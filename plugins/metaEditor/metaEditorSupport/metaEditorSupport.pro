@@ -22,16 +22,22 @@ HEADERS += \
 	editorGenerator.h \
 	xmlParser.h \
 	compilerPage.h \
-	versionChooserDialog.h
+	versionChooserDialog.h \
+    migrationDialog.h \
+    migrationEditor.h
 
 SOURCES += \
 	metaEditorSupportPlugin.cpp \
 	editorGenerator.cpp \
 	xmlParser.cpp \
 	compilerPage.cpp \
-	versionChooserDialog.cpp
+	versionChooserDialog.cpp \
+    migrationDialog.cpp \
+    migrationEditor.cpp
 
 FORMS += \
 	compilerPage.ui \
-	versionchooserdialog.ui
+	versionchooserdialog.ui \
+    migrationDialog.ui \
+    migrationEditor.ui
 
