@@ -177,6 +177,8 @@ private:
 
 	/// Count of items in a row in icon's representation
 	int mItemsCountInARow;
+
+	int mCurrentIndex;
 };
 
 }

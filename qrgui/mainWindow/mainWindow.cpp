@@ -89,6 +89,9 @@ MainWindow::MainWindow(QString const &fileToOpen)
 	, mInitialFileToOpen(fileToOpen)
 {
 	mUi->setupUi(this);
+	mModels = new models::Models(mProjectManager->saveFilePath(), mEditorManagerProxy);
+	mUi->paletteTree->initModels(mModels);
+	mController = new Controller(mModels->repoControlApi());
 	setWindowTitle("QReal");
 	initSettingsManager();
 	registerMetaTypes();
@@ -108,9 +111,6 @@ MainWindow::MainWindow(QString const &fileToOpen)
 	splashScreen.setProgress(40);
 
 	initDocks();
-	mModels = new models::Models(mProjectManager->saveFilePath(), mEditorManagerProxy);
-	mUi->paletteTree->initModels(mModels);
-	mController = new Controller(mModels->repoControlApi());
 
 	mErrorReporter = new gui::ErrorReporter(mUi->errorListWidget, mUi->errorDock);
 	mErrorReporter->updateVisibility(SettingsManager::value("warningWindow").toBool());
@@ -2059,10 +2059,9 @@ void MainWindow::endPaletteModification()
 
 void MainWindow::changeTypeProperties(const Id &id)
 {
-	PropertiesDialog *propDialog = new PropertiesDialog(mEditorManagerProxy
-			, models()->mutableLogicalRepoApi(), id);
-	propDialog->setModal(true);
-	propDialog->show();
+	PropertiesDialog propDialog(mEditorManagerProxy, models()->mutableLogicalRepoApi(), id);
+	propDialog.setModal(true);
+	propDialog.show();
 }
 
 void MainWindow::changeTypeAppearance(const Id &id, const QString &shape)
@@ -2091,8 +2090,8 @@ void MainWindow::deleteElementType(const Id &deletedElement, bool isRootDiagram)
 
 void MainWindow::createElementType(const Id &editor)
 {
-	ChooseTypeDialog *chooseTypeDialog = new ChooseTypeDialog(editor, mEditorManagerProxy, this);
-	connect(chooseTypeDialog, &ChooseTypeDialog::jobDone, this, &MainWindow::loadPlugins);
-	chooseTypeDialog->setModal(true);
-	chooseTypeDialog->show();
+	ChooseTypeDialog chooseTypeDialog(editor, mEditorManagerProxy, this);
+	connect(&chooseTypeDialog, &ChooseTypeDialog::jobDone, this, &MainWindow::loadPlugins);
+	chooseTypeDialog.setModal(true);
+	chooseTypeDialog.show();
 }

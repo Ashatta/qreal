@@ -19,78 +19,73 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <widget class="QWidget" name="editorWidget" native="true">
+  <widget class="QSplitter" name="splitter_2">
    <property name="geometry">
     <rect>
-     <x>120</x>
+     <x>10</x>
      <y>10</y>
-     <width>321</width>
+     <width>431</width>
      <height>321</height>
     </rect>
    </property>
-   <property name="sizePolicy">
-    <sizepolicy hsizetype="Ignored" vsizetype="Ignored">
-     <horstretch>0</horstretch>
-     <verstretch>0</verstretch>
-    </sizepolicy>
+   <property name="orientation">
+    <enum>Qt::Horizontal</enum>
    </property>
-  </widget>
-  <widget class="QDockWidget" name="propertyEditorDock">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>10</y>
-     <width>101</width>
-     <height>161</height>
-    </rect>
-   </property>
-   <property name="floating">
-    <bool>false</bool>
-   </property>
-   <property name="allowedAreas">
-    <set>Qt::LeftDockWidgetArea</set>
-   </property>
-   <property name="windowTitle">
-    <string>PropertyEditor</string>
-   </property>
-   <widget class="QWidget" name="dockWidgetContents">
-    <widget class="PropertyEditorView" name="propertyEditor" native="true">
-     <property name="geometry">
-      <rect>
-       <x>0</x>
-       <y>0</y>
-       <width>101</width>
-       <height>141</height>
-      </rect>
+   <widget class="QSplitter" name="splitter">
+    <property name="orientation">
+     <enum>Qt::Vertical</enum>
+    </property>
+    <widget class="QDockWidget" name="propertyEditorDock">
+     <property name="windowTitle">
+      <string>Property Editor</string>
      </property>
+     <widget class="QWidget" name="dockWidgetContents">
+      <widget class="PropertyEditorView" name="propertyEditor" native="true">
+       <property name="geometry">
+        <rect>
+         <x>0</x>
+         <y>0</y>
+         <width>131</width>
+         <height>131</height>
+        </rect>
+       </property>
+      </widget>
+     </widget>
+    </widget>
+    <widget class="QDockWidget" name="paletteDock">
+     <property name="windowTitle">
+      <string>Palette</string>
+     </property>
+     <widget class="QWidget" name="dockWidgetContents_2">
+      <widget class="qReal::gui::PaletteTree" name="paletteTree">
+       <property name="geometry">
+        <rect>
+         <x>0</x>
+         <y>0</y>
+         <width>131</width>
+         <height>131</height>
+        </rect>
+       </property>
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+         <horstretch>0</horstretch>
+         <verstretch>20</verstretch>
+        </sizepolicy>
+       </property>
+      </widget>
+     </widget>
     </widget>
    </widget>
-  </widget>
-  <widget class="QDockWidget" name="paletteDock">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>180</y>
-     <width>101</width>
-     <height>151</height>
-    </rect>
-   </property>
-   <property name="floating">
-    <bool>false</bool>
-   </property>
-   <property name="features">
-    <set>QDockWidget::AllDockWidgetFeatures</set>
-   </property>
-   <property name="allowedAreas">
-    <set>Qt::LeftDockWidgetArea</set>
-   </property>
-   <property name="windowTitle">
-    <string>Palette</string>
-   </property>
-   <widget class="QWidget" name="dockWidgetContents_2"/>
+   <widget class="QWidget" name="editorWidget" native="true"/>
   </widget>
  </widget>
  <customwidgets>
+  <customwidget>
+   <class>qReal::gui::PaletteTree</class>
+   <extends>QToolBox</extends>
+   <header>palette/paletteTree.h</header>
+   <container>1</container>
+  </customwidget>
   <customwidget>
    <class>PropertyEditorView</class>
    <extends>QWidget</extends>

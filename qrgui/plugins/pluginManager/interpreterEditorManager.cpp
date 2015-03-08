@@ -115,7 +115,6 @@ IdList InterpreterEditorManager::diagrams(Id const &editor) const
 
 int InterpreterEditorManager::editorVersion(Id const &editor) const
 {
-	Q_ASSERT(editors().contains(editor));
 	foreach (qrRepo::RepoApi const * const repo, mEditorRepoApi.values()) {
 		foreach (Id const &edit, repo->elementsByType("MetamodelDiagram")) {
 			if (editor.editor() == repo->name(edit) && repo->isLogicalElement(edit)) {
@@ -1318,8 +1317,18 @@ QList<QString> InterpreterEditorManager::getPatternNames() const
 
 QSize InterpreterEditorManager::iconSize(Id const &id) const
 {
-	Q_UNUSED(id);
-	return QSize();
+	QPair<qrRepo::RepoApi*, Id> const repoAndMetaIdPair = repoAndMetaId(id);
+	qrRepo::RepoApi const * const repo = repoAndMetaIdPair.first;
+	Id const metaId = repoAndMetaIdPair.second;
+
+	if (metaId.element() == "MetaEntityEdge") {
+		return QSize(100, 60);
+	} else {
+		QDomDocument graphics;
+		graphics.setContent(repo->stringProperty(metaId, "shape"));
+		QDomElement sdfElement = graphics.firstChildElement("graphics").firstChildElement("picture");
+		return QSize(sdfElement.attribute("sizex").toInt(), sdfElement.attribute("sizey").toInt());
+	}
 }
 
 void InterpreterEditorManager::addPlugin(QString const &name, qrRepo::RepoApi *repo)

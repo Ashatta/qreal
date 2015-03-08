@@ -20,6 +20,7 @@ using namespace gui;
 PaletteTree::PaletteTree(QWidget *parent)
 	: QWidget(parent)
 	, mCurrentEditor(0)
+	, mCurrentIndex(0)
 {
 	initUi();
 	createPaletteTree();
@@ -117,7 +118,7 @@ void PaletteTree::initDone()
 		connect(mComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(setActiveEditor(int)));
 		mComboBox->show();
 	}
-	setActiveEditor(SettingsManager::value("CurrentIndex", 0).toInt());
+	setActiveEditor(mCurrentIndex);
 	mTree->resizeIcons();
 }
 
@@ -199,7 +200,7 @@ void PaletteTree::setComboBoxIndex(int index)
 
 void PaletteTree::setComboBoxIndex()
 {
-	mComboBox->setCurrentIndex(SettingsManager::value("CurrentIndex", 0).toInt());
+	mComboBox->setCurrentIndex(mCurrentIndex);
 }
 
 void PaletteTree::saveConfiguration()
@@ -212,7 +213,7 @@ void PaletteTree::saveConfiguration()
 		diagramIndex++;
 	}
 
-	SettingsManager::setValue("CurrentIndex", mComboBox->currentIndex() >= 0 ? mComboBox->currentIndex() : 0);
+	mCurrentIndex = mComboBox->currentIndex() >= 0 ? mComboBox->currentIndex() : 0;
 }
 
 bool PaletteTree::iconsView() const
@@ -233,8 +234,7 @@ void PaletteTree::loadEditors(EditorManagerInterface &editorManagerProxy)
 		}
 	}
 
-	const int index = SettingsManager::value("CurrentIndex", 0).toInt();
-	SettingsManager::setValue("CurrentIndex", index >= 0 ? index : 0);
+	mCurrentIndex = mCurrentIndex >= 0 ? mCurrentIndex : 0;
 }
 
 void PaletteTree::setItemsCountInARow(int count)

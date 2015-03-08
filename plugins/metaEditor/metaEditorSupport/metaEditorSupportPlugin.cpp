@@ -281,12 +281,8 @@ void MetaEditorSupportPlugin::createMigrationsForVersions(const QString &fromNam
 	const QString fromLanguage = name + "_" + fromName;
 	const QString toLanguage = name + "_" + toName;
 
-	InterpreterEditorManager interpreter("");
-	interpreter.addPlugin(fromLanguage, migrationLanguageForVersion(from));
-	interpreter.addPlugin(toLanguage, migrationLanguageForVersion(to));
-
-	MigrationDialog dialog(fromLanguage, migrationLanguageForVersion(from)
-			, toLanguage, migrationLanguageForVersion(to));
+	MigrationDialog dialog(name, migrationLanguageForVersion(from)
+			, name, migrationLanguageForVersion(to));
 	dialog.exec();
 }
 
