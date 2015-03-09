@@ -46,6 +46,9 @@ private slots:
 
 	void createMigrationsForVersions(const QString &fromName, int from, const QString &toName, int to);
 
+	void addNewMigration(int fromVersion, const QString &fromName, const QByteArray &fromData
+			, int toVersion, const QString &toName, const QByteArray &toData);
+
 private:
 	/// Compiles and loads to QReal new editor plugin
 	void loadNewEditor(

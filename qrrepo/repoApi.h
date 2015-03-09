@@ -165,6 +165,9 @@ public:
 	virtual int metamodelVersion(QString const &metamodelName) const;
 	virtual void createNewVersion(QString const &versionName) override;
 	virtual QMap<int, QString> versionNames() const override;
+	virtual void addMigration(int fromVersion, int toVersion
+			, const QString &fromVersionName, const QString &toVersionName
+			, const QByteArray &fromData, const QByteArray &toData) override;
 
 private:
 	RepoApi(RepoApi const &other);  // Copying is not allowed.

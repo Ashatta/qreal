@@ -134,3 +134,14 @@ void MigrationEditor::sceneSelectionChanged()
 		}
 	}
 }
+
+QByteArray MigrationEditor::serializedData()
+{
+	const QString tempFile = "tempMigrationFile.qrs";
+	mModels.repoControlApi().saveTo(tempFile);
+	QFile file(tempFile);
+	file.open(QIODevice::ReadOnly);
+	QByteArray result = file.readAll();
+	file.remove();
+	return result;
+}

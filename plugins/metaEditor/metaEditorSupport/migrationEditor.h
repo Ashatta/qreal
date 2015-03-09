@@ -24,6 +24,8 @@ public:
 	explicit MigrationEditor(const QString &languageName, qrRepo::RepoApi *repo, QWidget *parent = 0);
 	~MigrationEditor();
 
+	QByteArray serializedData();
+
 private slots:
 	void sceneSelectionChanged();
 

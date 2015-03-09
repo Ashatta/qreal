@@ -612,6 +612,13 @@ QMap<int, QString> RepoApi::versionNames() const
 	return mRepository.versionNames();
 }
 
+void RepoApi::addMigration(int fromVersion, int toVersion
+		, const QString &fromVersionName, const QString &toVersionName
+		, const QByteArray &fromData, const QByteArray &toData)
+{
+	mRepository.addMigration(fromVersion, toVersion, fromVersionName, toVersionName, fromData, toData);
+}
+
 int RepoApi::version() const
 {
 	return mRepository.version();

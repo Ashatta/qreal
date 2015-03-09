@@ -46,7 +46,8 @@ void Serializer::setWorkingFile(QString const &workingFile)
 }
 
 void Serializer::saveToDisk(QList<Object *> const &objects, QHash<QString, QVariant> const &metaInfo
-		, QHash<Id, QList<migration::LogEntry *> > const &log, QMap<QString, int> const &metamodelsVersions) const
+		, QHash<Id, QList<migration::LogEntry *> > const &log, QMap<QString, int> const &metamodelsVersions
+		, const QList<Migration> &migrations) const
 {
 	Q_ASSERT_X(!mWorkingFile.isEmpty()
 		, "Serializer::saveToDisk(...)"
@@ -66,6 +67,7 @@ void Serializer::saveToDisk(QList<Object *> const &objects, QHash<QString, QVari
 	saveLog(log);
 	saveMetamodelsVersions(metamodelsVersions);
 	saveMetaInfo(metaInfo);
+	saveMigrations(migrations);
 
 	QFileInfo fileInfo(mWorkingFile);
 	QString fileName = fileInfo.baseName();
@@ -90,7 +92,8 @@ void Serializer::saveToDisk(QList<Object *> const &objects, QHash<QString, QVari
 }
 
 void Serializer::loadFromDisk(QHash<qReal::Id, Object*> &objectsHash, QHash<QString, QVariant> &metaInfo
-		, QHash<Id, QList<migration::LogEntry *> > &log, QMap<QString, int> &metamodelsVersions)
+		, QHash<Id, QList<migration::LogEntry *> > &log, QMap<QString, int> &metamodelsVersions
+		, QList<Migration> &migrations)
 {
 	clearWorkingDir();
 	if (!mWorkingFile.isEmpty()) {
@@ -102,6 +105,7 @@ void Serializer::loadFromDisk(QHash<qReal::Id, Object*> &objectsHash, QHash<QStr
 	loadMetaInfo(metaInfo);
 	loadLog(currentPath, log);
 	loadMetamodelsVersions(currentPath, metamodelsVersions);
+	loadMigrations(migrations);
 }
 
 void Serializer::loadFromDisk(QString const &currentPath, QHash<qReal::Id, Object*> &objectsHash)
@@ -208,6 +212,65 @@ void Serializer::loadMetaInfo(QHash<QString, QVariant> &metaInfo) const
 	{
 		metaInfo[child.attribute("key")] = ValuesSerializer::deserializeQVariant(
 				child.attribute("type"), child.attribute("value"));
+	}
+}
+
+void Serializer::saveMigrations(const QList<Migration> &migrations) const
+{
+	if (migrations.isEmpty()) {
+		return;
+	}
+
+	QDir dir;
+	dir.mkpath(mWorkingDir + "/migrations");
+
+	int i = 0;
+	for (const Migration &migration : migrations) {
+		const QString dirPath = mWorkingDir + "/migrations/" + QString::number(i);
+		dir.mkpath(dirPath);
+
+		OutFile migrationInfo(dirPath + "/migrationInfo.xml");
+		QDomDocument document;
+		QDomElement root = document.createElement("migrationInfo");
+		document.appendChild(root);
+		root.setAttribute("fromVersion", migration.mFromVersion);
+		root.setAttribute("toVersion", migration.mToVersion);
+		root.setAttribute("fromVersionName", migration.mFromVersionName);
+		root.setAttribute("toVersionName", migration.mToVersionName);
+		document.save(migrationInfo(), QDomNode::EncodingFromTextStream);
+
+		OutFile outFrom(dirPath + "/from.qrs");
+		outFrom() << migration.mFromData;
+
+		OutFile outTo(dirPath + "/to.qrs");
+		outTo() << migration.mToData;
+	}
+}
+
+void Serializer::loadMigrations(QList<Migration> &migrations) const
+{
+	migrations.clear();
+
+	const QString migrationDir = mWorkingDir + "/migrations";
+	if (!QFile::exists(migrationDir)) {
+		return;
+	}
+
+	for (int i = 0; ; ++i) {
+		const QString dirPath = migrationDir + "/" + QString::number(i);
+		if (!QFile::exists(dirPath)) {
+			return;
+		}
+
+		QDomDocument document = xmlUtils::loadDocument(dirPath + "/migrationInfo.xml");
+		QDomElement root = document.firstChildElement("migrationInfo");
+		QFile inFrom(dirPath + "/from.qrs");
+		inFrom.open(QIODevice::ReadOnly);
+		QFile inTo(dirPath + "/to.qrs");
+		inTo.open(QIODevice::ReadOnly);
+		migrations << Migration(root.attribute("fromVersion").toInt(), root.attribute("toVersion").toInt()
+				, root.attribute("fromVersionName"), root.attribute("toVersionName")
+				, inFrom.readAll(), inTo.readAll());
 	}
 }
 

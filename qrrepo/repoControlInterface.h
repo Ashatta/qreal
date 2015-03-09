@@ -63,6 +63,10 @@ public:
 
 	virtual QMap<int, QString> versionNames() const = 0;
 
+	virtual void addMigration(int fromVersion, int toVersion
+			, const QString &fromVersionName, const QString &toVersionName
+			, const QByteArray &fromData, const QByteArray &toData) = 0;
+
 	/// Returns all log entries between given two versions of model
 	virtual QHash<qReal::Id, QList<qReal::migration::LogEntry *> > logBetween(int startVersion, int endVersion) const = 0;
 };

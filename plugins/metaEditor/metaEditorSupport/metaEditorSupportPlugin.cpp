@@ -281,8 +281,9 @@ void MetaEditorSupportPlugin::createMigrationsForVersions(const QString &fromNam
 	const QString fromLanguage = name + "_" + fromName;
 	const QString toLanguage = name + "_" + toName;
 
-	MigrationDialog dialog(name, migrationLanguageForVersion(from)
-			, name, migrationLanguageForVersion(to));
+	MigrationDialog dialog(from, name, migrationLanguageForVersion(from)
+			, to, name, migrationLanguageForVersion(to));
+	connect(&dialog, &MigrationDialog::migrationCreated, this, &MetaEditorSupportPlugin::addNewMigration);
 	dialog.exec();
 }
 
@@ -293,8 +294,13 @@ qrRepo::RepoApi *MetaEditorSupportPlugin::migrationLanguageForVersion(int versio
 	qrRepo::RepoApi *repo = new qrRepo::RepoApi(tempFile);
 	repo->rollBackTo(version);
 	QFile::remove(tempFile);
-
 	return repo;
+}
+
+void MetaEditorSupportPlugin::addNewMigration(int fromVersion, const QString &fromName, const QByteArray &fromData
+		, int toVersion, const QString &toName, const QByteArray &toData)
+{
+	mRepoControlApi->addMigration(fromVersion, toVersion, fromName, toName, fromData, toData);
 }
 
 void MetaEditorSupportPlugin::loadNewEditor(QString const &directoryName

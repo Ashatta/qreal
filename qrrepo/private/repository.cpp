@@ -343,7 +343,7 @@ void Repository::removeTemporaryRemovedLinks(Id const &id)
 void Repository::loadFromDisk()
 {
 	QHash<Id, QList<migration::LogEntry *> > log;
-	mSerializer.loadFromDisk(mObjects, mMetaInfo, log, mUsedMetamodels);
+	mSerializer.loadFromDisk(mObjects, mMetaInfo, log, mUsedMetamodels, mMigrations);
 	mLogger->reset(log);
 	addChildrenToRootObject();
 }
@@ -406,7 +406,7 @@ bool Repository::exist(const Id &id) const
 void Repository::saveAll()
 {
 //	mLogger->createNewVersion();
-	mSerializer.saveToDisk(mObjects.values(), mMetaInfo, mLogger->log(), mUsedMetamodels);
+	mSerializer.saveToDisk(mObjects.values(), mMetaInfo, mLogger->log(), mUsedMetamodels, mMigrations);
 }
 
 void Repository::save(IdList const &list)
@@ -417,7 +417,7 @@ void Repository::save(IdList const &list)
 	}
 
 //	mLogger->createNewVersion();
-	mSerializer.saveToDisk(toSave, mMetaInfo, mLogger->log(), mUsedMetamodels);
+	mSerializer.saveToDisk(toSave, mMetaInfo, mLogger->log(), mUsedMetamodels, mMigrations);
 }
 
 void Repository::saveWithLogicalId(qReal::IdList const &list)
@@ -428,7 +428,7 @@ void Repository::saveWithLogicalId(qReal::IdList const &list)
 	}
 
 //	mLogger->createNewVersion();
-	mSerializer.saveToDisk(toSave, mMetaInfo, mLogger->log(), mUsedMetamodels);
+	mSerializer.saveToDisk(toSave, mMetaInfo, mLogger->log(), mUsedMetamodels, mMigrations);
 }
 
 void Repository::saveDiagramsById(QHash<QString, IdList> const &diagramIds)
@@ -508,7 +508,7 @@ void Repository::exterminate()
 	clearRepo();
 	//serializer.clearWorkingDir();
 	if (!mWorkingFile.isEmpty()) {
-		mSerializer.saveToDisk(mObjects.values(), mMetaInfo, mLogger->log(), mUsedMetamodels);
+		mSerializer.saveToDisk(mObjects.values(), mMetaInfo, mLogger->log(), mUsedMetamodels, mMigrations);
 	}
 
 	init();
@@ -626,6 +626,13 @@ void Repository::createNewVersion(QString const &versionName)
 QMap<int, QString> Repository::versionNames() const
 {
 	return mLogger->versionNames();
+}
+
+void Repository::addMigration(int fromVersion, int toVersion
+	, const QString &fromVersionName, const QString &toVersionName
+	, const QByteArray &fromData, const QByteArray &toData)
+{
+	mMigrations << Migration(fromVersion, toVersion, fromVersionName, toVersionName, fromData, toData);
 }
 
 int Repository::version() const

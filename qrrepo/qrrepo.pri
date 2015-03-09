@@ -20,6 +20,7 @@ HEADERS += \
 	$$PWD/private/classes/logicalObject.h \
 	$$PWD/private/classes/graphicalObject.h \
 	$$PWD/private/classes/graphicalPart.h \
+	$$PWD/private/migration.h
 
 SOURCES += \
 	$$PWD/private/repository.cpp \
@@ -32,6 +33,7 @@ SOURCES += \
 	$$PWD/private/classes/logicalObject.cpp \
 	$$PWD/private/classes/graphicalObject.cpp \
 	$$PWD/private/classes/graphicalPart.cpp \
+	$$PWD/private/migration.cpp
 
 # repo API
 HEADERS += \
