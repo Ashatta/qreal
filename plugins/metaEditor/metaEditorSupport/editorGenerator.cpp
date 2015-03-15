@@ -755,14 +755,8 @@ bool EditorGenerator::findPort(QString const &name) const
 void EditorGenerator::checkRootNodeValid(Id const &diagram, QString const rootNode)
 {
 	for (Id const &child : mApi.children(diagram)) {
-		if (child.element() == "MetaEntityNode" && mApi.name(child) == rootNode) {
-			if (!mApi.hasProperty(child, "shape") || mApi.stringProperty(child, "shape").isEmpty()) {
-				mErrorReporter.addError(
-						QObject::tr("Root node for diagram %1 (which is %2) shall not be abstract "
-									"(i.e. have 'shape' property)")
-						.arg(mApi.name(diagram)).arg(rootNode), diagram);
-			}
-
+		if ((child.element() == "MetaEntityNode" || child.element() == "MetaEntityGroup")
+				&& mApi.name(child) == rootNode) {
 			return;
 		}
 	}
