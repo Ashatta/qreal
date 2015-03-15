@@ -1,36 +1,23 @@
-QT += widgets
+TARGET = robots-trik-generator-base
 
-CONFIG += c++11
+include(../../../../../global.pri)
+
+QT += widgets
 
 TEMPLATE = lib
 CONFIG += plugin
 
-DESTDIR = $$PWD/../../../../../bin/
-TARGET = robots-trik-generator-base
+includes(plugins/robots/generators/trik/trikGeneratorBase \
+		plugins/robots/generators/generatorBase \
+		plugins/robots/common/kitBase \
+		plugins/robots/common/trikKit \
+		plugins/robots/utils \
+		qrtext \
+)
 
-MOC_DIR = .moc
-RCC_DIR = .moc
-OBJECTS_DIR = .obj
-
-LIBS += -L$$PWD/../../../../../bin -lqrkernel -lqslog -lqrutils -lqrrepo \
-		-lrobots-generator-base -lrobots-interpreter-base \
+links(qrkernel qslog qrutils qrrepo robots-generator-base robots-kit-base robots-trik-kit)
 
 DEFINES += ROBOTS_TRIK_GENERATOR_BASE_LIBRARY
-
-INCLUDEPATH += \
-	$$PWD/include \
-	$$PWD/../../generatorBase/include/ \
-	$$PWD/../../../interpreters/interpreterBase/include \
-	$$PWD/../../../../../ \
-	$$PWD/../../../../../qrgui \
-	$$PWD/../../../../../qrtext/include \
-
-# workaround for http://bugreports.qt.nokia.com/browse/QTBUG-8110
-# when fixed it would become possible to use QMAKE_LFLAGS_RPATH
-!macx {
-	QMAKE_LFLAGS += -Wl,-O1,-rpath,$$PWD/../../../../../bin/
-	QMAKE_LFLAGS += -Wl,-rpath,$$PWD/../../../../../bin/plugins/
-}
 
 TRANSLATIONS = $$PWD/../../../../../qrtranslations/ru/plugins/robots/trikGeneratorBase_ru.ts
 
@@ -40,6 +27,7 @@ HEADERS += \
 	$$PWD/include/trikGeneratorBase/trikMasterGeneratorBase.h \
 	$$PWD/src/trikGeneratorCustomizer.h \
 	$$PWD/src/trikGeneratorFactory.h \
+	$$PWD/src/robotModel/trikGeneratorRobotModel.h \
 	$$PWD/src/parts/trikDeviceVariables.h \
 	$$PWD/src/converters/backgroundColorConverter.h \
 	$$PWD/src/converters/ledColorConverter.h \
@@ -65,12 +53,18 @@ HEADERS += \
 	$$PWD/src/simpleGenerators/setPainterColorGenerator.h \
 	$$PWD/src/simpleGenerators/sendMessageGenerator.h \
 	$$PWD/src/simpleGenerators/waitForMessageGenerator.h \
+	$$PWD/src/simpleGenerators/waitGamepadButtonGenerator.h \
+	$$PWD/src/simpleGenerators/waitGamepadConnectGenerator.h \
+	$$PWD/src/simpleGenerators/waitGamepadDisconnectGenerator.h \
+	$$PWD/src/simpleGenerators/waitGamepadWheelGenerator.h \
+	$$PWD/src/simpleGenerators/waitPadPressGenerator.h \
 
 SOURCES += \
 	$$PWD/src/trikGeneratorPluginBase.cpp \
 	$$PWD/src/trikMasterGeneratorBase.cpp \
 	$$PWD/src/trikGeneratorCustomizer.cpp \
 	$$PWD/src/trikGeneratorFactory.cpp \
+	$$PWD/src/robotModel/trikGeneratorRobotModel.cpp \
 	$$PWD/src/parts/trikDeviceVariables.cpp \
 	$$PWD/src/converters/backgroundColorConverter.cpp \
 	$$PWD/src/converters/ledColorConverter.cpp \
@@ -96,3 +90,8 @@ SOURCES += \
 	$$PWD/src/simpleGenerators/setPainterColorGenerator.cpp \
 	$$PWD/src/simpleGenerators/sendMessageGenerator.cpp \
 	$$PWD/src/simpleGenerators/waitForMessageGenerator.cpp \
+	$$PWD/src/simpleGenerators/waitGamepadButtonGenerator.cpp \
+	$$PWD/src/simpleGenerators/waitGamepadConnectGenerator.cpp \
+	$$PWD/src/simpleGenerators/waitGamepadDisconnectGenerator.cpp \
+	$$PWD/src/simpleGenerators/waitGamepadWheelGenerator.cpp \
+	$$PWD/src/simpleGenerators/waitPadPressGenerator.cpp \

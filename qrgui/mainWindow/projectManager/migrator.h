@@ -1,8 +1,8 @@
 #pragma once
 
 #include "qrkernel/ids.h"
-#include "plugins/pluginManager/editorManagerInterface.h"
-#include "models/modelsInterface.h"
+#include "qrgui/plugins/pluginManager/editorManagerInterface.h"
+#include "qrgui/models/modelsInterface.h"
 
 namespace qReal {
 namespace migration {

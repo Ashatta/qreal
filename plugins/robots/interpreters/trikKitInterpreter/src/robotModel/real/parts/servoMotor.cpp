@@ -1,10 +1,11 @@
 #include "servoMotor.h"
+
 #include <qrutils/inFile.h>
 
-using namespace trikKitInterpreter::robotModel::real::parts;
-using namespace interpreterBase::robotModel;
+using namespace trik::robotModel::real::parts;
+using namespace kitBase::robotModel;
 
-ServoMotor::ServoMotor(DeviceInfo const &info, PortInfo const &port
+ServoMotor::ServoMotor(const DeviceInfo &info, const PortInfo &port
 		, utils::TcpRobotCommunicator &tcpRobotCommunicator)
 	: robotModel::parts::TrikServoMotor(info, port)
 	, mRobotCommunicator(tcpRobotCommunicator)
@@ -13,10 +14,10 @@ ServoMotor::ServoMotor(DeviceInfo const &info, PortInfo const &port
 
 void ServoMotor::on(int speed)
 {
-	QString const pathToCommand = ":/trik/templates/engines/forward.t";
-	QString const directCommand = utils::InFile::readAll(pathToCommand)
+	const QString pathToCommand = ":/trikQts/templates/engines/forward.t";
+	const QString directCommand = utils::InFile::readAll(pathToCommand)
 			.replace("@@PORT@@", "\"" + port().name() + "\"")
-			.replace("@@POWER@@", QString::number(speed)) + "brick.run();";
+			.replace("@@POWER@@", QString::number(speed)) + "script.run();";
 
 	mRobotCommunicator.runDirectCommand(directCommand);
 }
@@ -31,4 +32,3 @@ void ServoMotor::off()
 	/// @todo It shall be a separate command, to power off motor, not to leave it in blocked state.
 	on(0);
 }
-

@@ -2,11 +2,11 @@
 
 #include <QtWidgets/QApplication>
 
-using namespace ev3KitInterpreter;
+using namespace ev3;
 using namespace qReal;
 
-Id const robotDiagramType = Id("RobotsMetamodel", "RobotsDiagram", "RobotsDiagramNode");
-Id const subprogramDiagramType = Id("RobotsMetamodel", "RobotsDiagram", "SubprogramDiagram");
+const Id robotDiagramType = Id("RobotsMetamodel", "RobotsDiagram", "RobotsDiagramNode");
+const Id subprogramDiagramType = Id("RobotsMetamodel", "RobotsDiagram", "SubprogramDiagram");
 
 Ev3KitInterpreterPlugin::Ev3KitInterpreterPlugin()
 		: mRealRobotModel(kitId(), "ev3robot") // todo: somewhere generate robotId for each robot
@@ -26,24 +26,24 @@ QString Ev3KitInterpreterPlugin::kitId() const
 
 QString Ev3KitInterpreterPlugin::friendlyKitName() const
 {
-	return tr("EV3");
+	return tr("Lego EV3");
 }
 
-QList<interpreterBase::robotModel::RobotModelInterface *> Ev3KitInterpreterPlugin::robotModels()
+QList<kitBase::robotModel::RobotModelInterface *> Ev3KitInterpreterPlugin::robotModels()
 {
 	return  {&mRealRobotModel};
 }
 
-interpreterBase::blocksBase::BlocksFactoryInterface *Ev3KitInterpreterPlugin::blocksFactoryFor(
-		interpreterBase::robotModel::RobotModelInterface const *model)
+kitBase::blocksBase::BlocksFactoryInterface *Ev3KitInterpreterPlugin::blocksFactoryFor(
+		const kitBase::robotModel::RobotModelInterface *model)
 {
 	Q_UNUSED(model)
 	return mBlocksFactory;
 }
 
-interpreterBase::AdditionalPreferences *Ev3KitInterpreterPlugin::settingsWidget()
+QList<kitBase::AdditionalPreferences *> Ev3KitInterpreterPlugin::settingsWidgets()
 {
-	return mAdditionalPreferences;
+	return { mAdditionalPreferences };
 }
 
 QList<qReal::ActionInfo> Ev3KitInterpreterPlugin::customActions()
@@ -57,7 +57,7 @@ QList<qReal::HotKeyActionInfo> Ev3KitInterpreterPlugin::hotKeyActions()
 }
 
 QIcon Ev3KitInterpreterPlugin::iconForFastSelector(
-		interpreterBase::robotModel::RobotModelInterface const &robotModel) const
+		const kitBase::robotModel::RobotModelInterface &robotModel) const
 {
 	Q_UNUSED(robotModel)
 	return QIcon();

@@ -2,12 +2,12 @@
 
 #include <utils/tracer.h>
 
-using namespace nxtKitInterpreter::robotModel::real::parts;
-using namespace interpreterBase::robotModel;
+using namespace nxt::robotModel::real::parts;
+using namespace kitBase::robotModel;
 
-int const maxColorValue = 1023;
+const int maxColorValue = 1023;
 
-ColorSensorImpl::ColorSensorImpl(PortInfo const &port
+ColorSensorImpl::ColorSensorImpl(const PortInfo &port
 		, utils::robotCommunication::RobotCommunicator &robotCommunicator
 		, enums::lowLevelSensorType::SensorTypeEnum lowLevelType)
 	: mImplementation(robotCommunicator, port, lowLevelType, enums::sensorMode::RAWMODE)
@@ -48,7 +48,7 @@ void ColorSensorImpl::doConfiguration()
 	mImplementation.configure();
 }
 
-void ColorSensorImpl::sensorSpecificProcessResponse(QByteArray const &reading)
+void ColorSensorImpl::sensorSpecificProcessResponse(const QByteArray &reading)
 {
 	if (reading.isEmpty()) {
 		utils::Tracer::debug(utils::Tracer::sensors, "BluetoothColorSensorImplementation::sensorSpecificProcessResponse"

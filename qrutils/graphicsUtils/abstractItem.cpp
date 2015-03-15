@@ -1,6 +1,7 @@
 #include "abstractItem.h"
 
 #include <QtGui/QPainter>
+#include <QtWidgets/QMenu>
 #include <QtWidgets/QStyle>
 #include <QtWidgets/QGraphicsScene>
 #include <QtWidgets/QStyleOptionGraphicsItem>
@@ -9,7 +10,7 @@
 using namespace graphicsUtils;
 
 AbstractItem::AbstractItem(QGraphicsItem* parent)
-	: QGraphicsItem(parent), mDragState(None)
+	: QGraphicsObject(parent), mDragState(None)
 	, mX1(0), mY1(0), mX2(0), mY2(0), mView(nullptr)
 {
 	setFlag(QGraphicsItem::ItemIsSelectable, true);
@@ -40,7 +41,7 @@ void AbstractItem::paint(QPainter* painter, const QStyleOptionGraphicsItem* opti
 	drawItem(painter, option, widget);
 	if (option->state & QStyle::State_Selected) {
 		painter->save();
-		setPenBrushForExtraxtion(painter, option);
+		setPenBrushForExtraction(painter, option);
 		drawExtractionForItem(painter);
 		painter->restore();
 	}
@@ -58,10 +59,10 @@ void AbstractItem::drawExtractionForItem(QPainter* painter)
 void AbstractItem::drawFieldForResizeItem(QPainter* painter)
 {
 	QRectF itemBoundingRect = calcNecessaryBoundingRect();
-	qreal const x1 = itemBoundingRect.left();
-	qreal const x2 = itemBoundingRect.right();
-	qreal const y1 = itemBoundingRect.top();
-	qreal const y2 = itemBoundingRect.bottom();
+	const qreal x1 = itemBoundingRect.left();
+	const qreal x2 = itemBoundingRect.right();
+	const qreal y1 = itemBoundingRect.top();
+	const qreal y2 = itemBoundingRect.bottom();
 
 	setPenBrushDriftRect(painter);
 	painter->drawRect(x1, y1, resizeDrift, resizeDrift);
@@ -70,7 +71,7 @@ void AbstractItem::drawFieldForResizeItem(QPainter* painter)
 	painter->drawRect(x2 - resizeDrift, y1, resizeDrift, resizeDrift);
 }
 
-void AbstractItem::setPenBrushForExtraxtion(QPainter *painter, QStyleOptionGraphicsItem const *option)
+void AbstractItem::setPenBrushForExtraction(QPainter *painter, const QStyleOptionGraphicsItem *option)
 {
 	Q_UNUSED(option);
 	QPen pen(Qt::red);
@@ -100,12 +101,12 @@ QBrush AbstractItem::brush() const
 	return mBrush;
 }
 
-void AbstractItem::setBrush(QBrush const &brush)
+void AbstractItem::setBrush(const QBrush &brush)
 {
 	mBrush = brush;
 }
 
-void AbstractItem::setPen(QPen const &pen)
+void AbstractItem::setPen(const QPen &pen)
 {
 	mPen = pen;
 }
@@ -148,7 +149,7 @@ void AbstractItem::setX2andY2(qreal x, qreal y)
 	update();
 }
 
-void AbstractItem::setCoordinates(QRectF const &pos)
+void AbstractItem::setCoordinates(const QRectF &pos)
 {
 	mX1 = pos.left();
 	mY1 = pos.top();
@@ -159,7 +160,7 @@ void AbstractItem::setCoordinates(QRectF const &pos)
 
 void AbstractItem::reshapeRectWithShift()
 {
-	qreal const size = qMax(abs(mX2 - mX1), abs(mY2 - mY1));
+	const qreal size = qMax(abs(mX2 - mX1), abs(mY2 - mY1));
 	if(mX2 > mX1) {
 		if (mY2 > mY1) {
 			setX2andY2(mX1 + size, mY1 + size);
@@ -177,13 +178,21 @@ void AbstractItem::reshapeRectWithShift()
 
 void AbstractItem::changeDragState(qreal x, qreal y)
 {
-	if (QRectF(mapToScene(mX1, mY1), QSizeF(0, 0)).adjusted(-resizeDrift, -resizeDrift, resizeDrift, resizeDrift).contains(QPointF(x, y))) {
+	if (QRectF(mapToScene(mX1, mY1), QSizeF(0, 0)).adjusted(-resizeDrift, -resizeDrift, resizeDrift
+			, resizeDrift).contains(QPointF(x, y)))
+	{
 		mDragState = TopLeft;
-	} else if (QRectF(mapToScene(mX2, mY2), QSizeF(0, 0)).adjusted(-resizeDrift, -resizeDrift, resizeDrift, resizeDrift).contains(QPointF(x, y))) {
+	} else if (QRectF(mapToScene(mX2, mY2), QSizeF(0, 0)).adjusted(-resizeDrift, -resizeDrift, resizeDrift
+			, resizeDrift).contains(QPointF(x, y)))
+	{
 		mDragState = BottomRight;
-	} else if (QRectF(mapToScene(mX2, mY1), QSizeF(0, 0)).adjusted(-resizeDrift, -resizeDrift, resizeDrift, resizeDrift).contains(QPointF(x, y))) {
+	} else if (QRectF(mapToScene(mX2, mY1), QSizeF(0, 0)).adjusted(-resizeDrift, -resizeDrift, resizeDrift
+			, resizeDrift).contains(QPointF(x, y)))
+	{
 		mDragState = TopRight;
-	} else if (QRectF(mapToScene(mX1, mY2), QSizeF(0, 0)).adjusted(-resizeDrift, -resizeDrift, resizeDrift, resizeDrift).contains(QPointF(x, y))) {
+	} else if (QRectF(mapToScene(mX1, mY2), QSizeF(0, 0)).adjusted(-resizeDrift, -resizeDrift, resizeDrift
+			, resizeDrift).contains(QPointF(x, y)))
+	{
 		mDragState = BottomLeft;
 	} else {
 		mDragState = None;
@@ -197,8 +206,8 @@ AbstractItem::DragState AbstractItem::getDragState() const
 
 void AbstractItem::calcResizeItem(QGraphicsSceneMouseEvent *event)
 {
-	qreal const x = mapFromScene(event->scenePos()).x();
-	qreal const y = mapFromScene(event->scenePos()).y();
+	const qreal x = mapFromScene(event->scenePos()).x();
+	const qreal y = mapFromScene(event->scenePos()).y();
 	if (mDragState != None) {
 		setFlag(QGraphicsItem::ItemIsMovable, false);
 	}
@@ -236,7 +245,7 @@ void AbstractItem::reverseOldResizingItem(QPointF begin, QPointF end)
 	}
 }
 
-void AbstractItem::setPenStyle(QString const &text)
+void AbstractItem::setPenStyle(const QString &text)
 {
 	if (text == "Solid")
 		mPen.setStyle(Qt::SolidLine);
@@ -257,12 +266,12 @@ void AbstractItem::setPenWidth(int width)
 	mPen.setWidth(width);
 }
 
-void AbstractItem::setPenColor(QString const &text)
+void AbstractItem::setPenColor(const QString &text)
 {
 	mPen.setColor(QColor(text));
 }
 
-void AbstractItem::setBrushStyle(QString const &text)
+void AbstractItem::setBrushStyle(const QString &text)
 {
 	if (text == "Solid") {
 		mBrush.setStyle(Qt::SolidPattern);
@@ -271,32 +280,32 @@ void AbstractItem::setBrushStyle(QString const &text)
 	}
 }
 
-void AbstractItem::setBrushColor(QString const &text)
+void AbstractItem::setBrushColor(const QString &text)
 {
 	mBrush.setColor(QColor(text));
 }
 
-void AbstractItem::setPen(QString const &penStyle, int width, QString const &penColor)
+void AbstractItem::setPen(const QString &penStyle, int width, const QString &penColor)
 {
 	setPenStyle(penStyle);
 	setPenWidth(width);
 	setPenColor(penColor);
 }
 
-void AbstractItem::setBrush(QString const &brushStyle, QString const &brushColor)
+void AbstractItem::setBrush(const QString &brushStyle, const QString &brushColor)
 {
 	setBrushStyle(brushStyle);
 	setBrushColor(brushColor);
 }
 
-void AbstractItem::setPenBrush(QString const &penStyle, int width, QString const &penColor
-		, QString const &brushStyle, QString const &brushColor)
+void AbstractItem::setPenBrush(const QString &penStyle, int width, const QString &penColor
+		, const QString &brushStyle, const QString &brushColor)
 {
 	setPen(penStyle, width, penColor);
 	setBrush(brushStyle, brushColor);
 }
 
-void AbstractItem::setXandY(QDomElement& dom, QRectF const &rect)
+void AbstractItem::setXandY(QDomElement& dom, const QRectF &rect)
 {
 	dom.setAttribute("y1", rect.top());
 	dom.setAttribute("x1", rect.left());
@@ -304,7 +313,7 @@ void AbstractItem::setXandY(QDomElement& dom, QRectF const &rect)
 	dom.setAttribute("x2", rect.right());
 }
 
-QDomElement AbstractItem::setPenBrushToDoc(QDomDocument &document, QString const &domName)
+QDomElement AbstractItem::setPenBrushToDoc(QDomDocument &document, const QString &domName)
 {
 	QDomElement dom = document.createElement(domName);
 	dom.setAttribute("fill", mBrush.color().name());
@@ -349,15 +358,15 @@ QDomElement AbstractItem::setPenBrushToDoc(QDomDocument &document, QString const
 	return dom;
 }
 
-QRectF AbstractItem::sceneBoundingRectCoord(QPoint const &topLeftPicture)
+QRectF AbstractItem::sceneBoundingRectCoord(const QPoint &topLeftPicture)
 {
 	QRectF itemBoundingRect = calcNecessaryBoundingRect();
-	qreal const x1 = scenePos().x() + itemBoundingRect.x() - topLeftPicture.x();
-	qreal const y1 = scenePos().y() + itemBoundingRect.y() - topLeftPicture.y();
+	const qreal x1 = scenePos().x() + itemBoundingRect.x() - topLeftPicture.x();
+	const qreal y1 = scenePos().y() + itemBoundingRect.y() - topLeftPicture.y();
 	return QRectF(x1, y1, itemBoundingRect.width(), itemBoundingRect.height());
 }
 
-void AbstractItem::readPenBrush(QDomElement const &docItem)
+void AbstractItem::readPenBrush(const QDomElement &docItem)
 {
 	QString brushStyle = docItem.attribute("fill-style", "");
 	if (brushStyle == "solid") {
@@ -411,5 +420,36 @@ void AbstractItem::mouseMoveEvent(QGraphicsSceneMouseEvent * event)
 	// item (not only robot item). In this case new selected item moves.
 	if (event->lastScreenPos() != event->screenPos()) {
 		QGraphicsItem::mouseMoveEvent(event);
+	}
+}
+
+QString AbstractItem::id() const
+{
+	return mId;
+}
+
+void AbstractItem::setId(const QString &id)
+{
+	mId = id;
+}
+
+void AbstractItem::serialize(QDomElement &element)
+{
+	element.setAttribute("id", id());
+}
+
+void AbstractItem::deserialize(const QDomElement &element)
+{
+	setId(element.attribute("id", id()));
+}
+
+void AbstractItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
+{
+	QMenu *menu = new QMenu();
+	QAction *removeAction = menu->addAction(QObject::tr("Remove"));
+	QAction *selectedAction = menu->exec(event->screenPos());
+	delete menu;
+	if (selectedAction == removeAction) {
+		scene()->removeItem(this);
 	}
 }

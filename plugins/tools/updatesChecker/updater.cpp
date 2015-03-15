@@ -5,6 +5,8 @@
 #include <QtCore/QProcess>
 #include <QtXml/QDomDocument>
 
+#include <qrkernel/logging.h>
+
 using namespace updatesChecker;
 
 Updater::Updater(QObject *parent)
@@ -23,7 +25,7 @@ void Updater::start()
 	executeUpdater("--updater");
 }
 
-void Updater::executeUpdater(QString const &mode)
+void Updater::executeUpdater(const QString &mode)
 {
 	mUpdaterProcess = new QProcess(this);
 	mUpdaterProcess->setWorkingDirectory(QCoreApplication::applicationDirPath());
@@ -38,11 +40,12 @@ void Updater::executeUpdater(QString const &mode)
 
 void Updater::readAnswer()
 {
-	QString const output = mUpdaterProcess->readAllStandardOutput();
+	const QString output = mUpdaterProcess->readAllStandardOutput();
 	// Checking that output is a valid XML
 	QDomDocument parser;
 	parser.setContent(output);
-	if (!output.isEmpty() && !parser.isNull()) {
+	QLOG_INFO() << "Updater output:" << output;
+	if (!output.isEmpty() && !parser.isNull() && output.trimmed().startsWith("<")) {
 		emit newVersionAvailable();
 	} else {
 		emit noNewVersionAvailable();

@@ -1,9 +1,9 @@
 #pragma once
 
-namespace nxtKitInterpreter {
+namespace nxt {
 
-unsigned const maxMessageSize = 59;
-unsigned const i2cBufferSize = 24;
+const unsigned maxMessageSize = 59;
+const unsigned i2cBufferSize = 24;
 
 namespace enums {
 

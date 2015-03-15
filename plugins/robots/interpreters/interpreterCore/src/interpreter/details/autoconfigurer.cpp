@@ -1,16 +1,16 @@
-#include "autoconfigurer.h"
+#include "interpreterCore/interpreter/details/autoconfigurer.h"
 
 #include <qrkernel/exception/exception.h>
 
-#include <interpreterBase/blocksBase/block.h>
-#include <interpreterBase/robotModel/robotModelInterface.h>
+#include <kitBase/blocksBase/robotsBlock.h>
+#include <kitBase/robotModel/robotModelInterface.h>
 #include <utils/tracer.h>
 
 using namespace interpreterCore::interpreter::details;
 using namespace qReal;
-using namespace interpreterBase::robotModel;
+using namespace kitBase::robotModel;
 
-Autoconfigurer::Autoconfigurer(GraphicalModelAssistInterface const &graphicalModelApi
+Autoconfigurer::Autoconfigurer(const GraphicalModelAssistInterface &graphicalModelApi
 		, BlocksTable &blocksTable
 		, qReal::ErrorReporterInterface &errorReporter)
 	: mGraphicalModelApi(graphicalModelApi)
@@ -19,21 +19,22 @@ Autoconfigurer::Autoconfigurer(GraphicalModelAssistInterface const &graphicalMod
 {
 }
 
-bool Autoconfigurer::configure(QList<qReal::Id> const &diagrams, QString const &robotModelName)
+bool Autoconfigurer::configure(QList<qReal::Id> const &diagrams, const QString &robotModelName)
 {
-	for (Id const &diagram : diagrams) {
-		IdList const children = mGraphicalModelApi.graphicalRepoApi().children(diagram);
+	for (const Id &diagram : diagrams) {
+		const IdList children = mGraphicalModelApi.graphicalRepoApi().children(diagram);
 
-		for (Id const &child : children) {
-			interpreterBase::blocksBase::BlockInterface * const block = mBlocksTable.block(child);
+		for (const Id &child : children) {
+			kitBase::blocksBase::RobotsBlock * const block
+					= dynamic_cast<kitBase::blocksBase::RobotsBlock *>(mBlocksTable.block(child));
 			if (!block) {
 				continue;
 			}
 
 			QMap<PortInfo, DeviceInfo> const usedDevices = block->usedDevices();
-			for (PortInfo const &port : usedDevices.keys()) {
-				DeviceInfo const device = usedDevices[port];
-				DeviceInfo const existingDevice = currentConfiguration(robotModelName, port);
+			for (const PortInfo &port : usedDevices.keys()) {
+				const DeviceInfo device = usedDevices[port];
+				const DeviceInfo existingDevice = currentConfiguration(robotModelName, port);
 				if (!existingDevice.isNull() && !existingDevice.isA(device)) {
 					mErrorReporter.addError(QObject::tr("Sensor configuration conflict, please check that sensor"\
 							" ports are used consistently in a program"), child);

@@ -2,20 +2,21 @@
 
 #include <QtWidgets/QApplication>
 
-#include <commonTwoDModel/engine/twoDModelEngineFacade.h>
+#include <twoDModel/engine/twoDModelEngineFacade.h>
 
-using namespace nxtKitInterpreter;
+using namespace nxt;
 using namespace qReal;
 
-Id const robotDiagramType = Id("RobotsMetamodel", "RobotsDiagram", "RobotsDiagramNode");
-Id const subprogramDiagramType = Id("RobotsMetamodel", "RobotsDiagram", "SubprogramDiagram");
+const Id robotDiagramType = Id("RobotsMetamodel", "RobotsDiagram", "RobotsDiagramNode");
+const Id subprogramDiagramType = Id("RobotsMetamodel", "RobotsDiagram", "SubprogramDiagram");
 
 NxtKitInterpreterPlugin::NxtKitInterpreterPlugin()
-	: mRealRobotModel(kitId(), "nxtKitRobot") // todo: somewhere generate robotId for each robot
-	, mTwoDRobotModel(mRealRobotModel)
+	: mUsbRealRobotModel(kitId(), "nxtKitUsbRobot") // todo: somewhere generate robotId for each robot
+	, mBluetoothRealRobotModel(kitId(), "nxtKitBluetoothRobot")
+	, mTwoDRobotModel(mUsbRealRobotModel)
 	, mBlocksFactory(new blocks::NxtBlocksFactory)
 {
-	mAdditionalPreferences = new NxtAdditionalPreferences(mRealRobotModel.name());
+	mAdditionalPreferences = new NxtAdditionalPreferences(mBluetoothRealRobotModel.name());
 
 	auto modelEngine = new twoDModel::engine::TwoDModelEngineFacade(mTwoDRobotModel);
 
@@ -23,7 +24,9 @@ NxtKitInterpreterPlugin::NxtKitInterpreterPlugin()
 	mTwoDModel.reset(modelEngine);
 
 	connect(mAdditionalPreferences, &NxtAdditionalPreferences::settingsChanged
-			, &mRealRobotModel, &robotModel::real::RealRobotModel::rereadSettings);
+			, &mUsbRealRobotModel, &robotModel::real::RealRobotModel::rereadSettings);
+	connect(mAdditionalPreferences, &NxtAdditionalPreferences::settingsChanged
+			, &mBluetoothRealRobotModel, &robotModel::real::RealRobotModel::rereadSettings);
 	connect(mAdditionalPreferences, &NxtAdditionalPreferences::settingsChanged
 			, &mTwoDRobotModel, &robotModel::twoD::TwoDRobotModel::rereadSettings);
 }
@@ -39,24 +42,34 @@ NxtKitInterpreterPlugin::~NxtKitInterpreterPlugin()
 	}
 }
 
-void NxtKitInterpreterPlugin::init(interpreterBase::EventsForKitPluginInterface const &eventsForKitPlugin
-		, SystemEvents const &systemEvents
-		, qReal::GraphicalModelAssistInterface &graphicalModel
-		, qReal::LogicalModelAssistInterface &logicalModel
-		, gui::MainWindowInterpretersInterface &interpretersInterface
-		, interpreterBase::InterpreterControlInterface &interpreterControl)
+void NxtKitInterpreterPlugin::init(const kitBase::KitPluginConfigurator &configurator)
 {
-	connect(&eventsForKitPlugin
-			, &interpreterBase::EventsForKitPluginInterface::robotModelChanged
-			, [this](QString const &modelName) { mCurrentlySelectedModelName = modelName; });
+	connect(&configurator.eventsForKitPlugin(), &kitBase::EventsForKitPluginInterface::robotModelChanged
+			, [this](const QString &modelName) { mCurrentlySelectedModelName = modelName; });
 
-	connect(&systemEvents
-			, &qReal::SystemEvents::activeTabChanged
-			, this
-			, &NxtKitInterpreterPlugin::onActiveTabChanged);
+	connect(&configurator.qRealConfigurator().systemEvents(), &qReal::SystemEvents::activeTabChanged
+			, this, &NxtKitInterpreterPlugin::onActiveTabChanged);
 
-	mTwoDModel->init(eventsForKitPlugin, systemEvents, graphicalModel
-			, logicalModel, interpretersInterface, interpreterControl);
+	qReal::gui::MainWindowInterpretersInterface &interpretersInterface
+			= configurator.qRealConfigurator().mainWindowInterpretersInterface();
+	connect(&mUsbRealRobotModel, &robotModel::real::RealRobotModel::errorOccured
+			, [&interpretersInterface](const QString &message) {
+				interpretersInterface.errorReporter()->addError(message);
+	});
+	connect(&mBluetoothRealRobotModel, &robotModel::real::RealRobotModel::errorOccured
+			, [&interpretersInterface](const QString &message) {
+				interpretersInterface.errorReporter()->addError(message);
+	});
+	mUsbRealRobotModel.checkConnection();
+	mBluetoothRealRobotModel.checkConnection();
+
+	mTwoDModel->init(configurator.eventsForKitPlugin()
+			, configurator.qRealConfigurator().systemEvents()
+			, configurator.qRealConfigurator().graphicalModelApi()
+			, configurator.qRealConfigurator().logicalModelApi()
+			, interpretersInterface
+			, configurator.interpreterControl());
+
 }
 
 QString NxtKitInterpreterPlugin::kitId() const
@@ -69,28 +82,28 @@ QString NxtKitInterpreterPlugin::friendlyKitName() const
 	return tr("Lego NXT");
 }
 
-QList<interpreterBase::robotModel::RobotModelInterface *> NxtKitInterpreterPlugin::robotModels()
+QList<kitBase::robotModel::RobotModelInterface *> NxtKitInterpreterPlugin::robotModels()
 {
-	return {&mRealRobotModel, &mTwoDRobotModel};
+	return {&mUsbRealRobotModel, &mBluetoothRealRobotModel, &mTwoDRobotModel};
 }
 
-interpreterBase::blocksBase::BlocksFactoryInterface *NxtKitInterpreterPlugin::blocksFactoryFor(
-		interpreterBase::robotModel::RobotModelInterface const *model)
+kitBase::blocksBase::BlocksFactoryInterface *NxtKitInterpreterPlugin::blocksFactoryFor(
+		const kitBase::robotModel::RobotModelInterface *model)
 {
 	Q_UNUSED(model);
 	mOwnsBlocksFactory = false;
 	return mBlocksFactory;
 }
 
-interpreterBase::robotModel::RobotModelInterface *NxtKitInterpreterPlugin::defaultRobotModel()
+kitBase::robotModel::RobotModelInterface *NxtKitInterpreterPlugin::defaultRobotModel()
 {
 	return &mTwoDRobotModel;
 }
 
-interpreterBase::AdditionalPreferences *NxtKitInterpreterPlugin::settingsWidget()
+QList<kitBase::AdditionalPreferences *> NxtKitInterpreterPlugin::settingsWidgets()
 {
 	mOwnsAdditionalPreferences = false;
-	return mAdditionalPreferences;
+	return {mAdditionalPreferences};
 }
 
 QList<qReal::ActionInfo> NxtKitInterpreterPlugin::customActions()
@@ -114,19 +127,21 @@ QString NxtKitInterpreterPlugin::defaultSettingsFile() const
 }
 
 QIcon NxtKitInterpreterPlugin::iconForFastSelector(
-		interpreterBase::robotModel::RobotModelInterface const &robotModel) const
+		const kitBase::robotModel::RobotModelInterface &robotModel) const
 {
-	return &robotModel == &mRealRobotModel
-			? QIcon(":/icons/switch-real-nxt.svg")
-			: QIcon(":/icons/switch-2d.svg");
+	return &robotModel == &mUsbRealRobotModel
+			? QIcon(":/icons/switch-real-nxt-usb.svg")
+			: &robotModel == &mBluetoothRealRobotModel
+					? QIcon(":/icons/switch-real-nxt-bluetooth.svg")
+					: QIcon(":/icons/switch-2d.svg");
 }
 
-interpreterBase::DevicesConfigurationProvider * NxtKitInterpreterPlugin::devicesConfigurationProvider()
+kitBase::DevicesConfigurationProvider * NxtKitInterpreterPlugin::devicesConfigurationProvider()
 {
 	return &mTwoDModel->devicesConfigurationProvider();
 }
 
-void NxtKitInterpreterPlugin::onActiveTabChanged(Id const &rootElementId)
+void NxtKitInterpreterPlugin::onActiveTabChanged(const Id &rootElementId)
 {
 	bool enabled = rootElementId.type() == robotDiagramType || rootElementId.type() == subprogramDiagramType;
 	enabled &= mCurrentlySelectedModelName == mTwoDRobotModel.name();

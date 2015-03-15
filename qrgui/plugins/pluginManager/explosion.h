@@ -2,15 +2,17 @@
 
 #include <qrkernel/ids.h>
 
+#include "qrgui/plugins/pluginManager/pluginsManagerDeclSpec.h"
+
 namespace qReal {
 
 /// This class describes such entity as explosion: explosion relation between source() and target() means
 /// that source() can or must be binded with some instance of target() type. Double click on such
 /// element unfolds a diagram with target element as root
-class Explosion
+class QRGUI_PLUGINS_MANAGER_EXPORT Explosion
 {
 public:
-	Explosion(Id const &source, Id const &target, bool isReusable, bool requiresImmediateLinkage);
+	Explosion(const Id &source, const Id &target, bool isReusable, bool requiresImmediateLinkage);
 
 	/// The type of the source element
 	Id source() const;

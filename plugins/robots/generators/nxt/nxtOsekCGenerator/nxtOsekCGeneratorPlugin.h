@@ -22,20 +22,22 @@ public:
 	NxtOsekCGeneratorPlugin();
 	~NxtOsekCGeneratorPlugin() override;
 
-	void init(qReal::PluginConfigurator const &configurator
-			, interpreterBase::robotModel::RobotModelManagerInterface const &robotModelManager
-			, qrtext::LanguageToolboxInterface &textLanguage) override;
-	QList<qReal::ActionInfo> actions() override;
+	void init(const kitBase::KitPluginConfigurator &configurator) override;
+
+	QList<qReal::ActionInfo> customActions() override;
 	QList<qReal::HotKeyActionInfo> hotKeyActions() override;
+	QIcon iconForFastSelector(const kitBase::robotModel::RobotModelInterface &robotModel) const override;
 
 protected:
 	generatorBase::MasterGeneratorBase *masterGenerator() override;
-	void regenerateExtraFiles(QFileInfo const &newFileInfo) override;
-	QString defaultFilePath(QString const &projectName) const override;
-	QString extension() const override;
-	QString extensionDescription() const override;
+	void regenerateExtraFiles(const QFileInfo &newFileInfo) override;
+	QString defaultFilePath(const QString &projectName) const override;
+	qReal::text::LanguageInfo language() const override;
 	QString generatorName() const override;
-	bool canGenerateTo(QString const &project) override;
+	bool canGenerateTo(const QString &project) override;
+
+	void onCurrentRobotModelChanged(kitBase::robotModel::RobotModelInterface &model) override;
+	void onCurrentDiagramChanged(const qReal::Id &id) override;
 
 private slots:
 	/// Uploads and installs nxtOSEK on a robot. Requires nxt-tools.
@@ -53,14 +55,18 @@ private:
 	/// subfolder of QReal installation), and sets mNxtToolsPresent flag.
 	void checkNxtTools();
 
+	void initActions();
 	void initHotKeyActions();
 
 	/// Action that launches code generator
-	QAction mGenerateCodeAction;
+	QAction *mGenerateCodeAction;  // Doesn't have ownership; may be disposed by GUI.
+
 	/// Action that uploads nxtOSEK on a robot
-	QAction mFlashRobotAction;
+	QAction *mFlashRobotAction;  // Doesn't have ownership; may be disposed by GUI.
+
 	/// Action that compiles and uploads program on a robot
-	QAction mUploadProgramAction;
+	QAction *mUploadProgramAction;  // Doesn't have ownership; may be disposed by GUI.
+
 	QList<qReal::HotKeyActionInfo> mHotKeyActionInfos;
 
 	/// When true, nxt-tools are found by QReal and flashing and uploading is possible

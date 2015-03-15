@@ -1,11 +1,11 @@
 #pragma once
 
-#include "models/modelsInterface.h"
-#include "models/details/graphicalModel.h"
-#include "models/details/logicalModel.h"
-#include "models/graphicalModelAssistApi.h"
-#include "models/logicalModelAssistApi.h"
-#include "models/exploser.h"
+#include "qrgui/models/modelsInterface.h"
+#include "qrgui/models/details/graphicalModel.h"
+#include "qrgui/models/details/logicalModel.h"
+#include "qrgui/models/graphicalModelAssistApi.h"
+#include "qrgui/models/logicalModelAssistApi.h"
+#include "qrgui/models/exploser.h"
 
 namespace qReal {
 namespace models {
@@ -13,7 +13,7 @@ namespace models {
 class QRGUI_MODELS_EXPORT Models : public ModelsInterface
 {
 public:
-	Models(QString const &workingCopy, EditorManagerInterface &editorManager);
+	Models(const QString &workingCopy, const EditorManagerInterface &editorManager);
 	~Models();
 
 	QAbstractItemModel *graphicalModel() const;
@@ -24,10 +24,10 @@ public:
 
 	qrRepo::RepoControlInterface &repoControlApi() const;
 
-	qrRepo::LogicalRepoApi const &logicalRepoApi() const;
+	const qrRepo::LogicalRepoApi &logicalRepoApi() const;
 	qrRepo::LogicalRepoApi &mutableLogicalRepoApi() const;
 
-	qrRepo::GraphicalRepoApi const &graphicalRepoApi() const;
+	const qrRepo::GraphicalRepoApi &graphicalRepoApi() const;
 
 	Exploser &exploser() const;
 

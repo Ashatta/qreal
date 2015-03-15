@@ -1,9 +1,9 @@
 #pragma once
 
-#include "robotModel/parts/trikLineSensor.h"
+#include <trikKit/robotModel/parts/trikLineSensor.h>
 #include <utils/tcpRobotCommunicator.h>
 
-namespace trikKitInterpreter {
+namespace trik {
 namespace robotModel {
 namespace real {
 namespace parts {
@@ -14,8 +14,8 @@ class LineSensor : public robotModel::parts::TrikLineSensor
 	Q_OBJECT
 
 public:
-	LineSensor(interpreterBase::robotModel::DeviceInfo const &info
-			, interpreterBase::robotModel::PortInfo const &port
+	LineSensor(const kitBase::robotModel::DeviceInfo &info
+			, const kitBase::robotModel::PortInfo &port
 			, utils::TcpRobotCommunicator &tcpRobotCommunicator);
 
 	void init() override;

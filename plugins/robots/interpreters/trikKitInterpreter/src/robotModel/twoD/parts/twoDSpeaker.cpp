@@ -1,18 +1,18 @@
 #include "twoDSpeaker.h"
 
-using namespace trikKitInterpreter::robotModel::twoD::parts;
+using namespace trik::robotModel::twoD::parts;
 
-int const duration = 1000;
+const int duration = 1000;
 
-TwoDSpeaker::TwoDSpeaker(interpreterBase::robotModel::DeviceInfo const &info
-		, interpreterBase::robotModel::PortInfo const &port
+TwoDSpeaker::TwoDSpeaker(const kitBase::robotModel::DeviceInfo &info
+		, const kitBase::robotModel::PortInfo &port
 		, twoDModel::engine::TwoDModelEngineInterface &engine)
 	: robotModel::parts::TrikSpeaker(info, port)
 	, mEngine(engine)
 {
 }
 
-void TwoDSpeaker::play(QString const &filePath)
+void TwoDSpeaker::play(const QString &filePath)
 {
 	Q_UNUSED(filePath)
 	mEngine.playSound(duration);

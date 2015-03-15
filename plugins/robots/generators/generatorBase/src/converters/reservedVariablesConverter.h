@@ -2,7 +2,7 @@
 
 #include <qrtext/languageToolboxInterface.h>
 #include <qrgui/plugins/toolPluginInterface/usedInterfaces/errorReporterInterface.h>
-#include <interpreterBase/robotModel/robotModelInterface.h>
+#include <kitBase/robotModel/robotModelInterface.h>
 
 #include "generatorBase/converters/templateParametrizedConverter.h"
 #include "generatorBase/parts/deviceVariables.h"
@@ -15,25 +15,25 @@ namespace converters {
 class ReservedVariablesConverter : public TemplateParametrizedConverter
 {
 public:
-	ReservedVariablesConverter(QString const &pathToTemplates
+	ReservedVariablesConverter(const QString &pathToTemplates
 			, qReal::ErrorReporterInterface &errorReporter
-			, interpreterBase::robotModel::RobotModelInterface const &robotModel
-			, QMap<interpreterBase::robotModel::PortInfo, interpreterBase::robotModel::DeviceInfo> const &devices
-			, simple::Binding::ConverterInterface const *inputPortConverter
-			, parts::DeviceVariables const &deviceVariables);
+			, const kitBase::robotModel::RobotModelInterface &robotModel
+			, QMap<kitBase::robotModel::PortInfo, kitBase::robotModel::DeviceInfo> const &devices
+			, const simple::Binding::ConverterInterface *inputPortConverter
+			, const parts::DeviceVariables &deviceVariables);
 
 	~ReservedVariablesConverter() override;
 
-	QString convert(QString const &variable) const override;
+	QString convert(const QString &variable) const override;
 
 protected:
-	virtual QString deviceExpression(interpreterBase::robotModel::PortInfo const &port) const;
+	virtual QString deviceExpression(const kitBase::robotModel::PortInfo &port) const;
 
 	qReal::ErrorReporterInterface &mErrorReporter;
-	interpreterBase::robotModel::RobotModelInterface const &mRobotModel;
-	QMap<interpreterBase::robotModel::PortInfo, interpreterBase::robotModel::DeviceInfo> const mDevices;
-	simple::Binding::ConverterInterface const *mInputConverter;  // Takes ownership
-	parts::DeviceVariables const &mDeviceVariables;
+	const kitBase::robotModel::RobotModelInterface &mRobotModel;
+	QMap<kitBase::robotModel::PortInfo, kitBase::robotModel::DeviceInfo> const mDevices;
+	const simple::Binding::ConverterInterface *mInputConverter;  // Takes ownership
+	const parts::DeviceVariables &mDeviceVariables;
 };
 
 }

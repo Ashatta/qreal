@@ -1,21 +1,14 @@
+include(../../../global.pri)
+
 QT += xml widgets
 
 TEMPLATE = lib
-CONFIG += plugin c++11
+CONFIG += plugin
 
-DESTDIR = ../../../bin/plugins/tools/
-MOC_DIR = .moc
-RCC_DIR = .moc
+DESTDIR = $$DESTDIR/plugins/tools/
 
-INCLUDEPATH += \
-	$$PWD/../../.. \
-	$$PWD/../../../qrgui/ \
-
-LIBS += -L../../../bin -lqrkernel -lqrutils -lqrmc -lqrgui-preferences-dialog
-
-TRANSLATIONS = $$PWD/../../../qrtranslations/ru/plugins/metaEditorSupport_ru.ts
-
-RESOURCES = metaEditorSupport.qrc
+links(qrkernel qrutils qrmc qrgui-preferences-dialog)
+includes(qrgui)
 
 HEADERS += \
 	metaEditorSupportPlugin.h \
@@ -23,8 +16,8 @@ HEADERS += \
 	xmlParser.h \
 	compilerPage.h \
 	versionChooserDialog.h \
-    migrationDialog.h \
-    migrationEditor.h
+	migrationDialog.h \
+	migrationEditor.h
 
 SOURCES += \
 	metaEditorSupportPlugin.cpp \
@@ -32,12 +25,15 @@ SOURCES += \
 	xmlParser.cpp \
 	compilerPage.cpp \
 	versionChooserDialog.cpp \
-    migrationDialog.cpp \
-    migrationEditor.cpp
+	migrationDialog.cpp \
+	migrationEditor.cpp
 
 FORMS += \
 	compilerPage.ui \
 	versionchooserdialog.ui \
-    migrationDialog.ui \
-    migrationEditor.ui
+	migrationDialog.ui \
+	migrationEditor.ui
 
+TRANSLATIONS = $$PWD/../../../qrtranslations/ru/plugins/metaEditorSupport_ru.ts
+
+RESOURCES = metaEditorSupport.qrc

@@ -12,15 +12,18 @@ namespace parts {
 class ROBOTS_GENERATOR_EXPORT Threads : public TemplateParametrizedEntity
 {
 public:
-	explicit Threads(QString const &pathToTemplates);
+	explicit Threads(const QString &pathToTemplates);
 
 	/// Must be called each time when generator gets into the block with the
 	/// fork semantics for every block that start new thread.
 	/// @param id The initial node of the thread
-	void registerThread(qReal::Id const &id);
+	void registerThread(const qReal::Id &id, const QString &threadId);
+
+	/// Returns the id of a thread which starts at the given node
+	QString threadId(const qReal::Id &id) const;
 
 	/// Must be called each time when semantic tree for some thread was built.
-	void threadProcessed(qReal::Id const &id, semantics::SemanticTree &tree);
+	void threadProcessed(const qReal::Id &id, semantics::SemanticTree &tree);
 
 	/// Returns true if not every registered semantic trees of treads was built.
 	bool hasUnprocessedThreads() const;
@@ -34,17 +37,25 @@ public:
 	/// Returns a list of thread names on all diagrams of the model.
 	QStringList threadNames() const;
 
+	/// Adds a thread to a join point.
+	void addJoin(const qReal::Id &id, const QString &threadId);
+
+	/// Returns a list of names of the threads that are being joined at the given join node.
+	QStringList joinedThreads(const qReal::Id &id) const;
+
 	/// Generates and returns the code of the section with threads forward declarations.
 	QString generateDeclarations() const;
 
 	/// Generates and returns the code of the section with threads code.
-	QString generateImplementations() const;
+	QString generateImplementations(const QString &indentString) const;
 
 private:
-	QString name(semantics::SemanticTree const *tree) const;
+	QString name(const semantics::SemanticTree *tree) const;
 
 	QSet<qReal::Id> mUnprocessedThreads;
 	QMap<qReal::Id, semantics::SemanticTree *> mProcessedThreads;
+	QMap<qReal::Id, QString> mThreadIds;
+	QMap<qReal::Id, QStringList> mJoins;
 };
 
 }

@@ -4,14 +4,14 @@
 
 using namespace generatorBase::semantics;
 
-ForkNode::ForkNode(qReal::Id const &idBinded, QObject *parent)
+ForkNode::ForkNode(const qReal::Id &idBinded, QObject *parent)
 	: NonZoneNode(idBinded, parent)
 {
 }
 
-void ForkNode::appendThread(qReal::Id const &thread)
+void ForkNode::appendThread(const qReal::Id &thread, const QString &threadId)
 {
-	mThreads << thread;
+	mThreads[thread] = threadId;
 }
 
 QLinkedList<SemanticNode *> ForkNode::children() const
@@ -19,8 +19,8 @@ QLinkedList<SemanticNode *> ForkNode::children() const
 	return {};
 }
 
-QString ForkNode::toStringImpl(generatorBase::GeneratorCustomizer &customizer, int indent) const
+QString ForkNode::toStringImpl(GeneratorCustomizer &customizer, int indent, const QString &indentString) const
 {
-	QString const code = customizer.factory()->forkCallGenerator(mId, customizer, mThreads.toList())->generate();
-	return utils::StringUtils::addIndent(code, indent);
+	const QString code = customizer.factory()->forkCallGenerator(mId, customizer, mThreads)->generate();
+	return utils::StringUtils::addIndent(code, indent, indentString);
 }

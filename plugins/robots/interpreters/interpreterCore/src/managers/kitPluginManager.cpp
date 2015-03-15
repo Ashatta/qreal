@@ -1,4 +1,4 @@
-#include "kitPluginManager.h"
+#include "interpreterCore/managers/kitPluginManager.h"
 
 #include <QtCore/QFileInfo>
 #include <QtCore/QCoreApplication>
@@ -8,12 +8,11 @@
 using namespace interpreterCore;
 using namespace qReal;
 
-KitPluginManager::KitPluginManager(QString const &pluginDirectory)
+KitPluginManager::KitPluginManager(const QString &pluginDirectory)
 	: mPluginsDir(QCoreApplication::applicationDirPath() + "/" + pluginDirectory)
 	, mPluginManager(PluginManager(QCoreApplication::applicationDirPath(), pluginDirectory))
 {
-	tryToLoadGeneratorPlugins();
-	tryToLoadInterpreterPlugins();
+	tryToLoadKitPlugins();
 }
 
 KitPluginManager::~KitPluginManager()
@@ -22,10 +21,10 @@ KitPluginManager::~KitPluginManager()
 
 QList<QString> KitPluginManager::kitIds() const
 {
-	return mPluginInterfaces.keys();
+	return mPluginInterfaces.uniqueKeys();
 }
 
-QList<interpreterBase::KitPluginInterface *> KitPluginManager::kitsById(QString const &kitId) const
+QList<kitBase::KitPluginInterface *> KitPluginManager::kitsById(const QString &kitId) const
 {
 	if (!mPluginInterfaces.contains(kitId)) {
 		throw qReal::Exception("Requesting non-existing kit plugin");
@@ -34,38 +33,22 @@ QList<interpreterBase::KitPluginInterface *> KitPluginManager::kitsById(QString 
 	return mPluginInterfaces.values(kitId);
 }
 
-QList<generatorBase::GeneratorKitPluginInterface *> KitPluginManager::generatorsById(QString const &kitId) const
+QList<kitBase::robotModel::RobotModelInterface *> KitPluginManager::allRobotModels() const
 {
-	// There can be no generators for the given kit id, so we do not filter out non-existing case here.
-	return mGenerators.values(kitId);
-}
-
-QList<interpreterBase::robotModel::RobotModelInterface *> KitPluginManager::allRobotModels() const
-{
-	QList<interpreterBase::robotModel::RobotModelInterface *> result;
-	for (interpreterBase::KitPluginInterface * const kit : mPluginInterfaces) {
+	QList<kitBase::robotModel::RobotModelInterface *> result;
+	for (kitBase::KitPluginInterface * const kit : mPluginInterfaces) {
 		result += kit->robotModels();
 	}
 
 	return result;
 }
 
-void KitPluginManager::tryToLoadInterpreterPlugins()
+void KitPluginManager::tryToLoadKitPlugins()
 {
-	QList<interpreterBase::KitPluginInterface *> const loadedInterpreterPlugins =
-			mPluginManager.loadAllPlugins<interpreterBase::KitPluginInterface>();
+	QList<kitBase::KitPluginInterface *> const loadedInterpreterPlugins =
+			mPluginManager.loadAllPlugins<kitBase::KitPluginInterface>();
 
-	for (interpreterBase::KitPluginInterface * const kitPlugin : loadedInterpreterPlugins) {
+	for (kitBase::KitPluginInterface * const kitPlugin : loadedInterpreterPlugins) {
 		mPluginInterfaces.insertMulti(kitPlugin->kitId(), kitPlugin);
-	}
-}
-
-void KitPluginManager::tryToLoadGeneratorPlugins()
-{
-	QList<generatorBase::GeneratorKitPluginInterface *> const loadedGeneratorPlugins =
-			mPluginManager.loadAllPlugins<generatorBase::GeneratorKitPluginInterface>();
-
-	for (generatorBase::GeneratorKitPluginInterface * const generatorPlugin : loadedGeneratorPlugins) {
-		mGenerators.insertMulti(generatorPlugin->kitId(), generatorPlugin);
 	}
 }

@@ -1,9 +1,9 @@
 #include "twoDMotor.h"
 
-using namespace nxtKitInterpreter::robotModel::twoD::parts;
+using namespace nxt::robotModel::twoD::parts;
 
-TwoDMotor::TwoDMotor(interpreterBase::robotModel::DeviceInfo const &info
-		, interpreterBase::robotModel::PortInfo const &port
+TwoDMotor::TwoDMotor(const kitBase::robotModel::DeviceInfo &info
+		, const kitBase::robotModel::PortInfo &port
 		, twoDModel::engine::TwoDModelEngineInterface &engine)
 	: NxtMotor(info, port)
 	, mEngine(engine)
@@ -12,6 +12,7 @@ TwoDMotor::TwoDMotor(interpreterBase::robotModel::DeviceInfo const &info
 
 void TwoDMotor::on(int speed, unsigned long degrees, bool breakMode)
 {
+	NxtMotor::on(speed, degrees, breakMode);
 	mEngine.setNewMotor(speed, degrees, port(), breakMode);
 }
 

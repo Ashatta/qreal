@@ -9,16 +9,19 @@ namespace qts {
 class TrikQtsMasterGenerator : public TrikMasterGeneratorBase
 {
 public:
-	TrikQtsMasterGenerator(qrRepo::RepoApi const &repo
+	TrikQtsMasterGenerator(const qrRepo::RepoApi &repo
 			, qReal::ErrorReporterInterface &errorReporter
-			, interpreterBase::robotModel::RobotModelManagerInterface const &robotModelManager
+			, const utils::ParserErrorReporter &parserErrorReporter
+			, const kitBase::robotModel::RobotModelManagerInterface &robotModelManager
 			, qrtext::LanguageToolboxInterface &textLanguage
-			, qReal::Id const &diagramId
-			, QString const &generatorName);
+			, const qReal::Id &diagramId
+			, const QString &generatorName);
 
 protected:
 	QString targetPath() override;
 	bool supportsGotoGeneration() const override;
+
+	generatorBase::PrimaryControlFlowValidator *createValidator() override;
 };
 
 }

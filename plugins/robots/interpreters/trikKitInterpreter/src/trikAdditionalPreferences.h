@@ -1,31 +1,31 @@
 #pragma once
 
-#include <interpreterBase/additionalPreferences.h>
+#include <kitBase/additionalPreferences.h>
 
 namespace Ui {
 class TrikAdditionalPreferences;
 }
 
-namespace trikKitInterpreter {
+namespace trik {
 
-class TrikAdditionalPreferences : public interpreterBase::AdditionalPreferences
+class TrikAdditionalPreferences : public kitBase::AdditionalPreferences
 {
 	Q_OBJECT
 
 public:
-	explicit TrikAdditionalPreferences(QStringList const &realRobotNames, QWidget *parent = 0);
+	explicit TrikAdditionalPreferences(const QStringList &realRobotNames, QWidget *parent = 0);
 	~TrikAdditionalPreferences();
 
 	void save() override;
 	void restoreSettings() override;
-	void onRobotModelChanged(interpreterBase::robotModel::RobotModelInterface * const robotModel) override;
+	void onRobotModelChanged(kitBase::robotModel::RobotModelInterface * const robotModel) override;
 
 signals:
 	void settingsChanged();
 
 private:
 	Ui::TrikAdditionalPreferences *mUi;
-	QStringList const mRealRobotNames;
+	const QStringList mRealRobotNames;
 };
 
 }

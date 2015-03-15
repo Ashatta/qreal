@@ -3,9 +3,6 @@
 #include <qrkernel/settingsManager.h>
 #include <qrkernel/exception/exception.h>
 
-#include "communication/bluetoothRobotCommunicationThread.h"
-#include "communication/usbRobotCommunicationThread.h"
-
 #include "parts/display.h"
 #include "parts/speaker.h"
 #include "parts/button.h"
@@ -22,49 +19,24 @@
 #include "parts/soundSensor.h"
 #include "parts/gyroscopeSensor.h"
 
-using namespace nxtKitInterpreter::robotModel::real;
+using namespace nxt::robotModel::real;
 using namespace utils::robotCommunication;
-using namespace interpreterBase::robotModel;
+using namespace kitBase::robotModel;
 
-RealRobotModel::RealRobotModel(QString const &kitId, QString const &robotId)
+RealRobotModel::RealRobotModel(const QString &kitId, const QString &robotId
+		, utils::robotCommunication::RobotCommunicationThreadInterface *communicationThread)
 	: NxtRobotModelBase(kitId, robotId)
 	, mRobotCommunicator(new RobotCommunicator(this))
 {
 	connect(mRobotCommunicator, &RobotCommunicator::connected, this, &RealRobotModel::connected);
 	connect(mRobotCommunicator, &RobotCommunicator::disconnected, this, &RealRobotModel::disconnected);
-}
-
-QString RealRobotModel::name() const
-{
-	return "NxtRealRobotModel";
-}
-
-QString RealRobotModel::friendlyName() const
-{
-	return tr("Real Robot");
+	connect(mRobotCommunicator, &RobotCommunicator::errorOccured, this, &RealRobotModel::errorOccured);
+	mRobotCommunicator->setRobotCommunicationThreadObject(communicationThread);
 }
 
 bool RealRobotModel::needsConnection() const
 {
 	return true;
-}
-
-void RealRobotModel::rereadSettings()
-{
-	QString const valueOfCommunication = qReal::SettingsManager::value("NxtValueOfCommunication").toString();
-	if (valueOfCommunication == mLastCommunicationValue) {
-		return;
-	}
-
-	mLastCommunicationValue = valueOfCommunication;
-	utils::robotCommunication::RobotCommunicationThreadInterface *communicator = nullptr;
-	if (valueOfCommunication == "bluetooth") {
-		communicator = new communication::BluetoothRobotCommunicationThread;
-	} else if (valueOfCommunication == "usb") {
-		communicator = new communication::UsbRobotCommunicationThread;
-	}
-
-	mRobotCommunicator->setRobotCommunicationThreadObject(communicator);
 }
 
 void RealRobotModel::connectToRobot()
@@ -77,7 +49,12 @@ void RealRobotModel::disconnectFromRobot()
 	mRobotCommunicator->disconnect();
 }
 
-robotParts::Device *RealRobotModel::createDevice(PortInfo const &port, DeviceInfo const &deviceInfo)
+void RealRobotModel::checkConnection()
+{
+	mRobotCommunicator->checkConsistency();
+}
+
+robotParts::Device *RealRobotModel::createDevice(const PortInfo &port, const DeviceInfo &deviceInfo)
 {
 	if (deviceInfo.isA(displayInfo())) {
 		return new parts::Display(displayInfo(), port);

@@ -1,8 +1,8 @@
 #pragma once
 
-#include <commonTwoDModel/robotModel/twoDRobotModel.h>
+#include <twoDModel/robotModel/twoDRobotModel.h>
 
-namespace trikKitInterpreter {
+namespace trik {
 namespace robotModel {
 namespace twoD {
 
@@ -11,21 +11,21 @@ class TwoDRobotModel : public twoDModel::robotModel::TwoDRobotModel
 	Q_OBJECT
 
 public:
-	explicit TwoDRobotModel(interpreterBase::robotModel::RobotModelInterface &realModel);
+	explicit TwoDRobotModel(kitBase::robotModel::RobotModelInterface &realModel);
 
 	QString robotImage() const override;
-	interpreterBase::robotModel::PortInfo defaultLeftWheelPort() const override;
-	interpreterBase::robotModel::PortInfo defaultRightWheelPort() const override;
+	kitBase::robotModel::PortInfo defaultLeftWheelPort() const override;
+	kitBase::robotModel::PortInfo defaultRightWheelPort() const override;
 	twoDModel::engine::TwoDModelDisplayWidget *displayWidget(QWidget * parent) const override;
-	QString sensorImagePath(const interpreterBase::robotModel::DeviceInfo &deviceType) const override;
-	QRect sensorImageRect(interpreterBase::robotModel::DeviceInfo const &deviceType) const;
+	QString sensorImagePath(const kitBase::robotModel::DeviceInfo &deviceType) const override;
+	QRect sensorImageRect(const kitBase::robotModel::DeviceInfo &deviceType) const;
 
-	void setWheelPorts(QString const &leftWheelPort, QString const &rightWheelPort);
+	void setWheelPorts(const QString &leftWheelPort, const QString &rightWheelPort);
 
 private:
-	interpreterBase::robotModel::robotParts::Device *createDevice(
-			interpreterBase::robotModel::PortInfo const &port
-			, interpreterBase::robotModel::DeviceInfo const &deviceInfo
+	kitBase::robotModel::robotParts::Device *createDevice(
+			const kitBase::robotModel::PortInfo &port
+			, const kitBase::robotModel::DeviceInfo &deviceInfo
 			) override;
 
 	void onInterpretationStarted() override;

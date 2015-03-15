@@ -1,7 +1,7 @@
 #pragma once
 
-#include <interpreterBase/robotModel/portInfo.h>
-#include <interpreterBase/robotModel/deviceInfo.h>
+#include <kitBase/robotModel/portInfo.h>
+#include <kitBase/robotModel/deviceInfo.h>
 
 #include "initTerminateCodeGenerator.h"
 #include "generatorBase/simpleGenerators/binding.h"
@@ -13,25 +13,26 @@ namespace parts {
 class Sensors : public InitTerminateCodeGenerator
 {
 public:
-	Sensors(QString const &pathToTemplates, simple::Binding::ConverterInterface const *inputPortConverter);
+	Sensors(const QString &pathToTemplates, const simple::Binding::ConverterInterface *inputPortConverter);
 	virtual ~Sensors();
 
-	virtual void reinit(QMap<interpreterBase::robotModel::PortInfo
-			, interpreterBase::robotModel::DeviceInfo> const &devices);
+	virtual void reinit(const QMap<kitBase::robotModel::PortInfo
+			, kitBase::robotModel::DeviceInfo> &devices);
+
 	virtual QString initCode();
 	virtual QString terminateCode();
 	virtual QString isrHooksCode();
 
 protected:
-	void reinitPort(interpreterBase::robotModel::PortInfo const &port
-			, interpreterBase::robotModel::DeviceInfo const &device);
+	void reinitPort(const kitBase::robotModel::PortInfo &port
+			, const kitBase::robotModel::DeviceInfo &device);
 
-	virtual QString code(QString const &directory
-			, interpreterBase::robotModel::PortInfo const &port
-			, interpreterBase::robotModel::DeviceInfo const &device);
+	virtual QString code(const QString &directory
+			, const kitBase::robotModel::PortInfo &port
+			, const kitBase::robotModel::DeviceInfo &device);
 
 private:
-	simple::Binding::ConverterInterface const *mInputPortConverter;  // Takes ownership
+	const simple::Binding::ConverterInterface *mInputPortConverter;  // Takes ownership
 	QStringList mInitCode;
 	QStringList mTerminateCode;
 	QStringList mIsrHooksCode;

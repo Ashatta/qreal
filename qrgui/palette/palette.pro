@@ -1,24 +1,13 @@
 TEMPLATE = lib
 
-DESTDIR = $$PWD/../../bin
-
 TARGET = qrgui-palette
 
-LIBS += -L$$PWD/../../bin -lqrkernel
-
-INCLUDEPATH = \
-	$$PWD/ \
-	$$PWD/../ \
-	$$PWD/../../ \
+include(../../global.pri)
 
 QT += widgets
 
-CONFIG += c++11
-
-OBJECTS_DIR = .obj
-UI_DIR = .ui
-MOC_DIR = .moc
-RCC_DIR = .moc
+links(qrkernel)
+includes(qrgui)
 
 DEFINES += QRGUI_PALETTE_LIBRARY
 

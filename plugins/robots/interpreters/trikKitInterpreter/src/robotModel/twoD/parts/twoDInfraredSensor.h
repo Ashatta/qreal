@@ -1,8 +1,8 @@
 #pragma once
 
-#include <commonTwoDModel/robotModel/parts/rangeSensor.h>
+#include <twoDModel/robotModel/parts/rangeSensor.h>
 
-namespace trikKitInterpreter {
+namespace trik {
 namespace robotModel {
 namespace twoD {
 namespace parts {
@@ -12,8 +12,8 @@ class TwoDInfraredSensor : public twoDModel::robotModel::parts::RangeSensor
 	Q_OBJECT
 
 public:
-	TwoDInfraredSensor(interpreterBase::robotModel::DeviceInfo const &info
-			, interpreterBase::robotModel::PortInfo const &port
+	TwoDInfraredSensor(const kitBase::robotModel::DeviceInfo &info
+			, const kitBase::robotModel::PortInfo &port
 			, twoDModel::engine::TwoDModelEngineInterface &engine);
 
 	void read() override;

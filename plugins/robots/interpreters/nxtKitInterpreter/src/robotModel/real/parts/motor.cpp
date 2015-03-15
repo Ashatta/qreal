@@ -1,12 +1,12 @@
 #include "motor.h"
 
-using namespace nxtKitInterpreter::robotModel::real::parts;
-using namespace interpreterBase;
+using namespace nxt::robotModel::real::parts;
+using namespace kitBase;
 using namespace robotModel;
 using namespace utils;
 using namespace robotCommunication;
 
-Motor::Motor(DeviceInfo const &info, PortInfo const &port, RobotCommunicator &robotCommunicator)
+Motor::Motor(const DeviceInfo &info, const PortInfo &port, RobotCommunicator &robotCommunicator)
 	: NxtMotor(info, port)
 	, mRobotCommunicator(robotCommunicator)
 {

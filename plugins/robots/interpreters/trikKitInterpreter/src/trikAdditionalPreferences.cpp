@@ -4,10 +4,10 @@
 #include <qrkernel/settingsManager.h>
 #include <plugins/robots/thirdparty/qextserialport/src/qextserialenumerator.h>
 
-using namespace trikKitInterpreter;
+using namespace trik;
 using namespace qReal;
 
-TrikAdditionalPreferences::TrikAdditionalPreferences(QStringList const &realRobotNames, QWidget *parent)
+TrikAdditionalPreferences::TrikAdditionalPreferences(const QStringList &realRobotNames, QWidget *parent)
 	: AdditionalPreferences(parent)
 	, mUi(new Ui::TrikAdditionalPreferences)
 	, mRealRobotNames(realRobotNames)
@@ -31,8 +31,8 @@ void TrikAdditionalPreferences::restoreSettings()
 	mUi->tcpServerLineEdit->setText(SettingsManager::value("TrikTcpServer").toString());
 }
 
-void TrikAdditionalPreferences::onRobotModelChanged(interpreterBase::robotModel::RobotModelInterface * const robotModel)
+void TrikAdditionalPreferences::onRobotModelChanged(kitBase::robotModel::RobotModelInterface * const robotModel)
 {
-	bool const isReal = mRealRobotNames.contains(robotModel->name());
+	const bool isReal = !robotModel->name().contains("TwoD");
 	mUi->tcpSettingsGroupBox->setVisible(isReal);
 }

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <interpreterBase/robotModel/portInfo.h>
+#include <kitBase/robotModel/portInfo.h>
 
 #include "generatorBase/converters/templateParametrizedConverter.h"
 
@@ -16,13 +16,13 @@ namespace converters {
 class PortNameConverter : public TemplateParametrizedConverter
 {
 public:
-	PortNameConverter(QString const &pathToTemplates
-			, QList<interpreterBase::robotModel::PortInfo> const &ports);
+	PortNameConverter(const QString &pathToTemplates
+			, QList<kitBase::robotModel::PortInfo> const &ports);
 
-	QString convert(QString const &portNameOrAlias) const override;
+	QString convert(const QString &portNameOrAlias) const override;
 
 private:
-	QList<interpreterBase::robotModel::PortInfo> const mPorts;
+	QList<kitBase::robotModel::PortInfo> const mPorts;
 };
 
 }

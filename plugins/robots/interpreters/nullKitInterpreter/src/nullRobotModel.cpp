@@ -2,8 +2,8 @@
 
 using namespace nullKitInterpreter;
 
-NullRobotModel::NullRobotModel(QString const &kitId)
-	: interpreterBase::robotModel::CommonRobotModel(kitId, "")
+NullRobotModel::NullRobotModel(const QString &kitId)
+	: kitBase::robotModel::CommonRobotModel(kitId, "")
 {
 }
 
@@ -20,4 +20,9 @@ QString NullRobotModel::friendlyName() const
 bool NullRobotModel::needsConnection() const
 {
 	return false;
+}
+
+int NullRobotModel::priority() const
+{
+	return 0;
 }

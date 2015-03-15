@@ -1,24 +1,22 @@
 #include "button.h"
 
-using namespace trikKitInterpreter::robotModel::real::parts;
-using namespace interpreterBase::robotModel;
+using namespace trik::robotModel::real::parts;
+using namespace kitBase::robotModel;
 
-Button::Button(DeviceInfo const &info, PortInfo const &port
+Button::Button(const DeviceInfo &info, const PortInfo &port
 		, utils::TcpRobotCommunicator &tcpRobotCommunicator)
 	: robotParts::Button(info, port), mRobotCommunicator(tcpRobotCommunicator)
 {
-//	connect(&mRobotCommunicator, &utils::TcpRobotCommunicator::newScalarSensorData
-//			, this, &Button::onIncomingData);
+	connect(&mRobotCommunicator, &utils::TcpRobotCommunicator::newScalarSensorData
+			, this, &Button::onIncomingData);
 }
 
 void Button::read()
 {
-	emit newData(1);
-//  uncomment when trikRuntime supports button state requests
-//	mRobotCommunicator.requestData(port().name());
+	mRobotCommunicator.requestData("button:" + port().name());
 }
 
-void Button::onIncomingData(QString const &portName, int value)
+void Button::onIncomingData(const QString &portName, int value)
 {
 	if (portName == port().name()) {
 		emit newData(value);

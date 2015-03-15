@@ -4,10 +4,10 @@
 
 using namespace generatorBase::simple;
 
-ForkCallGenerator::ForkCallGenerator(qrRepo::RepoApi const &repo
+ForkCallGenerator::ForkCallGenerator(const qrRepo::RepoApi &repo
 		, GeneratorCustomizer &customizer
-		, qReal::Id const &id
-		, qReal::IdList const &threads
+		, const qReal::Id &id
+		, const QMap<qReal::Id, QString> &threads
 		, QObject *parent)
 	: AbstractSimpleGenerator(repo, customizer, id, parent)
 	, mThreads(threads)
@@ -17,10 +17,11 @@ ForkCallGenerator::ForkCallGenerator(qrRepo::RepoApi const &repo
 QString ForkCallGenerator::generate()
 {
 	QString result;
-	QString const callPattern = readTemplate("threads/call.t");
-	for (qReal::Id const &thread : mThreads) {
-		QString const threadName = utils::NameNormalizer::normalizeStrongly(thread.id(), false);
-		result += QString(callPattern).replace("@@NAME@@", threadName);
+	const QString callPattern = readTemplate("threads/call.t");
+	for (const qReal::Id &thread : mThreads.keys()) {
+		const QString threadName = utils::NameNormalizer::normalizeStrongly(thread.id(), false);
+		const QString threadId = mThreads[thread];
+		result += QString(callPattern).replace("@@THREAD_ID@@", threadId).replace("@@NAME@@", threadName);
 	}
 
 	return result;

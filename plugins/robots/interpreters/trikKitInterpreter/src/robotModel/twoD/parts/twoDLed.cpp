@@ -1,20 +1,21 @@
 #include "twoDLed.h"
+
 #include "trikDisplayWidget.h"
 
-using namespace trikKitInterpreter::robotModel::twoD::parts;
-using namespace interpreterBase::robotModel;
+using namespace trik::robotModel::twoD::parts;
+using namespace kitBase::robotModel;
 
-TwoDLed::TwoDLed(DeviceInfo const &info
-		, PortInfo const &port
+TwoDLed::TwoDLed(const DeviceInfo &info
+		, const PortInfo &port
 		, twoDModel::engine::TwoDModelEngineInterface &engine)
 	: robotModel::parts::TrikLed(info, port)
 	, mEngine(engine)
 {
 }
 
-void TwoDLed::setColor(QString const &color)
+void TwoDLed::setColor(const QString &color)
 {
-	QColor const newColor = color == "off" ? QColor(Qt::gray) : QColor(color);
+	const QColor newColor = color == "off" ? QColor(Qt::gray) : QColor(color);
 	auto display = dynamic_cast<TrikDisplayWidget *>(mEngine.display());
 	Q_ASSERT(display);
 	display->setLedColor(newColor);

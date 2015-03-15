@@ -2,16 +2,16 @@
 
 #include <utils/tracer.h>
 
-using namespace nxtKitInterpreter::robotModel::real::parts;
-using namespace interpreterBase;
+using namespace nxt::robotModel::real::parts;
+using namespace kitBase;
 using namespace robotModel;
 using namespace utils;
 using namespace robotCommunication;
 
-TouchSensor::TouchSensor(interpreterBase::robotModel::DeviceInfo const &info
-		, interpreterBase::robotModel::PortInfo const &port
+TouchSensor::TouchSensor(const kitBase::robotModel::DeviceInfo &info
+		, const kitBase::robotModel::PortInfo &port
 		, utils::robotCommunication::RobotCommunicator &robotCommunicator)
-	: interpreterBase::robotModel::robotParts::TouchSensor(info, port)
+	: kitBase::robotModel::robotParts::TouchSensor(info, port)
 	, mImplementation(robotCommunicator, port, enums::lowLevelSensorType::SWITCH, enums::sensorMode::RAWMODE)
 {
 	connect(&mImplementation, &NxtInputDevice::sensorSpecificProcessResponse
@@ -19,7 +19,7 @@ TouchSensor::TouchSensor(interpreterBase::robotModel::DeviceInfo const &info
 	connect(&mImplementation, &NxtInputDevice::configured, this, &TouchSensor::configurationCompleted);
 }
 
-void TouchSensor::sensorSpecificProcessResponse(QByteArray const &reading)
+void TouchSensor::sensorSpecificProcessResponse(const QByteArray &reading)
 {
 	mImplementation.setState(NxtInputDevice::idle);
 	int sensorValue = (0xff & reading[13]) << 8 | (0xff & reading[14]);

@@ -1,12 +1,14 @@
 #pragma once
 
-#include "plugins/toolPluginInterface/pluginConfigurator.h"
-#include "interpreterEditorManager.h"
+#include <plugins/toolPluginInterface/pluginConfigurator.h>
+#include "plugins/pluginManager/interpreterEditorManager.h"
+
+#include "pluginsManagerDeclSpec.h"
 
 namespace qReal {
 
 /// This class loads interpreted plugins given model and metamodel.
-class InterpretedPluginsLoader
+class QRGUI_PLUGINS_MANAGER_EXPORT InterpretedPluginsLoader
 {
 public:
 	InterpretedPluginsLoader();
@@ -15,7 +17,7 @@ public:
 	/// @param editorManager - list of metamodels
 	/// @param configurator - information about models
 	void init(EditorManagerInterface *editorManager
-			, PluginConfigurator const &configurator
+			, const PluginConfigurator &configurator
 			);
 
 	/// Returns list of actions for all plugins.

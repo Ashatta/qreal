@@ -6,15 +6,15 @@
 using namespace generatorBase::simple;
 using namespace qReal;
 
-EnginesGenerator::EnginesGenerator(qrRepo::RepoApi const &repo
+EnginesGenerator::EnginesGenerator(const qrRepo::RepoApi &repo
 		, GeneratorCustomizer &customizer
-		, Id const &id
-		, QString const &engineType
+		, const Id &id
+		, const QString &engineType
 		, QObject *parent)
 	: BindingGenerator(repo, customizer, id
 			, engineType.contains("EnginesBackward")
-					? "engines/enginesBackward.t"
-					: "engines/enginesForward.t"
+					? "engines/backward.t"
+					: "engines/forward.t"
 			, { Binding::createMultiTarget("@@PORT@@", "Ports", customizer.factory()->enginesConverter())
 					, Binding::createConverting("@@POWER@@", "Power"
 							, customizer.factory()->intPropertyConverter(id, "Power"))

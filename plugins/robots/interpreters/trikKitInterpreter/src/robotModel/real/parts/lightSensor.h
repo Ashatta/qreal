@@ -1,26 +1,26 @@
 #pragma once
 
-#include <interpreterBase/robotModel/robotParts/lightSensor.h>
+#include <kitBase/robotModel/robotParts/lightSensor.h>
 #include <utils/tcpRobotCommunicator.h>
 
-namespace trikKitInterpreter {
+namespace trik {
 namespace robotModel {
 namespace real {
 namespace parts {
 
-class LightSensor : public interpreterBase::robotModel::robotParts::LightSensor
+class LightSensor : public kitBase::robotModel::robotParts::LightSensor
 {
 	Q_OBJECT
 
 public:
-	LightSensor(interpreterBase::robotModel::DeviceInfo const &info
-			, interpreterBase::robotModel::PortInfo const &port
+	LightSensor(const kitBase::robotModel::DeviceInfo &info
+			, const kitBase::robotModel::PortInfo &port
 			, utils::TcpRobotCommunicator &tcpRobotCommunicator);
 
 	void read() override;
 
 public slots:
-	void onIncomingData(QString const &portName, int value);
+	void onIncomingData(const QString &portName, int value);
 
 private:
 	utils::TcpRobotCommunicator &mRobotCommunicator;

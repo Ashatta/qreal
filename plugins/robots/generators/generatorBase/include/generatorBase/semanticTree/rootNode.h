@@ -9,17 +9,17 @@ namespace semantics {
 class RootNode : public SemanticNode
 {
 public:
-	explicit RootNode(qReal::Id const &initialBlock, QObject *parent = 0);
+	explicit RootNode(SemanticNode * const initialBlock, QObject *parent = 0);
 
 	qReal::Id initialBlock() const;
 
 protected:
 	QLinkedList<SemanticNode *> children() const override;
-	QString toStringImpl(GeneratorCustomizer &customizer, int indent) const override;
+	QString toStringImpl(GeneratorCustomizer &customizer, int indent, const QString &indentString) const override;
 
 private:
 	ZoneNode *mZone;  // Takes ownership
-	qReal::Id const mInitialBlock;
+	const qReal::Id mInitialBlock;
 };
 
 }

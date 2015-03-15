@@ -1,16 +1,16 @@
 #pragma once
 
-#include <interpreterBase/blocksBase/commonBlocksFactory.h>
+#include <kitBase/blocksBase/commonBlocksFactory.h>
 
 namespace interpreterCore {
 namespace coreBlocks {
 
 /// Blocks factory implmentation for common kit plugin blocks.
 /// Provides blocks from 'Algorithms' palette group.
-class CoreBlocksFactory : public interpreterBase::blocksBase::CommonBlocksFactory
+class CoreBlocksFactory : public kitBase::blocksBase::CommonBlocksFactory
 {
 public:
-	interpreterBase::blocksBase::Block *produceBlock(qReal::Id const &element) override;
+	qReal::interpretation::Block *produceBlock(const qReal::Id &element) override;
 
 	qReal::IdList providedBlocks() const override;
 	qReal::IdList blocksToDisable() const override;

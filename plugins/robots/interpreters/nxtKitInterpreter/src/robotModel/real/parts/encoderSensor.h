@@ -1,27 +1,27 @@
 #pragma once
 
-#include <interpreterBase/robotModel/robotParts/encoderSensor.h>
+#include <kitBase/robotModel/robotParts/encoderSensor.h>
 #include <utils/robotCommunication/robotCommunicator.h>
 
-namespace nxtKitInterpreter {
+namespace nxt {
 namespace robotModel {
 namespace real {
 namespace parts {
 
-class EncoderSensor : public interpreterBase::robotModel::robotParts::EncoderSensor
+class EncoderSensor : public kitBase::robotModel::robotParts::EncoderSensor
 {
 	Q_OBJECT
 
 public:
-	EncoderSensor(interpreterBase::robotModel::DeviceInfo const &info
-			, interpreterBase::robotModel::PortInfo const &port
+	EncoderSensor(const kitBase::robotModel::DeviceInfo &info
+			, const kitBase::robotModel::PortInfo &port
 			, utils::robotCommunication::RobotCommunicator &robotCommunicator);
 
 	void read() override;
 	void nullify() override;
 
 private slots:
-	void readingDone(QObject *addressee, QByteArray const &reading);
+	void readingDone(QObject *addressee, const QByteArray &reading);
 
 private:
 	enum State {
@@ -29,7 +29,7 @@ private:
 		, pending
 	};
 
-	void sensorSpecificProcessResponse(QByteArray const &reading);
+	void sensorSpecificProcessResponse(const QByteArray &reading);
 
 	char lowLevelPort() const;
 

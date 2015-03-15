@@ -5,8 +5,8 @@
 
 #include <qrkernel/roles.h>
 
-#include "editor/edgeElement.h"
-#include "models/commands/createElementCommand.h"
+#include "qrgui/editor/edgeElement.h"
+#include "qrgui/models/commands/createElementCommand.h"
 
 namespace qReal {
 
@@ -31,7 +31,7 @@ public:
 
 	void setDirected(const bool directed);
 	void setMaster(NodeElement* const master);
-	void setEdgeType(qReal::Id const & edgeType);
+	void setEdgeType(const qReal::Id & edgeType);
 
 	void takePosition(int index, int maxIndex);
 

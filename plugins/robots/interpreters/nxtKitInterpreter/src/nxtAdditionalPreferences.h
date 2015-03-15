@@ -1,24 +1,24 @@
 #pragma once
 
-#include <interpreterBase/additionalPreferences.h>
+#include <kitBase/additionalPreferences.h>
 
 namespace Ui {
 class NxtAdditionalPreferences;
 }
 
-namespace nxtKitInterpreter {
+namespace nxt {
 
-class NxtAdditionalPreferences : public interpreterBase::AdditionalPreferences
+class NxtAdditionalPreferences : public kitBase::AdditionalPreferences
 {
 	Q_OBJECT
 
 public:
-	explicit NxtAdditionalPreferences(QString const &realRobotName, QWidget *parent = 0);
+	explicit NxtAdditionalPreferences(const QString &realRobotName, QWidget *parent = 0);
 	~NxtAdditionalPreferences();
 
 	void save() override;
 	void restoreSettings() override;
-	void onRobotModelChanged(interpreterBase::robotModel::RobotModelInterface * const robotModel) override;
+	void onRobotModelChanged(kitBase::robotModel::RobotModelInterface * const robotModel) override;
 
 signals:
 	void settingsChanged();
@@ -27,11 +27,10 @@ private slots:
 	void manualComPortCheckboxChecked(bool state);
 
 private:
-	QString selectedCommunication() const;
 	QString selectedPortName() const;
 
 	Ui::NxtAdditionalPreferences *mUi;
-	QString const mRealRobotName;
+	const QString mBluetoothRobotName;
 };
 
 }

@@ -2,12 +2,13 @@ TEMPLATE = subdirs
 
 SUBDIRS = \
 	editor \
+	examples \
+	common \
 	interpreters \
 	generators \
 	qextserialport \
 	utils \
 
-qextserialport.file = thirdparty/qextserialport/qextserialport.pro
-interpreters.depends = qextserialport
-interpreters.depends = utils
-generators.depends = interpreters
+qextserialport.subdir = $$PWD/thirdparty/qextserialport
+interpreters.depends = common qextserialport utils
+generators.depends = common

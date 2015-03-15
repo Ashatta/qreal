@@ -1,11 +1,12 @@
 #include "motionSensor.h"
+
 #include <utils/tcpRobotCommunicator.h>
 #include <qrutils/inFile.h>
 
-using namespace trikKitInterpreter::robotModel::real::parts;
-using namespace interpreterBase::robotModel;
+using namespace trik::robotModel::real::parts;
+using namespace kitBase::robotModel;
 
-MotionSensor::MotionSensor(DeviceInfo const &info, PortInfo const &port
+MotionSensor::MotionSensor(const DeviceInfo &info, const PortInfo &port
 		, utils::TcpRobotCommunicator &tcpRobotCommunicator)
 	: robotModel::parts::TrikMotionSensor(info, port)
 	, mRobotCommunicator(tcpRobotCommunicator)
@@ -16,14 +17,14 @@ MotionSensor::MotionSensor(DeviceInfo const &info, PortInfo const &port
 
 void MotionSensor::read()
 {
-	QString const pathToCommand = ":/trik/templates/wait/motion.t";
-	QString const directCommand = utils::InFile::readAll(pathToCommand) + "brick.run()";
+	const QString pathToCommand = ":/trikQts/templates/wait/motion.t";
+	const QString directCommand = utils::InFile::readAll(pathToCommand) + "script.run()";
 	mRobotCommunicator.runDirectCommand(directCommand);
 
 	mRobotCommunicator.requestData(port().name());
 }
 
-void MotionSensor::onIncomingData(QString const &portName, int value)
+void MotionSensor::onIncomingData(const QString &portName, int value)
 {
 	if (portName == port().name()) {
 		emit newData(value);

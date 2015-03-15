@@ -2,7 +2,7 @@
 #include "ui_editorPage.h"
 
 #include <qrkernel/settingsManager.h>
-#include <plugins/editorPluginInterface/elementImpl.h>
+#include <qrgui/plugins/editorPluginInterface/elementImpl.h>
 
 using namespace qReal;
 using namespace enums::linkShape;
@@ -101,7 +101,6 @@ void PreferencesEditorPage::save()
 	SettingsManager::setValue("PaletteIconsInARowCount", mUi->paletteSpinBox->value());
 	SettingsManager::setValue("MoveLabels", mUi->enableMoveLabelsCheckBox->isChecked());
 	SettingsManager::setValue("ResizeLabels", mUi->enableResizeLabelsCheckBox->isChecked());
-	SettingsManager::setValue("LabelsDistance", mUi->labelDistanceSlider->value());
 	SettingsManager::setValue("manualFontCheckBoxChecked", mUi->fontCheckBox->isChecked());
 
 	mWidthGrid = mUi->gridWidthSlider->value();
@@ -133,9 +132,8 @@ void PreferencesEditorPage::restoreSettings()
 
 	mUi->enableMoveLabelsCheckBox->setChecked(SettingsManager::value("MoveLabels").toBool());
 	mUi->enableResizeLabelsCheckBox->setChecked(SettingsManager::value("ResizeLabels").toBool());
-	mUi->labelDistanceSlider->setValue(SettingsManager::value("LabelsDistance").toInt());
 
-	LinkShape const type = static_cast<LinkShape>(SettingsManager::value("LineType").toInt());
+	const LinkShape type = static_cast<LinkShape>(SettingsManager::value("LineType").toInt());
 	mUi->lineMode->setCurrentIndex(type);
 
 	mUi->fontCheckBox->setChecked(SettingsManager::value("CustomFont").toBool());

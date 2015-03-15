@@ -1,4 +1,4 @@
-#include "defaultRobotModel.h"
+#include "interpreterCore/defaultRobotModel.h"
 
 using namespace interpreterCore;
 
@@ -20,4 +20,9 @@ QString DefaultRobotModel::friendlyName() const
 bool interpreterCore::DefaultRobotModel::needsConnection() const
 {
 	return false;
+}
+
+int DefaultRobotModel::priority() const
+{
+	return 0;
 }

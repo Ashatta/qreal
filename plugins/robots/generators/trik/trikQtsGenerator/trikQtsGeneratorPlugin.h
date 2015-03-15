@@ -20,18 +20,16 @@ public:
 	TrikQtsGeneratorPlugin();
 	~TrikQtsGeneratorPlugin() override;
 
-	QList<qReal::ActionInfo> actions() override;
-	QList<qReal::HotKeyActionInfo> hotKeyActions() override;
+	void init(const kitBase::KitPluginConfigurator &configurator) override;
 
-	void init(qReal::PluginConfigurator const &configurator
-			, interpreterBase::robotModel::RobotModelManagerInterface const &robotModelManager
-			, qrtext::LanguageToolboxInterface &textLanguage) override;
+	QList<qReal::ActionInfo> customActions() override;
+	QList<qReal::HotKeyActionInfo> hotKeyActions() override;
+	QIcon iconForFastSelector(const kitBase::robotModel::RobotModelInterface &robotModel) const override;
 
 protected:
 	generatorBase::MasterGeneratorBase *masterGenerator() override;
-	QString defaultFilePath(QString const &projectName) const override;
-	QString extension() const override;
-	QString extensionDescription() const override;
+	QString defaultFilePath(const QString &projectName) const override;
+	qReal::text::LanguageInfo language() const override;
 	QString generatorName() const override;
 
 private slots:
@@ -50,16 +48,16 @@ private slots:
 
 private:
 	/// Action that launches code generator
-	QAction mGenerateCodeAction;
+	QAction *mGenerateCodeAction;  // Doesn't have ownership; may be disposed by GUI.
 
 	/// Action that generates and uploads program on a robot
-	QAction mUploadProgramAction;
+	QAction *mUploadProgramAction;  // Doesn't have ownership; may be disposed by GUI.
 
 	/// Action that generates and uploads program on a robot
-	QAction mRunProgramAction;
+	QAction *mRunProgramAction;  // Doesn't have ownership; may be disposed by GUI.
 
 	/// Action that stops script execution and turns off motors.
-	QAction mStopRobotAction;
+	QAction *mStopRobotAction;  // Doesn't have ownership; may be disposed by GUI.
 
 	utils::TcpRobotCommunicator *mCommunicator;
 };

@@ -6,7 +6,7 @@
 
 using namespace interpreterCore::coreBlocks::details;
 
-TimerBlock::TimerBlock(interpreterBase::robotModel::RobotModelInterface &robotModel)
+TimerBlock::TimerBlock(kitBase::robotModel::RobotModelInterface &robotModel)
 	: mTimer(robotModel.timeline().produceTimer())
 {
 	mTimer->setParent(this);
@@ -19,7 +19,7 @@ TimerBlock::~TimerBlock()
 
 void TimerBlock::run()
 {
-	int const interval = eval<int>("Delay");
+	const int interval = eval<int>("Delay");
 	if (!errorsOccured()) {
 		utils::Tracer::debug(utils::Tracer::blocks, "TimerBlock::run", "interval=" + QString(interval));
 

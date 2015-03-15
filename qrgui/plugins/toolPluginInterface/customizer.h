@@ -3,7 +3,7 @@
 #include <QtCore/QObject>
 #include <QtGui/QIcon>
 
-#include "mainWindow/mainWindowDockInterface.h"
+#include <qrgui/plugins/toolPluginInterface/usedInterfaces/mainWindowDockInterface.h>
 
 namespace qReal {
 
@@ -11,6 +11,8 @@ namespace qReal {
 class Customizer
 {
 public:
+	virtual ~Customizer() {}
+
 	/// Tells if we should show the button of opening the interpreted diagram or not
 	virtual bool showInterpeterButton() const
 	{
@@ -52,6 +54,11 @@ public:
 	virtual QString examplesDirectory() const
 	{
 		return QString();
+	}
+
+	virtual bool enableNewDiagramAction() const
+	{
+		return true;
 	}
 
 	/// Tells if we should show trace connections menu or not

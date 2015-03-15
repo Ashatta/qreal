@@ -1,9 +1,9 @@
-#include "robotModelManager.h"
+#include "interpreterCore/managers/robotModelManager.h"
 
 #include <qrkernel/settingsManager.h>
 
 using namespace interpreterCore;
-using namespace interpreterBase::robotModel;
+using namespace kitBase::robotModel;
 
 RobotModelManager::RobotModelManager()
 	: mRobotModel(&mDefaultRobotModel)
@@ -19,12 +19,14 @@ void RobotModelManager::setModel(RobotModelInterface * const robotModel)
 {
 	if (mRobotModel != robotModel) {
 		disconnect(mRobotModel, nullptr, this, nullptr);
-		auto const actualModel = robotModel ? robotModel : &mDefaultRobotModel;
+		const auto actualModel = robotModel ? robotModel : &mDefaultRobotModel;
 		/// @todo implement hierarchical structure in settings manager
-		QString const selectedKit = actualModel->kitId();
+		/// @todo if some settings key is modified here do not forget to modify
+		/// it in UsbRobotCommunicationThread::checkConsistency
+		const QString selectedKit = actualModel->kitId();
 		qReal::SettingsManager::setValue("SelectedRobotKit", selectedKit);
 		/// @todo select kit here if needed
-		QString const key = "SelectedModelFor" + selectedKit;
+		const QString key = "SelectedModelFor" + selectedKit;
 		qReal::SettingsManager::setValue(key, actualModel->name());
 		mRobotModel = actualModel;
 

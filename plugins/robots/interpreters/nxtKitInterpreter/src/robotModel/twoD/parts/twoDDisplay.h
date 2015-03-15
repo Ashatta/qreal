@@ -1,35 +1,35 @@
 #pragma once
 
-#include "robotModel/parts/nxtDisplay.h"
+#include <nxtKit/robotModel/parts/nxtDisplay.h>
 
-#include <commonTwoDModel/engine/twoDModelEngineInterface.h>
-#include <commonTwoDModel/engine/twoDModelDisplayInterface.h>
+#include <twoDModel/engine/twoDModelEngineInterface.h>
+#include <twoDModel/engine/twoDModelDisplayInterface.h>
 
-namespace nxtKitInterpreter {
+namespace nxt {
 namespace robotModel {
 namespace twoD {
 namespace parts {
 
 /// @todo Move this somewhere.
-int const textPixelHeight = 8;
-int const textPixelWidth = 16;
-int const nxtDisplayHeight = 64;
-int const nxtDisplayWidth = 100;
+const int textPixelHeight = 8;
+const int textPixelWidth = 16;
+const int nxtDisplayHeight = 64;
+const int nxtDisplayWidth = 100;
 
 class Display : public robotModel::parts::NxtDisplay, public graphicsUtils::PainterInterface
 {
 	Q_OBJECT
 
 public:
-	Display(interpreterBase::robotModel::DeviceInfo const &info
-			, interpreterBase::robotModel::PortInfo const &port
+	Display(const kitBase::robotModel::DeviceInfo &info
+			, const kitBase::robotModel::PortInfo &port
 			, twoDModel::engine::TwoDModelEngineInterface &engine);
 
 	void drawPixel(int x, int y) override;
 	void drawLine(int x1, int y1, int x2, int y2) override;
 	void drawRect(int x, int y, int width, int height) override;
 	void drawCircle(int x, int y, int radius) override;
-	void printText(int x, int y, QString const &text) override;
+	void printText(int x, int y, const QString &text) override;
 	void clearScreen() override;
 
 	void paint(QPainter *painter) override;

@@ -9,6 +9,11 @@
 #include "generatorCustomizer.h"
 #include "controlFlowGeneratorBase.h"
 #include "templateParametrizedEntity.h"
+#include "primaryControlFlowValidator.h"
+
+namespace utils {
+class ParserErrorReporter;
+}
 
 namespace qrtext {
 class LanguageToolboxInterface;
@@ -30,13 +35,14 @@ class ROBOTS_GENERATOR_EXPORT MasterGeneratorBase : public QObject, public Templ
 	Q_OBJECT
 
 public:
-	MasterGeneratorBase(qrRepo::RepoApi const &repo
+	MasterGeneratorBase(const qrRepo::RepoApi &repo
 			, qReal::ErrorReporterInterface &errorReporter
-			, interpreterBase::robotModel::RobotModelManagerInterface const &robotModelManager
+			, const kitBase::robotModel::RobotModelManagerInterface &robotModelManager
 			, qrtext::LanguageToolboxInterface &textLanguage
-			, qReal::Id const &diagramId);
+			, const utils::ParserErrorReporter &parserErrorReporter
+			, const qReal::Id &diagramId);
 
-	void setProjectDir(QFileInfo const &fileInfo);
+	void setProjectDir(const QFileInfo &fileInfo);
 
 	/// @warning This method mustn`t be called from constructor. Otherwise
 	/// there will be segfault due to pure virtual method call in constructor
@@ -44,13 +50,16 @@ public:
 
 	/// Starts code generation process. Returns path to file with generated code
 	/// if it was successfull and an empty string otherwise.
-	virtual QString generate();
+	virtual QString generate(const QString &indentString);
 
 protected:
 	virtual GeneratorCustomizer *createCustomizer() = 0;
 
 	/// Default implementation takes ownership via QObject parentship system.
 	virtual lua::LuaProcessor *createLuaProcessor();
+
+	/// Default implementation takes ownership via QObject parentship system.
+	virtual PrimaryControlFlowValidator *createValidator();
 
 	/// Implementation must return a path to a file where all generated code
 	/// will be written. Called on the last stage of the generation process
@@ -63,19 +72,21 @@ protected:
 	virtual void processGeneratedCode(QString &generatedCode);
 	virtual void afterGeneration();
 
-	void outputCode(QString const &path, QString const &code);
+	void outputCode(const QString &path, const QString &code);
 
-	qrRepo::RepoApi const &mRepo;
+	const qrRepo::RepoApi &mRepo;
 	qReal::ErrorReporterInterface &mErrorReporter;
-	interpreterBase::robotModel::RobotModelManagerInterface const &mRobotModelManager;
+	const kitBase::robotModel::RobotModelManagerInterface &mRobotModelManager;
 	qrtext::LanguageToolboxInterface &mTextLanguage;
 	qReal::Id mDiagram;
 	GeneratorCustomizer *mCustomizer;
+	PrimaryControlFlowValidator *mValidator;
 	ReadableControlFlowGenerator *mReadableControlFlowGenerator;  // Takes ownership
 	GotoControlFlowGenerator *mGotoControlFlowGenerator;  // Takes ownership
 	QString mProjectName;
 	QString mProjectDir;
 	int mCurInitialNodeNumber;
+	const utils::ParserErrorReporter &mParserErrorReporter;
 };
 
 }

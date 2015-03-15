@@ -1,9 +1,9 @@
 #include "lineSensor.h"
 
-using namespace trikKitInterpreter::robotModel::real::parts;
-using namespace interpreterBase::robotModel;
+using namespace trik::robotModel::real::parts;
+using namespace kitBase::robotModel;
 
-LineSensor::LineSensor(DeviceInfo const &info, PortInfo const &port, utils::TcpRobotCommunicator &tcpRobotCommunicator)
+LineSensor::LineSensor(const DeviceInfo &info, const PortInfo &port, utils::TcpRobotCommunicator &tcpRobotCommunicator)
 	: robotModel::parts::TrikLineSensor(info, port), mRobotCommunicator(tcpRobotCommunicator)
 {
 }

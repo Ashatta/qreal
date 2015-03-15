@@ -21,12 +21,12 @@ public:
 
 	PaletteTreeWidgets(PaletteTree &parent, models::Models &models
 			, EditorManagerInterface &editorManagerProxy
-			, Id const &editor, Id const &diagram);
+			, const Id &editor, const Id &diagram);
 
 	/// Adds top item type to some editor's tree.
 	/// @param data Parameters of new element
 	/// @param tree Editor's tree.
-	void addTopItemType(PaletteElement const &data, QTreeWidget *tree);
+	void addTopItemType(const PaletteElement &data, QTreeWidget *tree);
 
 	/// Collapses all nodes of all current trees.
 	void collapse();
@@ -41,13 +41,13 @@ public:
 	int maxItemsCountInARow() const;
 
 	/// Saves expanded groups into settings
-	void saveConfiguration(QString const &title) const;
+	void saveConfiguration(const QString &title) const;
 
-	void setElementVisible(Id const &metatype, bool visible);
+	void setElementVisible(const Id &metatype, bool visible);
 
 	void setVisibleForAllElements(bool visible);
 
-	void setElementEnabled(Id const &metatype, bool enabled);
+	void setElementEnabled(const Id &metatype, bool enabled);
 
 	void setEnabledForAllElements(bool enabled);
 
@@ -55,8 +55,8 @@ public:
 	void refreshUserPalette();
 
 	/// Sets user palette header and description.
-	void customizeExplosionTitles(QString const &userGroupTitle
-			, QString const &userGroupDescription);
+	void customizeExplosionTitles(const QString &userGroupTitle
+			, const QString &userGroupDescription);
 
 signals:
 	void requestForPropertiesChange(const qReal::Id &id);
@@ -73,7 +73,7 @@ private:
 	DraggableElement *createDraggableElement(const PaletteElement &paletteElement, bool iconsOnly);
 
 	/// Saves expanded groups into settings
-	void saveConfiguration(PaletteTreeWidget const *tree, QString const &title) const;
+	void saveConfiguration(const PaletteTreeWidget *tree, const QString &title) const;
 
 	EditorManagerInterface *mEditorManager; // Does not take ownership
 	PaletteTree *mParentPalette; // Does not take ownership

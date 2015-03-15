@@ -1,24 +1,24 @@
 #pragma once
 
-#include <interpreterBase/additionalPreferences.h>
+#include <kitBase/additionalPreferences.h>
 
 namespace Ui {
 class Ev3AdditionalPreferences;
 }
 
-namespace ev3KitInterpreter {
+namespace ev3 {
 
-class Ev3AdditionalPreferences : public interpreterBase::AdditionalPreferences
+class Ev3AdditionalPreferences : public kitBase::AdditionalPreferences
 {
 	Q_OBJECT
 
 public:
-	explicit Ev3AdditionalPreferences(QString const &realRobotName, QWidget *parent = 0);
+	explicit Ev3AdditionalPreferences(const QString &realRobotName, QWidget *parent = 0);
 	~Ev3AdditionalPreferences();
 
 	void save() override;
 	void restoreSettings() override;
-	void onRobotModelChanged(interpreterBase::robotModel::RobotModelInterface * const robotModel) override;
+	void onRobotModelChanged(kitBase::robotModel::RobotModelInterface * const robotModel) override;
 
 signals:
 	void settingsChanged();
@@ -32,7 +32,7 @@ private:
 	QString selectedPortName() const;
 
 	Ui::Ev3AdditionalPreferences *mUi;
-	QString const mRealRobotName;
+	const QString mRealRobotName;
 };
 
 }

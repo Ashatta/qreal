@@ -1,9 +1,9 @@
 #include "objectSensor.h"
 
-using namespace trikKitInterpreter::robotModel::real::parts;
-using namespace interpreterBase::robotModel;
+using namespace trik::robotModel::real::parts;
+using namespace kitBase::robotModel;
 
-ObjectSensor::ObjectSensor(DeviceInfo const &info, PortInfo const &port
+ObjectSensor::ObjectSensor(const DeviceInfo &info, const PortInfo &port
 		, utils::TcpRobotCommunicator &robotCommunicator)
 	: robotModel::parts::TrikObjectSensor(info, port)
 	, mRobotCommunicator(robotCommunicator)

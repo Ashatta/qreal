@@ -5,11 +5,11 @@
 
 #include <gtest/gtest.h>
 
-#include <src/interpreter/interpreterInterface.h>
-#include <src/textLanguage/robotsBlockParser.h>
-#include <interpreterBase/robotModel/robotModelInterfaceMock.h>
-#include <interpreterBase/robotModel/robotModelManagerInterfaceMock.h>
-#include <interpreterBase/robotModel/configurationInterfaceMock.h>
+#include <interpreterCore/interpreter/interpreterInterface.h>
+#include <interpreterCore/textLanguage/robotsBlockParser.h>
+#include <kitBase/robotModel/robotModelInterfaceMock.h>
+#include <kitBase/robotModel/robotModelManagerInterfaceMock.h>
+#include <kitBase/robotModel/configurationInterfaceMock.h>
 #include <utils/realTimeline.h>
 
 /// @todo /src/managers

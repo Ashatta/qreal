@@ -1,9 +1,9 @@
 #pragma once
 
-#include "robotModel/parts/trikSpeaker.h"
+#include <trikKit/robotModel/parts/trikSpeaker.h>
 #include <utils/tcpRobotCommunicator.h>
 
-namespace trikKitInterpreter {
+namespace trik {
 namespace robotModel {
 namespace real {
 namespace parts {
@@ -13,11 +13,11 @@ class Speaker : public robotModel::parts::TrikSpeaker
 	Q_OBJECT
 
 public:
-	Speaker(interpreterBase::robotModel::DeviceInfo const &info
-			, interpreterBase::robotModel::PortInfo const &port
+	Speaker(const kitBase::robotModel::DeviceInfo &info
+			, const kitBase::robotModel::PortInfo &port
 			, utils::TcpRobotCommunicator &tcpRobotCommunicator);
 
-	void play(QString const &filePath) override;
+	void play(const QString &filePath) override;
 
 private:
 	utils::TcpRobotCommunicator &mRobotCommunicator;

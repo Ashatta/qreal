@@ -1,6 +1,6 @@
 #pragma once
 
-#include "plugins/toolPluginInterface/pluginInterface.h"
+#include <qrgui/plugins/toolPluginInterface/pluginInterface.h>
 
 namespace qReal {
 
@@ -12,7 +12,7 @@ public:
 	/// @param configurator - Object that contains all needed information for a plugin, like refs to models.
 	/// @param metamodelRepoApi - Object that contains information about metamodel
 	virtual void init(
-			PluginConfigurator const &configurator
+			const PluginConfigurator &configurator
 			, qrRepo::LogicalRepoApi &metamodelRepoApi
 			) = 0;
 };

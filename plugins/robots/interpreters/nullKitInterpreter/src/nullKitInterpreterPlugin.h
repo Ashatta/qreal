@@ -1,14 +1,14 @@
 #pragma once
 
-#include <interpreterBase/kitPluginInterface.h>
+#include <kitBase/kitPluginInterface.h>
 #include "nullRobotModel.h"
 
 namespace nullKitInterpreter {
 
-class NullKitInterpreterPlugin : public QObject, public interpreterBase::KitPluginInterface
+class NullKitInterpreterPlugin : public QObject, public kitBase::KitPluginInterface
 {
 	Q_OBJECT
-	Q_INTERFACES(interpreterBase::KitPluginInterface)
+	Q_INTERFACES(kitBase::KitPluginInterface)
 	Q_PLUGIN_METADATA(IID "nullKitInterpreter.NullKitInterpreterPlugin")
 
 public:
@@ -18,19 +18,19 @@ public:
 
 	QString friendlyKitName() const override;
 
-	QList<interpreterBase::robotModel::RobotModelInterface *> robotModels() override;
+	QList<kitBase::robotModel::RobotModelInterface *> robotModels() override;
 
-	interpreterBase::blocksBase::BlocksFactoryInterface *blocksFactoryFor(
-			interpreterBase::robotModel::RobotModelInterface const *model) override;
+	kitBase::blocksBase::BlocksFactoryInterface *blocksFactoryFor(
+			const kitBase::robotModel::RobotModelInterface *model) override;
 
 	// Transfers ownership.
-	interpreterBase::AdditionalPreferences *settingsWidget() override;
+	QList<kitBase::AdditionalPreferences *> settingsWidgets() override;
 
 	QList<qReal::ActionInfo> customActions() override;
 
 	QList<qReal::HotKeyActionInfo> hotKeyActions() override;
 
-	QIcon iconForFastSelector(interpreterBase::robotModel::RobotModelInterface const &robotModel) const override;
+	QIcon iconForFastSelector(const kitBase::robotModel::RobotModelInterface &robotModel) const override;
 
 private:
 	NullRobotModel mRobotModel;

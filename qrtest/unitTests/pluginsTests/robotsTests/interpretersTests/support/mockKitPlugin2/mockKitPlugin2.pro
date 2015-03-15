@@ -1,18 +1,15 @@
+include(../../../../../../../global.pri)
+
 TEMPLATE = lib
-CONFIG += plugin c++11
-DESTDIR = ../../../../../../../bin/plugins/unittests/
+CONFIG += plugin
+DESTDIR = $$DESTDIR/plugins/unittests/
 
 QT += widgets
 
-OBJECTS_DIR = .obj
-MOC_DIR = .moc
-RCC_DIR = .moc
-UI_DIR = .ui
-
-LIBS += -L../../../../../../../bin -lrobots-interpreter-base
+links(robots-kit-base)
 
 INCLUDEPATH += \
-	../../../../../../../plugins/robots/interpreters/interpreterBase/include/ \
+	../../../../../../../plugins/robots/common/kitBase/include/ \
 	../../../../../../../plugins/robots/utils/include/ \
 	../../../../../../../qrgui/ \
 	../../../../../../../ \

@@ -5,14 +5,14 @@
 #include <qrutils/graphicsUtils/painterInterface.h>
 #include <qrutils/graphicsUtils/paintWidget.h>
 
-#include "commonTwoDModel/engine/twoDModelDisplayWidget.h"
+#include "twoDModel/engine/twoDModelDisplayWidget.h"
 
 namespace Ui
 {
 class NxtDisplayWidget;
 }
 
-namespace nxtKitInterpreter {
+namespace nxt {
 
 class NxtDisplayWidget : public twoDModel::engine::TwoDModelDisplayWidget
 {
@@ -24,7 +24,7 @@ public:
 
 	void setPainter(graphicsUtils::PainterInterface *painter) override;
 
-	bool buttonIsDown(QString const &buttonId) const override;
+	bool buttonIsDown(const QString &buttonId) const override;
 
 	void repaintDisplay();
 	int displayWidth() const;
