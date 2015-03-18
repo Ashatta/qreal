@@ -19,7 +19,7 @@ MigrationEditor::MigrationEditor(const QString &languageName
 
 	mInterpreter.addPlugin(mLanguageName, mRepo);
 
-	Id diagram = mInterpreter.diagrams(Id(mLanguageName)).at(0);
+	Id diagram = mInterpreter.diagrams(Id("migrationEditor")).at(0); // check
 	diagram = Id(diagram.editor(), diagram.diagram(), mInterpreter.diagramNodeName(diagram.editor(), diagram.diagram()));
 	Id created = mModels.graphicalModelAssistApi().createElement(Id::rootId(), diagram);
 	if (created.isNull()) {

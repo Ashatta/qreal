@@ -151,7 +151,8 @@ IdList InterpreterEditorManager::elements(const Id &diagram) const
 
 				foreach (const Id &diagramChild, repo->children(editorChild)) {
 					if (diagramChild.element() == "MetaEntityEdge"
-							|| !repo->stringProperty(diagramChild, "shape").isEmpty())
+							|| (diagramChild.element() == "MetaEntityNode"
+									&& !repo->stringProperty(diagramChild, "shape").isEmpty()))
 					{
 						if (repo->hasProperty(diagramChild,"abstract")) {
 							if (repo->stringProperty(diagramChild, "abstract") == "true") {

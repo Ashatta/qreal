@@ -69,8 +69,8 @@ public:
 
 	bool hasElement(const Id &element) const override;
 
-	virtual void canMigrateMetamodels(QStringList &canMigrate, QStringList &cannotMigrate
-			, const qrRepo::LogicalRepoApi &logicalApi, const qrRepo::GraphicalRepoApi &graphicalApi) const;
+	void canMigrateMetamodels(QStringList &canMigrate, QStringList &cannotMigrate
+			, const qrRepo::LogicalRepoApi &logicalApi, const qrRepo::GraphicalRepoApi &graphicalApi) const override;
 
 	Id findElementByType(const QString &type) const override;
 	QList<ListenerInterface *> listeners() const override;

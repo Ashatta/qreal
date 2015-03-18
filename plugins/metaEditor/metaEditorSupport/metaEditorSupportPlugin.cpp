@@ -294,6 +294,117 @@ qrRepo::RepoApi *MetaEditorSupportPlugin::migrationLanguageForVersion(int versio
 	qrRepo::RepoApi *repo = new qrRepo::RepoApi(tempFile);
 	repo->rollBackTo(version);
 	QFile::remove(tempFile);
+
+	const Id migrationEditor("MetaEditor", "MetaEditor", "MetamodelDiagram", QUuid::createUuid().toString());
+	repo->addChild(Id::rootId(), migrationEditor);
+	repo->setProperty(migrationEditor, "name", "migrationEditor");
+	repo->setProperty(migrationEditor, "displayedName", "Migration Editor");
+
+	for (const Id &editor : repo->logicalElements(migrationEditor.type())) {
+		if (editor == migrationEditor) {
+			continue;
+		}
+
+		for (const Id &diagram : repo->children(editor)) {
+			repo->setParent(diagram, migrationEditor);
+
+			const QString diagramNodeName = repo->stringProperty(diagram, "nodeName");
+			Id diagramNodeId;
+			for (const Id &node : repo->children(diagram)) {
+				if (repo->name(node) == diagramNodeName) {
+					diagramNodeId = node;
+					break;
+				}
+			}
+
+			if (diagramNodeId.isNull()) {
+				diagramNodeId = Id("MetaEditor", "MetaEditor", "MetaEntityNode", QUuid::createUuid().toString());
+				repo->addChild(diagram, diagramNodeId);
+				repo->setProperty(diagramNodeId, "name", diagramNodeName);
+				repo->setProperty(diagramNodeId, "displayedName", diagramNodeName);
+
+				const Id properties("MetaEditor", "MetaEditor", "MetaEntityPropertiesAsContainer"
+						, QUuid::createUuid().toString());
+				repo->addChild(diagramNodeId, properties);
+				repo->setName(properties, "diagramNodeProperties");
+				repo->setProperty(properties, "banChildrenMove", false);
+			}
+
+			if (repo->stringProperty(diagramNodeId, "shape").isEmpty()) {
+				const QString shape =
+					"<graphics>\n"
+					"    <picture sizex=\"300\" sizey=\"300\">\n"
+					"        <rectangle fill=\"#ffffff\" stroke-style=\"solid\" stroke=\"#000000\" y1=\"0\" "
+					"x1=\"0\" y2=\"300\" stroke-width=\"1\" x2=\"300\" fill-style=\"solid\"/>\n"
+					"    </picture>\n"
+					"</graphics>\n";
+
+				repo->setProperty(diagramNodeId, "shape", shape);
+			}
+
+			const Id anyNodeId("MetaEditor", "MetaEditor", "MetaEntityNode", QUuid::createUuid().toString());
+			repo->addChild(diagram, anyNodeId);
+			repo->setName(anyNodeId, "AnyNode");
+			repo->setProperty(anyNodeId, "displayedName", "Any Node");
+			repo->setProperty(anyNodeId, "isResizeable", true);
+			repo->setProperty(anyNodeId, "shape"
+					, "<graphics>\n"
+					"    <picture sizex=\"50\" sizey=\"50\">\n"
+					"        <rectangle fill=\"#ffffff\" stroke-style=\"solid\" stroke=\"#000000\" y1=\"0\" "
+					"x1=\"0\" y2=\"50\" stroke-width=\"1\" x2=\"50\" fill-style=\"solid\"/>\n"
+					"    </picture>\n"
+					"    <ports>\n"
+					"        <pointPort x=\"0\" y=\"25\"/>\n"
+					"        <pointPort x=\"50\" y=\"25\"/>\n"
+					"        <pointPort x=\"25\" y=\"0\"/>\n"
+					"        <pointPort x=\"25\" y=\"50\"/>\n"
+					"    </ports>\n"
+					"</graphics>\n"
+			);
+
+			const Id anyEdgeId("MetaEditor", "MetaEditor", "MetaEntityEdge", QUuid::createUuid().toString());
+			repo->addChild(diagram, anyEdgeId);
+			repo->setName(anyEdgeId, "AnyEdge");
+			repo->setProperty(anyEdgeId, "displayedName", "Any Edge");
+			repo->setProperty(anyEdgeId, "lineType", "solidLine");
+			repo->setProperty(anyEdgeId, "labelText", "");
+
+			for (const Id &node : repo->children(diagram)) {
+				if (node.type() == Id("MetaEditor", "MetaEditor", "MetaEntityNode")
+						|| node.type() == Id("MetaEditor", "MetaEditor", "MetaEntityEdge")) {
+					const Id idProperty("MetaEditor", "MetaEditor", "MetaEntity_Attribute"
+							, QUuid::createUuid().toString());
+					repo->addChild(node, idProperty);
+					repo->setName(idProperty, "__migrationId__");
+					repo->setProperty(idProperty, "displayedName", "__migrationId__");
+					repo->setProperty(idProperty, "attributeType", "int");
+					repo->setProperty(idProperty, "defaultValue", "0");
+				}
+
+				if (node.type() == Id("MetaEditor", "MetaEditor", "MetaEntityNode") && node != diagramNodeId) {
+					bool contains = false;
+					for (const Id &link : repo->outgoingLinks(node)) {
+						if (link.type() == Id("MetaEditor", "MetaEditor", "Container")
+								&& repo->otherEntityFromLink(link, node) == diagramNodeId) {
+							contains = true;
+							break;
+						}
+					}
+
+					if (!contains) {
+						const Id container("MetaEditor", "MetaEditor", "Container", QUuid::createUuid().toString());
+						repo->addChild(diagram, container);
+						repo->setName(container, "Container");
+						repo->setFrom(container, diagramNodeId);
+						repo->setTo(container, node);
+					}
+				}
+			}
+		}
+
+		repo->removeElement(editor);
+	}
+
 	return repo;
 }
 

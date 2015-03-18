@@ -480,11 +480,13 @@ bool InterpreterElementImpl::isDividable() const
 
 bool InterpreterElementImpl::hasContainerProperty(const QString &property) const
 {
-	const QDomElement propertiesElement =
-			mGraphics.firstChildElement("logic").firstChildElement("container").firstChildElement("properties");
+	for (const Id child : mEditorRepoApi->children(mId)) {
+		if (child.type() != Id("MetaEditor", "MetaEditor", "MetaEntityPropertiesAsContainer")) {
+			continue;
+		}
 
-	if (propertiesElement.hasChildNodes()) {
-		if (!propertiesElement.firstChildElement(property).isNull()) {
+		if (mEditorRepoApi->hasProperty(child, property)
+				&& mEditorRepoApi->stringProperty(child, property) == "true") {
 			return true;
 		}
 	}
@@ -540,7 +542,7 @@ bool InterpreterElementImpl::minimizesToChildren() const
 
 bool InterpreterElementImpl::maximizesChildren() const
 {
-	return mEditorRepoApi->stringProperty(mId, "maximizeChildren") == "true";
+	return hasContainerProperty("maximizeChildren");
 }
 
 QStringList InterpreterElementImpl::fromPortTypes() const
