@@ -379,6 +379,10 @@ qrRepo::RepoApi *MetaEditorSupportPlugin::migrationLanguageForVersion(int versio
 					repo->setProperty(idProperty, "displayedName", "__migrationId__");
 					repo->setProperty(idProperty, "attributeType", "int");
 					repo->setProperty(idProperty, "defaultValue", "0");
+
+					for (const Id &property : repo->children(node)) {
+						repo->setProperty(property, "attributeType", "string");
+					}
 				}
 
 				if (node.type() == Id("MetaEditor", "MetaEditor", "MetaEntityNode") && node != diagramNodeId) {
