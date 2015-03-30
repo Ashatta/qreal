@@ -82,7 +82,7 @@ QPair<QString, QString> EditorGenerator::generateEditor(Id const &metamodelId, Q
 
 
 	QString const fileBaseName = NameNormalizer::normalize(mApi.name(metamodelId), false);
-	repoControlIface->saveTo(pathToFile + "/save.qrs");
+	repoControlIface->saveTo(QString(pathToFile + "/%1Save.qrs").arg(fileBaseName));
 
 	QRegExp patten;
 	patten.setPattern("[A-Za-z]+([A-Za-z0-9]*)");

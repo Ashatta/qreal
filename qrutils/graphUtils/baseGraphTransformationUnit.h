@@ -17,7 +17,7 @@ class QRUTILS_EXPORT BaseGraphTransformationUnit : public QObject
 public:
 	BaseGraphTransformationUnit(LogicalModelAssistInterface &logicalModelApi
 			, GraphicalModelAssistInterface &graphicalModelApi
-			, gui::MainWindowInterpretersInterface &interpretersInterface);
+			, gui::MainWindowInterpretersInterface *interpretersInterface);
 	~BaseGraphTransformationUnit();
 
 	/// True if match was found
@@ -61,11 +61,11 @@ protected:
 	/// and correspond to link in rule and its ends and
 	/// returns root id if it can not be found
 	Id properLink(const Id &nodeInModel, const Id &linkInRule
-			, const Id &linkEndInR) const;
+			, const Id &linkEndInR);
 
 	/// Get all links from given node in model which can correspond
 	/// given link in rule
-	IdList properLinks(const Id &nodeInModel, const Id &linkInRule) const;
+	IdList properLinks(const Id &nodeInModel, const Id &linkInRule);
 
 	/// Get all links from given node in rule to current matched subgraph
 	IdList linksToMatchedSubgraph(const Id &nodeInRule) const;
@@ -91,9 +91,9 @@ protected:
 	QHash<QString, QVariant> properties(const Id &id) const;
 
 	/// Functions for test elements for equality
-	virtual bool compareLinks(const Id &first, const Id &second) const;
-	virtual bool compareElements(const Id &first, const Id &second) const;
-	virtual bool compareElementTypesAndProperties(const Id &first, const Id &second) const;
+	virtual bool compareLinks(const Id &first, const Id &second);
+	virtual bool compareElements(const Id &first, const Id &second);
+	virtual bool compareElementTypesAndProperties(const Id &first, const Id &second);
 
 	bool isEdgeInModel(const Id &element) const;
 	bool isEdgeInRule(const Id &element) const;
@@ -116,7 +116,7 @@ protected:
 	/// Hold highlight for some time in ms
 	void pause(const int &time);
 
-	gui::MainWindowInterpretersInterface &mInterpretersInterface;
+	gui::MainWindowInterpretersInterface *mInterpretersInterface;
 	LogicalModelAssistInterface &mLogicalModelApi;
 	GraphicalModelAssistInterface &mGraphicalModelApi;
 

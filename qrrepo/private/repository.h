@@ -19,7 +19,7 @@ namespace details {
 class Repository
 {
 public:
-	QRREPO_EXPORT Repository(const QString &workingFile, qReal::migration::Logger *logger);
+	QRREPO_EXPORT Repository(const QString &workingFile, qReal::migration::Logger *logger, bool compressSaves);
 	QRREPO_EXPORT virtual ~Repository();
 
 	/// replacing property values that contains input value with new value
@@ -136,6 +136,8 @@ public:
 	virtual void addMigration(int fromVersion, int toVersion
 				, const QString &fromVersionName, const QString &toVersionName
 				, const QByteArray &fromData, const QByteArray &toData);
+	virtual QList<QPair<QByteArray, QByteArray> > migrations();
+
 	virtual int version() const;
 	virtual QHash<qReal::Id, QList<qReal::migration::LogEntry *> > logBetween(int startVersion, int endVersion) const;
 

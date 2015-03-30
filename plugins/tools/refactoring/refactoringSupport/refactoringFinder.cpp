@@ -8,10 +8,9 @@
 
 using namespace qReal;
 
-RefactoringFinder::RefactoringFinder(
-		LogicalModelAssistInterface &logicalModelApi
+RefactoringFinder::RefactoringFinder(LogicalModelAssistInterface &logicalModelApi
 		, GraphicalModelAssistInterface &graphicalModelApi
-		, gui::MainWindowInterpretersInterface &interpretersInterface
+		, gui::MainWindowInterpretersInterface *interpretersInterface
 		, qrRepo::RepoApi *refactoringRepoApi)
 		: BaseGraphTransformationUnit(logicalModelApi, graphicalModelApi, interpretersInterface)
 		, mRefactoringRepoApi(refactoringRepoApi)
@@ -73,15 +72,15 @@ void RefactoringFinder::highlightMatch()
 			foreach (Id const &id, currentMatch.keys()) {
 				QColor const color = QColor(SettingsManager::value("refactoringColor", "cyan").toString());
 				bool isExclusive = false;
-				mInterpretersInterface.highlight(currentMatch.value(id), isExclusive, color);
+				mInterpretersInterface->highlight(currentMatch.value(id), isExclusive, color);
 				pause(500);
 			}
 			pause(500);
-			mInterpretersInterface.dehighlight();
+			mInterpretersInterface->dehighlight();
 			pause(1000);
 		}
 	} else {
-		mInterpretersInterface.errorReporter()->addInformation("Not Found");
+		mInterpretersInterface->errorReporter()->addInformation("Not Found");
 	}
 }
 
@@ -103,13 +102,12 @@ Id RefactoringFinder::startElement() const
 	return Id::rootId();
 }
 
-bool RefactoringFinder::compareElements(Id const &first, Id const &second) const
+bool RefactoringFinder::compareElements(Id const &first, Id const &second)
 {
 	return compareElementTypesAndProperties(first, second);
 }
 
-bool RefactoringFinder::compareElementTypesAndProperties(Id const &first,
-		Id const &second) const
+bool RefactoringFinder::compareElementTypesAndProperties(Id const &first, Id const &second)
 {
 	if (first == Id::rootId()) {
 		return false;

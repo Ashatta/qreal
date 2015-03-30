@@ -3,9 +3,9 @@
 using namespace qReal;
 using namespace models;
 
-Models::Models(const QString &workingCopy, const EditorManagerInterface &editorManager)
+Models::Models(const QString &workingCopy, const EditorManagerInterface &editorManager, bool compressSaves)
 {
-	qrRepo::RepoApi *repoApi = new qrRepo::RepoApi(workingCopy);
+	qrRepo::RepoApi *repoApi = new qrRepo::RepoApi(workingCopy, false, compressSaves);
 	mGraphicalModel = new models::details::GraphicalModel(repoApi, editorManager);
 	mGraphicalPartModel = new models::details::GraphicalPartModel(*repoApi, *mGraphicalModel);
 

@@ -25,9 +25,10 @@ using namespace qReal;
 
 const QString unsavedDir = "unsaved";
 
-Serializer::Serializer(const QString& saveDirName)
+Serializer::Serializer(const QString& saveDirName, bool compressSaves)
 	: mWorkingDir(QCoreApplication::applicationDirPath() + "/" + unsavedDir)
 	, mWorkingFile(saveDirName)
+	, mCompressSaves(compressSaves)
 {
 	clearWorkingDir();
 	/// @todo: throw away this legacy piece of sh.t
@@ -90,7 +91,7 @@ void Serializer::saveToDisk(QList<Object *> const &objects, QHash<QString, QVari
 	}
 
 	const QString filePath = fileInfo.absolutePath() + "/" + fileName + ".qrs";
-	FolderCompressor::compressFolder(compressDir.absolutePath(), filePath);
+	FolderCompressor::compressFolder(compressDir.absolutePath(), filePath, mCompressSaves);
 
 	// Hiding autosaved files
 	if (fileName.contains("~")) {
@@ -248,11 +249,13 @@ void Serializer::saveMigrations(const QList<Migration> &migrations) const
 		root.setAttribute("toVersionName", migration.mToVersionName);
 		document.save(migrationInfo(), QDomNode::EncodingFromTextStream);
 
-		OutFile outFrom(dirPath + "/from.qrs");
-		outFrom() << migration.mFromData;
+		QFile outFrom(dirPath + "/from.qrs");
+		outFrom.open(QIODevice::WriteOnly);
+		outFrom.write(migration.mFromData);
 
-		OutFile outTo(dirPath + "/to.qrs");
-		outTo() << migration.mToData;
+		QFile outTo(dirPath + "/to.qrs");
+		outTo.open(QIODevice::WriteOnly);
+		outTo.write(migration.mToData);
 	}
 }
 
@@ -271,12 +274,13 @@ void Serializer::loadMigrations(QList<Migration> &migrations) const
 			return;
 		}
 
-		QDomDocument document = xmlUtils::loadDocument(dirPath + "/migrationInfo.xml");
-		QDomElement root = document.firstChildElement("migrationInfo");
 		QFile inFrom(dirPath + "/from.qrs");
 		inFrom.open(QIODevice::ReadOnly);
 		QFile inTo(dirPath + "/to.qrs");
 		inTo.open(QIODevice::ReadOnly);
+
+		QDomDocument document = xmlUtils::loadDocument(dirPath + "/migrationInfo.xml");
+		QDomElement root = document.firstChildElement("migrationInfo");
 		migrations << Migration(root.attribute("fromVersion").toInt(), root.attribute("toVersion").toInt()
 				, root.attribute("fromVersionName"), root.attribute("toVersionName")
 				, inFrom.readAll(), inTo.readAll());
@@ -366,5 +370,5 @@ void Serializer::saveMetamodelsVersions(const QMap<QString, int> &metamodelsVers
 
 void Serializer::decompressFile(const QString &fileName)
 {
-	FolderCompressor::decompressFolder(fileName, mWorkingDir);
+	FolderCompressor::decompressFolder(fileName, mWorkingDir, mCompressSaves);
 }

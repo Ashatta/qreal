@@ -8,8 +8,8 @@ using namespace qrRepo;
 using namespace qrRepo::details;
 using namespace qReal;
 
-RepoApi::RepoApi(const QString &workingDirectory, bool ignoreAutosave)
-		: mRepository(workingDirectory, new migration::Logger(this))
+RepoApi::RepoApi(const QString &workingDirectory, bool ignoreAutosave, bool compressSaves)
+		: mRepository(workingDirectory, new migration::Logger(this), compressSaves)
 		, mIgnoreAutosave(ignoreAutosave)
 {
 }
@@ -620,6 +620,11 @@ void RepoApi::addMigration(int fromVersion, int toVersion
 		, const QByteArray &fromData, const QByteArray &toData)
 {
 	mRepository.addMigration(fromVersion, toVersion, fromVersionName, toVersionName, fromData, toData);
+}
+
+QList<QPair<QByteArray, QByteArray> > RepoApi::migrations()
+{
+	return mRepository.migrations();
 }
 
 int RepoApi::version() const

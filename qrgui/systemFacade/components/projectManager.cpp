@@ -124,21 +124,12 @@ bool ProjectManager::openProject(const QString &fileName)
 		return false;
 	}
 
-	QStringList canMigrate;
-	QStringList cannotMigrate;
-	mModels.logicalModelAssistApi().editorManagerInterface().canMigrateMetamodels(canMigrate, cannotMigrate
-			, mModels.logicalRepoApi(), mModels.graphicalRepoApi());
-	cannotMigrate.removeDuplicates();
-
-	if (!cannotMigrate.empty()) {
-		showMessage(tr("Outdated plugins"), tr("Following plugins must be updated:\n") + cannotMigrate.join('\n'));
+	migration::Migrator migrator(mModels.logicalModelAssistApi().editorManagerInterface());
+	if (!migrator.migrate(&mModels)) {
+		showMessage(tr("Outdated plugins")
+					, tr("Following plugins must be updated:\n") + migrator.migrationFailed().join('\n'));
 		mSomeProjectOpened = open(mSaveFilePath);
 		return false;
-	}
-
-	if (!canMigrate.empty()) {
-		migration::Migrator migrator(mModels.logicalModelAssistApi().editorManagerInterface());
-		migrator.migrate(&mModels, canMigrate);
 	}
 
 	setSaveFilePath(fileName);

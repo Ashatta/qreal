@@ -1,6 +1,7 @@
 #include "folderCompressor.h"
 
-bool FolderCompressor::compressFolder(const QString &sourceFolder, const QString &destinationFile)
+bool FolderCompressor::compressFolder(const QString &sourceFolder, const QString &destinationFile
+		, bool needCompression)
 {
 	if (!QDir(sourceFolder).exists()) {
 		return false;
@@ -13,13 +14,14 @@ bool FolderCompressor::compressFolder(const QString &sourceFolder, const QString
 
 	QDataStream dataStream(&file);
 
-	const bool result = compress(sourceFolder, "", dataStream);
+	const bool result = compress(sourceFolder, "", dataStream, needCompression);
 	file.close();
 
 	return result;
 }
 
-bool FolderCompressor::compress(const QString &sourceFolder, const QString &prefix, QDataStream &dataStream)
+bool FolderCompressor::compress(const QString &sourceFolder, const QString &prefix, QDataStream &dataStream
+		, bool needCompression)
 {
 	QDir dir(sourceFolder);
 	if (!dir.exists()) {
@@ -35,7 +37,7 @@ bool FolderCompressor::compress(const QString &sourceFolder, const QString &pref
 		QString folderName = folder.fileName();
 		QString folderPath = dir.absolutePath() + "/" + folderName;
 		QString newPrefix = prefix + "/" + folderName;
-		compress(folderPath, newPrefix, dataStream);
+		compress(folderPath, newPrefix, dataStream, needCompression);
 	}
 
 	// 3 - List all files inside the current folder
@@ -50,7 +52,10 @@ bool FolderCompressor::compress(const QString &sourceFolder, const QString &pref
 		}
 
 		dataStream << QString(prefix + "/" + fileInfo.fileName());
-		dataStream << qCompress(file.readAll());
+		dataStream << (needCompression && !fileInfo.absoluteFilePath().contains(
+					QRegExp("migrations*.qrs", Qt::CaseSensitive, QRegExp::Wildcard))
+				? qCompress(file.readAll())
+				: file.readAll());
 
 		file.close();
 	}
@@ -58,7 +63,8 @@ bool FolderCompressor::compress(const QString &sourceFolder, const QString &pref
 	return true;
 }
 
-bool FolderCompressor::decompressFolder(const QString &sourceFile, const QString &destinationFolder)
+bool FolderCompressor::decompressFolder(const QString &sourceFile, const QString &destinationFolder
+		, bool needCompression)
 {
 	if (!QFile(sourceFile).exists()) { // mFile not found, to handle later
 		return false;
@@ -98,7 +104,11 @@ bool FolderCompressor::decompressFolder(const QString &sourceFile, const QString
 			file.close();
 			return false;
 		}
-		outFile.write(qUncompress(data));
+
+		outFile.write(needCompression && !fileName.contains(
+					QRegExp("migrations*.qrs", Qt::CaseSensitive, QRegExp::Wildcard))
+				? qUncompress(data)
+				: data);
 		outFile.close();
 	}
 

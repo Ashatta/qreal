@@ -4,19 +4,18 @@
 
 using namespace qReal;
 
-VisualInterpreterUnit::VisualInterpreterUnit(
-		qReal::LogicalModelAssistInterface &logicalModelApi
+VisualInterpreterUnit::VisualInterpreterUnit(qReal::LogicalModelAssistInterface &logicalModelApi
 		, qReal::GraphicalModelAssistInterface &graphicalModelApi
-		, qReal::gui::MainWindowInterpretersInterface &interpretersInterface)
+		, gui::MainWindowInterpretersInterface *interpretersInterface)
 		: BaseGraphTransformationUnit(logicalModelApi, graphicalModelApi, interpretersInterface)
 		, mIsSemanticsLoaded(false)
 		, mNeedToStopInterpretation(false)
 		, mIsInterpretationalSemantics(true)
 		, mRules()
-		, mRuleParser(new RuleParser(logicalModelApi, graphicalModelApi, interpretersInterface.errorReporter()))
-		, mPythonGenerator(new PythonGenerator(logicalModelApi, graphicalModelApi, interpretersInterface))
+		, mRuleParser(new RuleParser(logicalModelApi, graphicalModelApi, interpretersInterface->errorReporter()))
+		, mPythonGenerator(new PythonGenerator(logicalModelApi, graphicalModelApi, *interpretersInterface))
 		, mPythonInterpreter(new PythonInterpreter(this))
-		, mQtScriptGenerator(new QtScriptGenerator(logicalModelApi, graphicalModelApi, interpretersInterface))
+		, mQtScriptGenerator(new QtScriptGenerator(logicalModelApi, graphicalModelApi, *interpretersInterface))
 		, mQtScriptInterpreter(new QtScriptInterpreter(this))
 {
 	mDefaultProperties.insert("semanticsStatus");
@@ -65,7 +64,7 @@ void VisualInterpreterUnit::putIdIntoMap(QHash<QString, IdList*> *map, QString c
 
 bool VisualInterpreterUnit::isSemanticsEditor() const
 {
-	return mInterpretersInterface.activeDiagram().editor().contains("Semantics");
+	return mInterpretersInterface->activeDiagram().editor().contains("Semantics");
 }
 
 bool VisualInterpreterUnit::checkRuleMatching()
@@ -138,10 +137,10 @@ void VisualInterpreterUnit::readInitialization()
 void VisualInterpreterUnit::initBeforeInterpretation()
 {
 	mCurrentNodesWithControlMark.clear();
-	mInterpretersInterface.dehighlight();
+	mInterpretersInterface->dehighlight();
 	mMatches.clear();
 	mRuleParser->clear();
-	mRuleParser->setErrorReporter(mInterpretersInterface.errorReporter());
+	mRuleParser->setErrorReporter(mInterpretersInterface->errorReporter());
 	resetRuleSyntaxCheck();
 	mNeedToStopInterpretation = false;
 }
@@ -155,7 +154,7 @@ void VisualInterpreterUnit::loadSemantics()
 
 	IdList const rules = allRules();
 	initBeforeSemanticsLoading();
-	mInterpretersInterface.dehighlight();
+	mInterpretersInterface->dehighlight();
 	readInitialization();
 
 	foreach (Id const &rule, rules) {
@@ -226,13 +225,13 @@ void VisualInterpreterUnit::loadSemantics()
 	orderRulesByPriority();
 
 	mIsSemanticsLoaded = true;
-	mInterpretersInterface.errorReporter()->clear();
+	mInterpretersInterface->errorReporter()->clear();
 	report(tr("Semantics loaded successfully"), false);
 }
 
 void VisualInterpreterUnit::interpret()
 {
-	mInterpretersInterface.errorReporter()->clear();
+	mInterpretersInterface->errorReporter()->clear();
 
 	if (!mIsSemanticsLoaded) {
 		report(tr("Semantics not loaded"), true);
@@ -268,7 +267,7 @@ void VisualInterpreterUnit::interpret()
 	}
 	if (!hasRuleSyntaxError()) {
 		report(tr("No rule cannot be applied"), false);
-		mInterpretersInterface.dehighlight();
+		mInterpretersInterface->dehighlight();
 		mPythonInterpreter->deleteTempFile();
 	}
 	mPythonInterpreter->terminateProcess();
@@ -282,12 +281,12 @@ void VisualInterpreterUnit::stopInterpretation()
 void VisualInterpreterUnit::highlightMatch()
 {
 	foreach (Id const &id, mMatch.keys()) {
-		mInterpretersInterface.highlight(mMatch.value(id), false);
+		mInterpretersInterface->highlight(mMatch.value(id), false);
 	}
 
 	pause(2000);
 
-	mInterpretersInterface.dehighlight();
+	mInterpretersInterface->dehighlight();
 }
 
 bool VisualInterpreterUnit::findMatch()
@@ -402,10 +401,10 @@ bool VisualInterpreterUnit::deleteElements()
 	if (mDeletedElements.contains(mMatchedRuleName)) {
 		foreach (Id const &id, *(mDeletedElements.value(mMatchedRuleName))) {
 			Id const node = firstMatch.value(id);
-			mInterpretersInterface.dehighlight(node);
+			mInterpretersInterface->dehighlight(node);
 			mCurrentNodesWithControlMark.removeOne(node);
 
-			mInterpretersInterface.deleteElementFromDiagram(
+			mInterpretersInterface->deleteElementFromDiagram(
 					mGraphicalModelApi.logicalId(firstMatch.value(id)));
 		}
 		return true;
@@ -420,12 +419,12 @@ bool VisualInterpreterUnit::createElements()
 	if (mCreatedElements.contains(mMatchedRuleName)) {
 		mCreatedElementsPairs.clear();
 		foreach (Id const &id, *(mCreatedElements.value(mMatchedRuleName))) {
-			Id const createdId = Id(mInterpretersInterface.activeDiagram().editor()
-					, mInterpretersInterface.activeDiagram().diagram()
+			Id const createdId = Id(mInterpretersInterface->activeDiagram().editor()
+					, mInterpretersInterface->activeDiagram().diagram()
 					, id.element()
 					, QUuid::createUuid().toString());
 			Id const createdElem = mGraphicalModelApi.createElement(
-					mInterpretersInterface.activeDiagram()
+					mInterpretersInterface->activeDiagram()
 					, createdId
 					, false
 					, id.element()
@@ -484,12 +483,12 @@ bool VisualInterpreterUnit::createElementsToReplace()
 			Id const toInRule = mReplacedElements.value(mMatchedRuleName)->value(fromId);
 			Id const fromInModel = firstMatch->value(fromId);
 
-			Id const toInModelId = Id(mInterpretersInterface.activeDiagram().editor()
-					, mInterpretersInterface.activeDiagram().diagram()
+			Id const toInModelId = Id(mInterpretersInterface->activeDiagram().editor()
+					, mInterpretersInterface->activeDiagram().diagram()
 					, toInRule.element()
 					, QUuid::createUuid().toString());
 			Id const toInModel = mGraphicalModelApi.createElement(
-					mInterpretersInterface.activeDiagram()
+					mInterpretersInterface->activeDiagram()
 					, toInModelId
 					, false
 					, toInRule.element()
@@ -518,7 +517,7 @@ void VisualInterpreterUnit::replaceElements()
 				mGraphicalModelApi.setTo(link, toInModel);
 			}
 
-			mInterpretersInterface.deleteElementFromDiagram(
+			mInterpretersInterface->deleteElementFromDiagram(
 					mGraphicalModelApi.logicalId(fromInModel));
 		}
 	}
@@ -531,7 +530,7 @@ void VisualInterpreterUnit::moveControlFlow()
 	if (mNodesWithDeletedControlMark.contains(mMatchedRuleName)) {
 		foreach (Id const &id, *(mNodesWithDeletedControlMark.value(mMatchedRuleName))) {
 			Id const node = firstMatch.value(id);
-			mInterpretersInterface.dehighlight(node);
+			mInterpretersInterface->dehighlight(node);
 			mCurrentNodesWithControlMark.removeOne(node);
 		}
 	}
@@ -539,7 +538,7 @@ void VisualInterpreterUnit::moveControlFlow()
 	if (mNodesWithNewControlMark.contains(mMatchedRuleName)) {
 		foreach (Id const &id, *(mNodesWithNewControlMark.value(mMatchedRuleName))) {
 			Id const node = firstMatch.value(id);
-			mInterpretersInterface.highlight(node, false);
+			mInterpretersInterface->highlight(node, false);
 			mCurrentNodesWithControlMark.prepend(node);
 		}
 	}
@@ -627,7 +626,7 @@ bool VisualInterpreterUnit::makeStep()
 	replaceElements();
 
 	if (needToUpdate) {
-		mInterpretersInterface.updateActiveDiagram();
+		mInterpretersInterface->updateActiveDiagram();
 	}
 
 	moveControlFlow();
@@ -636,7 +635,7 @@ bool VisualInterpreterUnit::makeStep()
 	return result;
 }
 
-bool VisualInterpreterUnit::compareElements(Id const &first, Id const &second) const
+bool VisualInterpreterUnit::compareElements(Id const &first, Id const &second)
 {
 	bool result = true;
 
@@ -654,7 +653,7 @@ bool VisualInterpreterUnit::compareElements(Id const &first, Id const &second) c
 	return result && BaseGraphTransformationUnit::compareElements(first, second);
 }
 
-bool VisualInterpreterUnit::compareElementTypesAndProperties(Id const &first, Id const &second) const
+bool VisualInterpreterUnit::compareElementTypesAndProperties(Id const &first, Id const &second)
 {
 	if (second.element() == "Wildcard") {
 		return !isEdgeInModel(first);
@@ -725,6 +724,6 @@ void VisualInterpreterUnit::processTextCodeInterpreterStdOutput(QHash<QPair<QStr
 
 void VisualInterpreterUnit::processTextCodeInterpreterErrOutput(QString const &output)
 {
-	mInterpretersInterface.errorReporter()->addCritical(output);
+	mInterpretersInterface->errorReporter()->addCritical(output);
 	mPythonInterpreter->continueStep();
 }

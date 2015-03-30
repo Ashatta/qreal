@@ -9,9 +9,9 @@ using namespace qReal;
 using namespace qrRepo;
 using namespace qrRepo::details;
 
-Repository::Repository(const QString &workingFile, qReal::migration::Logger *logger)
+Repository::Repository(const QString &workingFile, qReal::migration::Logger *logger, bool compressSaves)
 		: mWorkingFile(workingFile)
-		, mSerializer(workingFile)
+		, mSerializer(workingFile, compressSaves)
 		, mLogger(logger)
 {
 	init();
@@ -637,6 +637,16 @@ void Repository::addMigration(int fromVersion, int toVersion
 	, const QByteArray &fromData, const QByteArray &toData)
 {
 	mMigrations << Migration(fromVersion, toVersion, fromVersionName, toVersionName, fromData, toData);
+}
+
+QList<QPair<QByteArray, QByteArray> > Repository::migrations()
+{
+	QList<QPair<QByteArray, QByteArray> > result;
+	for (const Migration &migration : mMigrations) {
+		result << qMakePair(migration.mFromData, migration.mToData);
+	}
+
+	return result;
 }
 
 int Repository::version() const

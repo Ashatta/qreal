@@ -1,6 +1,9 @@
 #include "migrationEditor.h"
 #include "ui_migrationEditor.h"
 
+#include <qrutils/inFile.h>
+#include <qrutils/outFile.h>
+
 using namespace metaEditor;
 
 MigrationEditor::MigrationEditor(const QString &languageName
@@ -11,7 +14,7 @@ MigrationEditor::MigrationEditor(const QString &languageName
 	, mLanguageName(languageName)
 	, mRepo(repo)
 	, mInterpreter("")
-	, mModels("", mInterpreter)
+	, mModels("", mInterpreter, false)
 	, mController(mModels.repoControlApi())
 	, mPropertyModel(mInterpreter)
 {
@@ -137,11 +140,12 @@ void MigrationEditor::sceneSelectionChanged()
 
 QByteArray MigrationEditor::serializedData()
 {
+	// todo: serialization into neat text format
 	const QString tempFile = "tempMigrationFile.qrs";
 	mModels.repoControlApi().saveTo(tempFile);
-	QFile file(tempFile);
-	file.open(QIODevice::ReadOnly);
-	QByteArray result = file.readAll();
-	file.remove();
+	QFile inFile(tempFile);
+	inFile.open(QIODevice::ReadOnly);
+	QByteArray result = inFile.readAll();
+	inFile.remove();
 	return result;
 }

@@ -17,7 +17,7 @@ class RefactoringFinder : public BaseGraphTransformationUnit
 public:
 	RefactoringFinder(LogicalModelAssistInterface &logicalModelApi
 			, GraphicalModelAssistInterface &graphicalModelApi
-			, gui::MainWindowInterpretersInterface &interpretersInterface
+			, gui::MainWindowInterpretersInterface *interpretersInterface
 			, qrRepo::RepoApi *refactoringRepoApi);
 
 	void highlightMatch();
@@ -37,8 +37,8 @@ private:
 	QVariant refactoringProperty(const Id &id, const QString &propertyName) const;
 	bool containElementWithID(const QString &idValue, const IdList &idList);
 
-	bool compareElements(Id const &first, Id const &second) const;
-	bool compareElementTypesAndProperties(Id const &first, Id const &second) const;
+	bool compareElements(Id const &first, Id const &second) override;
+	bool compareElementTypesAndProperties(Id const &first, Id const &second) override;
 
 	Id toInRule(Id const &id) const;
 	Id fromInRule(Id const &id) const;

@@ -11,18 +11,21 @@ public:
 	/// and serializes all files in a row of file names and compressed
 	/// binary data in a single file
 	/// @returns true if operation was successful.
-	static bool compressFolder(const QString &sourceFolder, const QString &destinationFile);
+	static bool compressFolder(const QString &sourceFolder, const QString &destinationFile
+			, bool needCompression);
 
 	/// A function that deserializes data from the compressed file and
 	/// creates any needed subfolders before saving the file
 	/// @returns true if operation was successful.
-	static bool decompressFolder(const QString &sourceFile, const QString &destinationFolder);
+	static bool decompressFolder(const QString &sourceFile, const QString &destinationFolder
+			, bool needCompression);
 
 private:
 	/// Creating is prohibited, utility class instances can not be created.
 	FolderCompressor();
 
-	static bool compress(const QString &sourceFolder, const QString &prefix, QDataStream &dataStream);
+	static bool compress(const QString &sourceFolder, const QString &prefix, QDataStream &dataStream
+			, bool needCompression);
 };
 
 

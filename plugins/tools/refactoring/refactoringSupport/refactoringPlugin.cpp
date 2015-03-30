@@ -45,7 +45,7 @@ void RefactoringPlugin::init(PluginConfigurator const &configurator)
 	mRefactoringRepoApi = new qrRepo::RepoApi(mQRealSourceFilesPath + "/plugins/refactoring/refactoringExamples", true);
 	mRefactoringFinder = new RefactoringFinder(configurator.logicalModelApi()
 			, configurator.graphicalModelApi()
-			, configurator.mainWindowInterpretersInterface()
+			, &configurator.mainWindowInterpretersInterface()
 			, mRefactoringRepoApi);
 
 	connect(mRefactoringWindow, SIGNAL(findButtonClicked(QString)), this, SLOT(findRefactoring(QString)));

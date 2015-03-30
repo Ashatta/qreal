@@ -72,4 +72,5 @@ private:
 	QString mResources;
 	QString mCurrentEditor;
 	QString mSourcesRootFolder;
+	QString mSaveFile;
 };

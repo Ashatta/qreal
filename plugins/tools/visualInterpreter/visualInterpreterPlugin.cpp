@@ -32,7 +32,7 @@ void VisualInterpreterPlugin::init(PluginConfigurator const &configurator)
 
 	mVisualInterpreterUnit = new VisualInterpreterUnit(configurator.logicalModelApi()
 			, configurator.graphicalModelApi()
-			, configurator.mainWindowInterpretersInterface());
+			, &configurator.mainWindowInterpretersInterface());
 }
 
 QPair<QString, gui::PreferencesPage *> VisualInterpreterPlugin::preferencesPage()

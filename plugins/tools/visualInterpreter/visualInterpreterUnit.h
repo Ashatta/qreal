@@ -21,7 +21,7 @@ class VisualInterpreterUnit : public BaseGraphTransformationUnit
 public:
 	VisualInterpreterUnit(LogicalModelAssistInterface &logicalModelApi
 			, GraphicalModelAssistInterface &graphicalModelApi
-			, gui::MainWindowInterpretersInterface &interpretersInterface);
+			, gui::MainWindowInterpretersInterface *interpretersInterface);
 	~VisualInterpreterUnit();
 
 	/// Load semantics model from current open diagram
@@ -63,7 +63,7 @@ protected:
 
 	/// Checks current diagram for being semantics model
 	bool isSemanticsEditor() const;
-	
+
 	bool checkRuleMatching();
 
 	/// Checks rule application conditions on the found matches
@@ -137,8 +137,8 @@ protected:
 	void report(QString const &message, bool isError) const;
 
 	/// Functions for test elements for equality
-	bool compareElements(Id const &first, Id const &second) const;
-	bool compareElementTypesAndProperties(Id const &first, Id const &second) const;
+	bool compareElements(Id const &first, Id const &second) override;
+	bool compareElementTypesAndProperties(Id const &first, Id const &second) override;
 
 	/// Logical repo api methods for more quick access
 	IdList linksInRule(Id const &id) const;

@@ -307,6 +307,9 @@ qrRepo::RepoApi *MetaEditorSupportPlugin::migrationLanguageForVersion(int versio
 
 		for (const Id &diagram : repo->children(editor)) {
 			repo->setParent(diagram, migrationEditor);
+			if (diagram.element() != "MetaEditorDiagramNode") {
+				continue;
+			}
 
 			const QString diagramNodeName = repo->stringProperty(diagram, "nodeName");
 			Id diagramNodeId;
@@ -330,7 +333,7 @@ qrRepo::RepoApi *MetaEditorSupportPlugin::migrationLanguageForVersion(int versio
 				repo->setProperty(properties, "banChildrenMove", false);
 			}
 
-			if (repo->stringProperty(diagramNodeId, "shape").isEmpty()) {
+			if (!repo->hasProperty(diagramNodeId, "shape") || repo->stringProperty(diagramNodeId, "shape").isEmpty()) {
 				const QString shape =
 					"<graphics>\n"
 					"    <picture sizex=\"300\" sizey=\"300\">\n"
@@ -378,7 +381,7 @@ qrRepo::RepoApi *MetaEditorSupportPlugin::migrationLanguageForVersion(int versio
 					repo->setName(idProperty, "__migrationId__");
 					repo->setProperty(idProperty, "displayedName", "__migrationId__");
 					repo->setProperty(idProperty, "attributeType", "int");
-					repo->setProperty(idProperty, "defaultValue", "0");
+					repo->setProperty(idProperty, "defaultValue", "");
 
 					for (const Id &property : repo->children(node)) {
 						repo->setProperty(property, "attributeType", "string");

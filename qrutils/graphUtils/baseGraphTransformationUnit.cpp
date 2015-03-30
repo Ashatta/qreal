@@ -7,7 +7,7 @@ using namespace qReal;
 BaseGraphTransformationUnit::BaseGraphTransformationUnit(
 		qReal::LogicalModelAssistInterface &logicalModelApi
 		, qReal::GraphicalModelAssistInterface &graphicalModelApi
-		, qReal::gui::MainWindowInterpretersInterface &interpretersInterface)
+		, qReal::gui::MainWindowInterpretersInterface *interpretersInterface)
 		: mInterpretersInterface(interpretersInterface)
 		, mLogicalModelApi(logicalModelApi)
 		, mGraphicalModelApi(graphicalModelApi)
@@ -26,11 +26,21 @@ BaseGraphTransformationUnit::~BaseGraphTransformationUnit()
 IdList BaseGraphTransformationUnit::elementsFromActiveDiagram() const
 {
 	const unsigned validIdSize = 4;
-	const Id activeDiagram = mInterpretersInterface.activeDiagram();
+	Id activeDiagram;
+	if (mInterpretersInterface) {
+		activeDiagram = mInterpretersInterface->activeDiagram();
+	} else {
+		const IdList diagrams(mGraphicalModelApi.children(Id::rootId()));
+		if (!diagrams.isEmpty()) {
+			activeDiagram = mGraphicalModelApi.logicalId(diagrams[0]);
+		}
+	}
+
 	if (activeDiagram.idSize() < validIdSize) {
-		mInterpretersInterface.errorReporter()->addError(tr("no current diagram"));
+		report(tr("no current diagram"), true);
 		return IdList();
 	}
+
 	const IdList activeDiagramElements = children(activeDiagram);
 	IdList activeDiagramGraphicalElements;
 	foreach (const Id &id, activeDiagramElements) {
@@ -38,6 +48,7 @@ IdList BaseGraphTransformationUnit::elementsFromActiveDiagram() const
 			activeDiagramGraphicalElements.append(id);
 		}
 	}
+
 	return activeDiagramGraphicalElements;
 }
 
@@ -262,7 +273,7 @@ Id BaseGraphTransformationUnit::linkEndInRule(const Id &linkInRule, const Id &no
 	return linkTo;
 }
 
-Id BaseGraphTransformationUnit::properLink(const Id &nodeInModel, const Id &linkInRule, const Id &linkEndInR) const
+Id BaseGraphTransformationUnit::properLink(const Id &nodeInModel, const Id &linkInRule, const Id &linkEndInR)
 {
 	const IdList lnksInModel = linksInModel(nodeInModel);
 	foreach (const Id &linkInModel, lnksInModel) {
@@ -284,7 +295,7 @@ Id BaseGraphTransformationUnit::properLink(const Id &nodeInModel, const Id &link
 	return Id::rootId();
 }
 
-IdList BaseGraphTransformationUnit::properLinks(const Id &nodeInModel, const Id &linkInRule) const
+IdList BaseGraphTransformationUnit::properLinks(const Id &nodeInModel, const Id &linkInRule)
 {
 	IdList result;
 	const IdList lnksInModel = linksInModel(nodeInModel);
@@ -304,7 +315,7 @@ IdList BaseGraphTransformationUnit::properLinks(const Id &nodeInModel, const Id 
 	return result;
 }
 
-bool BaseGraphTransformationUnit::compareLinks(const Id &first,const Id &second) const
+bool BaseGraphTransformationUnit::compareLinks(const Id &first,const Id &second)
 {
 	Id  idTo1 = toInModel(first);
 	const Id idTo2 = toInRule(second);
@@ -340,13 +351,12 @@ bool BaseGraphTransformationUnit::compareLinks(const Id &first,const Id &second)
 	return result;
 }
 
-bool BaseGraphTransformationUnit::compareElements(const Id &first, const Id &second) const
+bool BaseGraphTransformationUnit::compareElements(const Id &first, const Id &second)
 {
 	return compareElementTypesAndProperties(first, second);
 }
 
-bool BaseGraphTransformationUnit::compareElementTypesAndProperties(const Id &first
-		, const Id &second) const
+bool BaseGraphTransformationUnit::compareElementTypesAndProperties(const Id &first, const Id &second)
 {
 	if (first.element() == second.element() && first.diagram() == second.diagram()) {
 		QHash<QString, QVariant> secondProperties = properties(second);
@@ -524,10 +534,14 @@ IdList BaseGraphTransformationUnit::children(const Id &id) const
 
 void BaseGraphTransformationUnit::report(const QString &message, bool isError) const
 {
+	if (!mInterpretersInterface) {
+		return;
+	}
+
 	if (isError) {
-		mInterpretersInterface.errorReporter()->addCritical(message);
+		mInterpretersInterface->errorReporter()->addCritical(message);
 	} else {
-		mInterpretersInterface.errorReporter()->addInformation(message);
+		mInterpretersInterface->errorReporter()->addInformation(message);
 	}
 }
 

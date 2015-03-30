@@ -16,7 +16,7 @@ namespace qrRepo {
 class QRREPO_EXPORT RepoApi : public GraphicalRepoApi, public LogicalRepoApi, public RepoControlInterface
 {
 public:
-	explicit RepoApi(const QString &workingDirectory, bool ignoreAutosave = false);
+	explicit RepoApi(const QString &workingDirectory, bool ignoreAutosave = false, bool compressSaves = true);
 	// Default destructor ok.
 
 	/// Replacing property values that contains input value with new value.
@@ -168,6 +168,7 @@ public:
 	virtual void addMigration(int fromVersion, int toVersion
 			, const QString &fromVersionName, const QString &toVersionName
 			, const QByteArray &fromData, const QByteArray &toData) override;
+	QList<QPair<QByteArray, QByteArray> > migrations() override;
 
 private:
 	RepoApi(const RepoApi &other);  // Copying is not allowed.

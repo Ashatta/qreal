@@ -68,6 +68,8 @@ public:
 			, const QString &fromVersionName, const QString &toVersionName
 			, const QByteArray &fromData, const QByteArray &toData) = 0;
 
+	virtual QList<QPair<QByteArray, QByteArray> > migrations() = 0;
+
 	/// Returns all log entries between given two versions of model
 	virtual QHash<qReal::Id, QList<qReal::migration::LogEntry *> > logBetween(int startVersion, int endVersion) const = 0;
 };

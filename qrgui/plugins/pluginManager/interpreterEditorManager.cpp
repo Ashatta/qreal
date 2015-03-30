@@ -572,6 +572,7 @@ QStringList InterpreterEditorManager::propertyNames(const Id &id) const
 		}
 	}
 
+	result.removeDuplicates();
 	return result;
 }
 

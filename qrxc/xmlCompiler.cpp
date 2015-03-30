@@ -24,8 +24,10 @@ XmlCompiler::XmlCompiler()
 	mResources = "<!DOCTYPE RCC><RCC version=\"1.0\">\n<qresource>\n";
 
 	QDir dir;
-	if (dir.exists("save.qrs")) {
-		mResources += "\t<file>save.qrs</file>\n";
+	QStringList saveFiles = dir.entryList({ "*Save.qrs" });
+	if (!saveFiles.isEmpty()) {
+		mSaveFile = saveFiles[0];
+		mResources += QString("\t<file>%1</file>\n").arg(mSaveFile);
 	}
 
 	if (!dir.exists("generated")) {
@@ -523,7 +525,7 @@ void XmlCompiler::generatePropertyDefaultsRequests(OutFile &out)
 void XmlCompiler::generateMetamodelRequest(OutFile &out)
 {
 	out() << "QString " << mPluginName << "Plugin::metamodelFile() const\n{\n"
-		<< "\treturn QString(\":/save.qrs\");\n"
+		<< (!mSaveFile.isEmpty() ? QString("\treturn QString(\":/%1\");\n").arg(mSaveFile) : "\treturn QString();\n")
 		<< "}\n\n";
 }
 

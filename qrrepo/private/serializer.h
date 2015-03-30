@@ -24,7 +24,7 @@ namespace details {
 class Serializer
 {
 public:
-	Serializer(const QString &saveDirName);
+	Serializer(const QString &saveDirName, bool compressSaves);
 
 	void clearWorkingDir() const;
 	void setWorkingFile(const QString &workingFile);
@@ -62,6 +62,7 @@ private:
 
 	QString mWorkingDir;
 	QString mWorkingFile;
+	bool mCompressSaves;
 };
 
 }
