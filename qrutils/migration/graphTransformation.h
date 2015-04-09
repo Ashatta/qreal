@@ -24,8 +24,6 @@ protected:
 	bool checkRuleMatching() override;
 	Id startElement() const override;
 
-	bool compareElements(const Id &first, const Id &second) override;
-	bool compareLinks(const Id &first, const Id &second) override;
 	bool compareElementTypesAndProperties(const Id &first, const Id &second) override;
 
 	Id toInRule(const Id &id) const override;
@@ -34,23 +32,25 @@ protected:
 
 private:
 	void analyzeTemplates();
-	void elementsFromTemplate(IdList &elements, qrRepo::GraphicalRepoApi &migrationTemplate, const Id &root);
+	void elementsFromTemplate(QHash<QString, Id> &elements, qrRepo::GraphicalRepoApi &migrationTemplate
+			, const Id &root);
 	Id migrationDiagram(qrRepo::GraphicalRepoApi &migrationTemplate) const;
 
-	void deleteElement(const Id &id);
-	void createElement(const Id &templateElement, const QHash<Id, Id> &match);
-	void setProperties(const Id &toElement);
+	void saveProperties();
+	void createNodes(const Id &root, const Id &createdRoot);
+	void createLinks(const Id &root, const Id &diagram);
+	void setLogicalProperties(const Id &created, const Id &rule);
+	void setNodesGraphicalProperties(const Id &root);
+	void setLinksGraphicalProperties(const Id &root);
+	void deleteElements();
 
 	qrRepo::GraphicalRepoApi &mFromTemplate;
 	qrRepo::GraphicalRepoApi &mToTemplate;
-	QHash<Id, QHash<QString, QStringList> > mPropertiesMatches;
-	QHash<Id, QMap<QString, QVariant> > mOldGraphicalProperties;
-	QHash<Id, QMap<QString, QVariant> > mOldLogicalProperties;
-	IdList mFromElements;
-	IdList mToElements;
-	QHash<Id, Id> mFromToMap;
-	QHash<Id, Id> mToFromMap;
-	QHash<Id, Id> mToModelMap;
+	QHash<QString, QHash<QString, QStringList> > mPropertiesMatches;
+	QHash<QString, Id> mIdToFrom;
+	QHash<QString, Id> mIdToTo;
+	QHash<Id, Id> mToModel;
+	QHash<Id, Id> mCurrentMatch;
 
 	QList<QString> mIgnoreProperties;
 };

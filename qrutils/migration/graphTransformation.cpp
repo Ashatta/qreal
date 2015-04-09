@@ -12,8 +12,9 @@ GraphTransformation::GraphTransformation(LogicalModelAssistInterface &logicalRep
 	, mFromTemplate(fromTemplate)
 	, mToTemplate(toTemplate)
 {
-	mIgnoreProperties = { "from", "incomingConnections", "incomingUsages", "links", "name", "outgoingConnections"
-			, "outgoingUsages", "to", "fromPort", "toPort", "__migrationId__" };
+	mIgnoreProperties = { "from", "links", "name", "to", "fromPort", "toPort", "__migrationId__"
+			, "outgoingExplosion", "incomingExplosions", "position", "configuration"
+			, "name", "childrenOrder", "expanded", "folded", "linkShape", "isView" };
 }
 
 void GraphTransformation::apply()
@@ -21,94 +22,49 @@ void GraphTransformation::apply()
 	analyzeTemplates();
 
 	while (findMatch()) {
-		QHash<Id, Id> match = mMatches[0];
-
-		for (const Id &from : mFromElements) {
-			if (!mFromToMap.contains(from)) {
-				deleteElement(match[from]);
-			}
-		}
-
-		for (const Id &to : mToElements) {
-			if (!mToFromMap.contains(to)) {
-				createElement(to, match);
-			}
-		}
-
-		for (const Id &from : mFromToMap.keys()) {
-			deleteElement(match[from]);
-			createElement(mFromToMap[from], match);
-			mPropertiesMatches[mToModelMap[mFromToMap[from]]] = mPropertiesMatches[match[from]];
-			mPropertiesMatches.remove(match[from]);
-		}
-
-		for (const Id &to : mToElements) {
-			setProperties(to);
+		for (const QHash<Id, Id> &match : mMatches) {
+			mCurrentMatch = match;
+			saveProperties();
+			Id diagram = migrationDiagram(mToTemplate);
+			Id diagramInModel = mGraphicalModelApi.graphicalRepoApi().parent(match.values()[0]);
+			mToModel.clear();
+			createNodes(diagram, diagramInModel);
+			createLinks(diagram, diagramInModel);
+			setNodesGraphicalProperties(diagram);
+			setLinksGraphicalProperties(diagram);
+			deleteElements();
 		}
 	}
 }
 
 void GraphTransformation::analyzeTemplates()
 {
-	mFromElements.clear();
-	mToElements.clear();
-	mFromToMap.clear();
-	mToFromMap.clear();
+	mIdToFrom.clear();
+	mIdToTo.clear();
 
-	elementsFromTemplate(mFromElements, mFromTemplate, migrationDiagram(mFromTemplate));
-	elementsFromTemplate(mToElements, mToTemplate, migrationDiagram(mToTemplate));
-
-	QHash<QString, Id> idMap;
-	for (const Id &from : mFromElements) {
-		const QString id = mFromTemplate.stringProperty(mFromTemplate.logicalId(from), "__migrationId__");
-		if (!id.isEmpty()) {
-			idMap[id] = from;
-		}
-	}
-
-	for (const Id &to : mToElements) {
-		const QString id = mToTemplate.stringProperty(mToTemplate.logicalId(to), "__migrationId__");
-		if (!id.isEmpty()) {
-			const Id from = idMap[id];
-			if (!from.isNull()) {
-				mFromToMap[from] = to;
-				mToFromMap[to] = from;
-			}
-		}
-	}
+	elementsFromTemplate(mIdToFrom, mFromTemplate, migrationDiagram(mFromTemplate));
+	elementsFromTemplate(mIdToTo, mToTemplate, migrationDiagram(mToTemplate));
 }
 
-void GraphTransformation::elementsFromTemplate(IdList &elements, qrRepo::GraphicalRepoApi &migrationTemplate
+void GraphTransformation::elementsFromTemplate(QHash<QString, Id> &elements
+		, qrRepo::GraphicalRepoApi &migrationTemplate
 		, const Id &root)
 {
 	for (const Id &child : migrationTemplate.children(root)) {
-		elements << child;
+		QString migrationId = migrationTemplate.property(migrationTemplate.logicalId(child), "__migrationId__")
+				.toString();
+		if (!migrationId.isEmpty()) {
+			elements[migrationId] = child;
+		}
+
+
 		elementsFromTemplate(elements, migrationTemplate, child);
 	}
-}
-
-void GraphTransformation::deleteElement(const Id &id)
-{
-
-}
-
-void GraphTransformation::createElement(const Id &templateElement, const QHash<Id, Id> &match)
-{
-
-}
-
-void GraphTransformation::setProperties(const Id &toElement)
-{
-
 }
 
 bool GraphTransformation::findMatch()
 {
 	mMatches.clear();
-	mPropertiesMatches.clear();
-	mToModelMap.clear();
-	mOldGraphicalProperties.clear();
-	mOldLogicalProperties.clear();
 
 	return checkRuleMatching();
 }
@@ -138,30 +94,6 @@ qReal::Id GraphTransformation::startElement() const
 	return Id::rootId();
 }
 
-bool GraphTransformation::compareElements(const Id &first, const Id &second)
-{
-	if (BaseGraphTransformationUnit::compareElements(first, second)) {
-		mOldGraphicalProperties[first] = mGraphicalModelApi.mutableGraphicalRepoApi().properties(first);
-		mOldLogicalProperties[first] = mGraphicalModelApi.mutableGraphicalRepoApi()
-				.properties(mGraphicalModelApi.logicalId(first));
-		return true;
-	}
-
-	return false;
-}
-
-bool GraphTransformation::compareLinks(const Id &first, const Id &second)
-{
-	if (BaseGraphTransformationUnit::compareLinks(first, second)) {
-		mOldGraphicalProperties[first] = mGraphicalModelApi.mutableGraphicalRepoApi().properties(first);
-		mOldLogicalProperties[first] = mGraphicalModelApi.mutableGraphicalRepoApi()
-				.properties(mGraphicalModelApi.logicalId(first));
-		return true;
-	}
-
-	return false;
-}
-
 bool GraphTransformation::compareElementTypesAndProperties(const Id &first, const Id &second)
 {
 	if (second.diagram() == "MigrationDiagram" && second.element() == "AnyNode") {
@@ -181,14 +113,10 @@ bool GraphTransformation::compareElementTypesAndProperties(const Id &first, cons
 			}
 
 			QRegExp propertyRegExp("^" + value + "$");
-			if (propertyRegExp.indexIn(property(first, key).toString()) == -1) {
+			QString prop = property(first, key).toString();
+			if (propertyRegExp.indexIn(prop) == -1) {
 				return false;
 			}
-
-			// can be true iff search finds only one match
-			mPropertiesMatches[first][key]
-					<< mLogicalModelApi.logicalRepoApi().stringProperty(mGraphicalModelApi.logicalId(first), key)
-					<< propertyRegExp.capturedTexts();
 		}
 
 		return true;
@@ -223,4 +151,198 @@ qReal::Id GraphTransformation::migrationDiagram(qrRepo::GraphicalRepoApi &migrat
 	}
 
 	return result;
+}
+
+void GraphTransformation::saveProperties()
+{
+	mPropertiesMatches.clear();
+
+	for (const Id &key : mCurrentMatch.keys()) {
+		QString migrationId = mFromTemplate.property(mFromTemplate.logicalId(key), "__migrationId__").toString();
+		if (!migrationId.isEmpty()) {
+			QMap<QString, QVariant> properties(mFromTemplate.properties(mFromTemplate.logicalId(key)));
+
+			for (const QString &propertyName : properties.keys()) {
+				if (mIgnoreProperties.contains(propertyName)) {
+					continue;
+				}
+
+				QRegExp propertyRegExp("^" + properties[propertyName].toString() + "$");
+				propertyRegExp.indexIn(property(mCurrentMatch[key], propertyName).toString());
+				mPropertiesMatches[migrationId][propertyName] << propertyRegExp.capturedTexts();
+				mPropertiesMatches[migrationId][propertyName][0] = property(mCurrentMatch[key], propertyName).toString();
+			}
+		}
+	}
+}
+
+void GraphTransformation::createNodes(const Id &root, const Id &createdRoot)
+{
+	for (const Id &child : mToTemplate.children(root)) {
+		if (mToTemplate.from(child) == Id::rootId() && mToTemplate.to(child) == Id::rootId()) {
+			// todo: creation of "any nodes"
+			Id created = mGraphicalModelApi.createElement(createdRoot, Id(createdRoot.editor(), child.diagram(), child.element()));
+			createNodes(child, created);
+			setLogicalProperties(created, child); // todo: names
+			mToModel[child] = created;
+		}
+	}
+}
+
+void GraphTransformation::createLinks(const Id &root, const Id &diagram)
+{
+	for (const Id &child : mToTemplate.children(root)) {
+		if (mToTemplate.from(child) != Id::rootId() || mToTemplate.to(child) != Id::rootId()) {
+			const Id created = mGraphicalModelApi.createElement(diagram, Id(diagram.editor(), child.diagram(), child.element()));
+			setLogicalProperties(created, child);
+			mToModel[child] = created;
+		} else {
+			createLinks(child, diagram);
+		}
+	}
+}
+
+void GraphTransformation::setLogicalProperties(const Id &created, const Id &rule)
+{
+	const Id logicalRule = mToTemplate.logicalId(rule);
+	const QString migrationId = mToTemplate.stringProperty(logicalRule, "__migrationId__");
+	const Id logicalId = mGraphicalModelApi.logicalId(created);
+
+	for (const QString &propertyName : mToTemplate.properties(logicalRule).keys()) {
+		if (mIgnoreProperties.contains(propertyName)) {
+			continue;
+		}
+
+		QString value = mToTemplate.stringProperty(logicalRule, propertyName);
+		if (!value.isEmpty()) {
+			QRegExp variableRegex("!<(!@.*)?(!#.*)?(!%.*)?!>");  // non-greedy quantifiers
+			int index = -1;
+			while ((index = variableRegex.indexIn(value)) != -1) { // todo: update offset?
+				QString id = variableRegex.capturedTexts()[1];
+				if (id.startsWith("!@")) {
+					id.remove(0, 2);
+				}
+
+				if (id.isEmpty()) {
+					id = migrationId;
+				}
+
+				QString property = variableRegex.capturedTexts()[2];
+				if (property.startsWith("!#")) {
+					property.remove(0, 2);
+				}
+
+				if (property.isEmpty()) {
+					property = propertyName;
+				}
+
+				QString captureString = variableRegex.capturedTexts()[3];
+				int captureNumber = captureString.startsWith("!%") ? captureString.remove(0, 2).toInt() : 0;
+
+				if (mPropertiesMatches.contains(id) && mPropertiesMatches[id].contains(property)
+						&& mPropertiesMatches[id][property].length() > captureNumber) {
+					mLogicalModelApi.setPropertyByRoleName(logicalId
+							, value.replace(variableRegex, mPropertiesMatches[id][property].at(captureNumber))
+							, propertyName);
+				} else {  // todo: report broken migration pattern
+					mLogicalModelApi.setPropertyByRoleName(logicalId, value.remove(variableRegex), propertyName);
+				}
+			}
+		} else {
+			if (mIdToFrom.contains(migrationId)) {
+				const Id oldElement = mGraphicalModelApi.logicalId(mCurrentMatch[mIdToFrom[migrationId]]);
+				if (mLogicalModelApi.logicalRepoApi().hasProperty(oldElement, propertyName)) {
+					mLogicalModelApi.setPropertyByRoleName(logicalId
+							, mLogicalModelApi.propertyByRoleName(oldElement, propertyName), propertyName);
+				}
+			}
+		}
+	}
+}
+
+void GraphTransformation::setNodesGraphicalProperties(const Id &root)
+{
+	for (const Id &child : mToTemplate.children(root)) {
+		if (mToTemplate.from(child) != Id::rootId() || mToTemplate.to(child) != Id::rootId()) {
+			continue;
+		}
+
+		const QString migrationId = mToTemplate.property(mToTemplate.logicalId(child), "__migrationId__").toString();
+		const Id oldElement = mCurrentMatch[mIdToFrom[migrationId]];
+		const Id created = mToModel[child];
+		mGraphicalModelApi.mutableGraphicalRepoApi().setConfiguration(created, mToTemplate.configuration(child));
+		if (mToTemplate.parent(root) == Id::rootId()) {
+			if (!migrationId.isEmpty() && !oldElement.isNull()) {
+				mGraphicalModelApi.setPosition(created, mGraphicalModelApi.position(oldElement).toPoint());
+			} else {
+				mGraphicalModelApi.setPosition(created, mToTemplate.position(child).toPoint()); // todo: find better place for new elements
+			}
+		} else {
+			mGraphicalModelApi.setPosition(created, mToTemplate.position(child).toPoint());
+		}
+
+		if (!oldElement.isNull()) {
+			QPoint offset = mGraphicalModelApi.position(created).toPoint()
+					- mGraphicalModelApi.position(oldElement).toPoint();
+			for (const Id &link : mGraphicalModelApi.graphicalRepoApi().links(oldElement)) {
+				if (oldElement == mGraphicalModelApi.from(link)) {
+					mGraphicalModelApi.mutableGraphicalRepoApi().setFrom(link, created);
+					QPolygon configuration = mGraphicalModelApi.configuration(link);
+					configuration.setPoint(0, configuration.at(0) + offset);
+					mGraphicalModelApi.mutableGraphicalRepoApi().setConfiguration(link, configuration);
+				}
+
+				if (oldElement == mGraphicalModelApi.to(link)) {
+					mGraphicalModelApi.mutableGraphicalRepoApi().setTo(link, created);
+					QPolygon configuration = mGraphicalModelApi.configuration(link);
+					configuration.setPoint(configuration.length() - 1, configuration.last() + offset);
+					mGraphicalModelApi.mutableGraphicalRepoApi().setConfiguration(link, configuration);
+				}
+			}
+		}
+
+		setNodesGraphicalProperties(child);
+	}
+}
+
+void GraphTransformation::setLinksGraphicalProperties(const Id &root)
+{
+	for (const Id &child : mToTemplate.children(root)) {
+		if (mToTemplate.from(child) == Id::rootId() && mToTemplate.to(child) == Id::rootId()) {
+			setLinksGraphicalProperties(child);
+			continue;
+		}
+
+		const Id created = mToModel[child];
+		const Id from = mToModel[mToTemplate.from(child)];
+		const Id to = mToModel[mToTemplate.to(child)];
+
+		mGraphicalModelApi.setFrom(created, from);
+		mGraphicalModelApi.setTo(created, to);
+
+		mGraphicalModelApi.setConfiguration(created
+				, QPolygon() << mGraphicalModelApi.position(from).toPoint() << mGraphicalModelApi.position(to).toPoint());
+	}
+}
+
+void GraphTransformation::deleteElements()
+{
+	for (const Id &element : mCurrentMatch.values()) {
+		const QString migrationId = mFromTemplate.property(mFromTemplate.logicalId(mCurrentMatch.key(element))
+				, "__migrationId__").toString();
+		const Id newParent = migrationId.isEmpty()
+				? mGraphicalModelApi.graphicalRepoApi().parent(element)
+				: mToModel[mIdToTo[migrationId]];
+
+		for (const Id &child : mGraphicalModelApi.children(element)) {
+			mGraphicalModelApi.changeParent(child, newParent
+					, mGraphicalModelApi.position(element) + mGraphicalModelApi.position(child));
+		}
+
+		const Id logicalId = mGraphicalModelApi.logicalId(element);
+		mGraphicalModelApi.removeElement(element);
+		if (mGraphicalModelApi.graphicalIdsByLogicalId(logicalId).isEmpty()) {
+			mLogicalModelApi.removeElement(logicalId);
+		}
+	}
 }
