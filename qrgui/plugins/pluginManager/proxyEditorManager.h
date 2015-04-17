@@ -68,8 +68,8 @@ public:
 
 	bool hasElement(const Id &element) const override;
 
-	virtual void canMigrateMetamodels(QStringList &canMigrate, QStringList &cannotMigrate
-			, const qrRepo::LogicalRepoApi &logicalApi, const qrRepo::GraphicalRepoApi &graphicalApi) const override;
+	virtual bool canMigrateMetamodels(QSet<QString> &canMigrate, const qrRepo::LogicalRepoApi &logicalApi
+			, const qrRepo::GraphicalRepoApi &graphicalApi) const override;
 
 	Id findElementByType(const QString &type) const override;
 

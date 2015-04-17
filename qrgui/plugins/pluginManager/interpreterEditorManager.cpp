@@ -602,27 +602,31 @@ QStringList InterpreterEditorManager::propertiesWithDefaultValues(const Id &id) 
 	return result;
 }
 
-void InterpreterEditorManager::canMigrateMetamodels(QStringList &canMigrate, QStringList &cannotMigrate
+bool InterpreterEditorManager::canMigrateMetamodels(QSet<QString> &canMigrate
 		, const qrRepo::LogicalRepoApi &logicalApi, const qrRepo::GraphicalRepoApi &graphicalApi) const
 {
-	checkMigrationPossibility(canMigrate, cannotMigrate, logicalApi, Id::rootId());
-	checkMigrationPossibility(canMigrate, cannotMigrate, graphicalApi, Id::rootId());
+	return checkMigrationPossibility(canMigrate, logicalApi, Id::rootId())
+			&& checkMigrationPossibility(canMigrate, graphicalApi, Id::rootId());
 }
 
-void InterpreterEditorManager::checkMigrationPossibility(QStringList &canMigrate, QStringList &cannotMigrate
+bool InterpreterEditorManager::checkMigrationPossibility(QSet<QString> &canMigrate
 		, const qrRepo::CommonRepoApi &api, const qReal::Id &id) const
 {
 	if (id != Id::rootId() && needMigrate(api, id)) {
 		if (editorVersion(id) < api.metamodelVersion(id.editor())) {
-			cannotMigrate << id.editor();
+			return false;
 		} else {
 			canMigrate << id.editor();
 		}
 	}
 
 	foreach (qReal::Id const &child, api.children(id)) {
-		checkMigrationPossibility(canMigrate, cannotMigrate, api, child);
+		if (!checkMigrationPossibility(canMigrate, api, child)) {
+			return false;
+		}
 	}
+
+	return true;
 }
 
 bool InterpreterEditorManager::needMigrate(const qrRepo::CommonRepoApi &api, const Id &id) const

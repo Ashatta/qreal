@@ -7,7 +7,8 @@ HEADERS += \
 	$$PWD/transformations/transformation.h \
 	$$PWD/transformations/replaceTypeTransformation.h \
 	$$PWD/differenceModel.h \
-	$$PWD/graphTransformation.h
+	$$PWD/graphTransformation.h \
+	$$PWD/migration.h
 
 SOURCES += \
 	$$PWD/logEntries/logEntry.cpp \
@@ -17,4 +18,4 @@ SOURCES += \
 	$$PWD/analyzer.cpp \
 	$$PWD/transformations/replaceTypeTransformation.cpp \
 	$$PWD/differenceModel.cpp \
-	$$PWD/graphTransformation.cpp
+	$$PWD/graphTransformation.cpp \

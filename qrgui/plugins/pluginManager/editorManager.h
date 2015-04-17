@@ -39,7 +39,7 @@ public:
 	Pattern getPatternByName (const QString &str) const override;
 	QList<QString> getPatternNames() const override;
 
-	virtual void canMigrateMetamodels(QStringList &canMigrate, QStringList &cannotMigrate
+	virtual bool canMigrateMetamodels(QSet<QString> &canMigrate
 			, const qrRepo::LogicalRepoApi &logicalApi, const qrRepo::GraphicalRepoApi &graphicalApi) const;
 
 	QStringList paletteGroups(const Id &editor, const Id &diagram) const override;
@@ -148,8 +148,8 @@ private:
 	QDir mPluginsDir;
 	QStringList mPluginFileNames;
 
-	void checkMigrationPossibility(QStringList &canMigrate, QStringList &cannotMigrate
-			, qrRepo::CommonRepoApi const &api, qReal::Id const &id) const;
+	bool checkMigrationPossibility(QSet<QString> &canMigrate, qrRepo::CommonRepoApi const &api
+			, qReal::Id const &id) const;
 	bool needMigrate(qrRepo::CommonRepoApi const &api, qReal::Id const &id) const;
 	/// Common part of plugin loaders
 	PluginManager mPluginManager;

@@ -168,7 +168,7 @@ public:
 	virtual void addMigration(int fromVersion, int toVersion
 			, const QString &fromVersionName, const QString &toVersionName
 			, const QByteArray &fromData, const QByteArray &toData) override;
-	QList<QPair<QByteArray, QByteArray> > migrations() override;
+	QList<qReal::migration::Migration> migrations() override;
 
 private:
 	RepoApi(const RepoApi &other);  // Copying is not allowed.

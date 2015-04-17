@@ -115,20 +115,12 @@ bool ProjectManager::openProject(const QString &fileName)
 	mModels.repoControlApi().open(fileName);
 	mModels.reinit();
 
-	if (!pluginsEnough()) { // || !checkVersions() || !checkForUnknownElements()) {
+	if (!pluginsEnough() || !checkVersions() || !checkForUnknownElements()) {
 		// restoring the session
 		if (someProjectWasOpened) {
 			mSomeProjectOpened = open(mSaveFilePath);
 		}
 
-		return false;
-	}
-
-	migration::Migrator migrator(mModels.logicalModelAssistApi().editorManagerInterface());
-	if (!migrator.migrate(&mModels)) {
-		showMessage(tr("Outdated plugins")
-					, tr("Following plugins must be updated:\n") + migrator.migrationFailed().join('\n'));
-		mSomeProjectOpened = open(mSaveFilePath);
 		return false;
 	}
 

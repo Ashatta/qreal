@@ -23,12 +23,10 @@ public:
 private:
 	void clear();
 
-	void initMetamodelsRepos(QStringList const &metamodels);
-	void runUserMigrations();
+	void initMetamodelsRepos(QSet<QString> const &metamodels);
 	void ensureLoadWithOldMetamodels();
 	QHash<qReal::Id, QList<qReal::migration::LogEntry *> > logBetweenVersions() const;
 	void initDifferenceModels();
-	static void initTemporaryMigrationFiles(const QPair<QByteArray, QByteArray> &migration);
 
 	qReal::EditorManagerInterface const &mEditorManager;
 	qReal::models::ModelsInterface *mModel; // Doesn't take ownership

@@ -13,6 +13,9 @@
 #include <editor/editorView.h>
 #include <dialogs/projectManagement/suggestToCreateDiagramDialog.h>
 
+#include "migrator.h"
+#include "migrationApplier.h"
+
 using namespace qReal;
 using namespace utils;
 
@@ -97,7 +100,10 @@ QString ProjectManagerWrapper::textFileFilters() const
 
 bool ProjectManagerWrapper::checkVersions()
 {
-	return mVersionsConverter.validateCurrentProject();
+	migration::Migrator migrator(mModels.logicalModelAssistApi().editorManagerInterface());
+	return mVersionsConverter.validateCurrentProject()
+			&& migration::MigrationApplier::runUserMigrations(mMainWindow->editorManager(), &mModels, mMainWindow)
+			&& migrator.migrate(&mModels);
 }
 
 void ProjectManagerWrapper::refreshApplicationStateAfterSave()

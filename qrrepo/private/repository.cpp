@@ -636,17 +636,13 @@ void Repository::addMigration(int fromVersion, int toVersion
 	, const QString &fromVersionName, const QString &toVersionName
 	, const QByteArray &fromData, const QByteArray &toData)
 {
-	mMigrations << Migration(fromVersion, toVersion, fromVersionName, toVersionName, fromData, toData);
+	mMigrations << qReal::migration::Migration(fromVersion, toVersion, fromVersionName, toVersionName
+			, fromData, toData);
 }
 
-QList<QPair<QByteArray, QByteArray> > Repository::migrations()
+QList<qReal::migration::Migration> Repository::migrations()
 {
-	QList<QPair<QByteArray, QByteArray> > result;
-	for (const Migration &migration : mMigrations) {
-		result << qMakePair(migration.mFromData, migration.mToData);
-	}
-
-	return result;
+	return mMigrations;
 }
 
 int Repository::version() const

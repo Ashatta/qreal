@@ -2,7 +2,6 @@
 
 #include "qrgui/plugins/pluginManager/interpreterEditorManager.h"
 #include "qrutils/migration/analyzer.h"
-#include <qrutils/migration/graphTransformation.h>
 
 #include <qrgui/models/logicalModelAssistApi.h>
 #include <qrgui/models/graphicalModelAssistApi.h>
@@ -27,22 +26,14 @@ bool Migrator::migrate(models::ModelsInterface *model)
 
 	mModel = model;
 
-	QStringList canMigrate;;
-	mEditorManager.canMigrateMetamodels(canMigrate, mMigrationFailed
-			, mModel->logicalRepoApi(), mModel->graphicalRepoApi());
-	mMigrationFailed.removeDuplicates();
-
-	if (!mMigrationFailed.empty()) {
-		return false;
-	}
-
-	initMetamodelsRepos(canMigrate);
-	runUserMigrations();
+	QSet<QString> canMigrate;;
+	mEditorManager.canMigrateMetamodels(canMigrate, mModel->logicalRepoApi(), mModel->graphicalRepoApi());
 
 	if (canMigrate.isEmpty()) {
 		return true;
 	}
 
+	initMetamodelsRepos(canMigrate);
 	initDifferenceModels();
 	ensureLoadWithOldMetamodels();
 
@@ -103,40 +94,13 @@ void Migrator::ensureLoadWithOldMetamodels()
 	}
 }
 
-void Migrator::initMetamodelsRepos(QStringList const &metamodels)
+void Migrator::initMetamodelsRepos(QSet<QString> const &metamodels)
 {
-	foreach (QString const &editor, metamodels.toSet()) {
+	foreach (QString const &editor, metamodels) {
 		mNewMetamodels[editor] = mEditorManager.metamodel(editor);
 
 		mOldMetamodels[editor] = mEditorManager.metamodel(editor);
 		mOldMetamodels[editor]->rollBackTo(mModel->logicalRepoApi().metamodelVersion(editor));
-	}
-}
-
-void Migrator::runUserMigrations()
-{
-	for (const Id &editor : mEditorManager.editors()) {
-		qrRepo::RepoApi *metamodelRepo = mNewMetamodels.value(editor.editor()
-				, mEditorManager.metamodel(editor.editor()));
-
-		if (!metamodelRepo) {
-			continue;
-		}
-
-		QList<QPair<QByteArray, QByteArray> > migrations = metamodelRepo->migrations();
-		for (const QPair<QByteArray, QByteArray> &migration : migrations) {
-			initTemporaryMigrationFiles(migration);
-
-			QScopedPointer<qrRepo::RepoApi> fromTemplate(new qrRepo::RepoApi("temp1", false, false));
-			QScopedPointer<qrRepo::RepoApi> toTemplate(new qrRepo::RepoApi("temp2", false, false));
-
-			GraphTransformation transformation(mModel->logicalModelAssistApi(), mModel->graphicalModelAssistApi()
-					, *fromTemplate.data(), *toTemplate.data());
-			transformation.apply();
-
-			QFile::remove("temp1");
-			QFile::remove("temp2");
-		}
 	}
 }
 
@@ -159,12 +123,4 @@ void Migrator::initDifferenceModels()
 	}
 }
 
-void Migrator::initTemporaryMigrationFiles(const QPair<QByteArray, QByteArray> &migration)
-{
-	QFile file1("temp1");
-	file1.open(QIODevice::WriteOnly);
-	file1.write(migration.first);
-	QFile file2("temp2");
-	file2.open(QIODevice::WriteOnly);
-	file2.write(migration.second);
-}
+

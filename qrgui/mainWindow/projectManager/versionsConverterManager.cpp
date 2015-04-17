@@ -119,7 +119,7 @@ void VersionsConverterManager::displayTooOldSaveError(const Version &saveVersion
 void VersionsConverterManager::displayTooOldEnviromentError(const Version &saveVersion)
 {
 	const QString errorMessage = QObject::tr("The save you are trying to open is made by version %1 of editor, "\
-			"whitch is newer than currently installed enviroment. "\
+			"which is newer than currently installed enviroment. "\
 			"Update your version before opening this save.").arg(saveVersion.toString());
 
 	showError(errorMessage);

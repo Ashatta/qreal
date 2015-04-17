@@ -164,7 +164,6 @@ void LogicalModel::addElementToModel(const Id &parent, const Id &id, const Id &l
 		}
 	} else {
 		newItem = createModelItem(id, parentItem);
-		mApi.addUsedMetamodel(id.editor(), mEditorManagerInterface.editorVersion(id));
 		initializeElement(id, parentItem, newItem, name, position);
 	}
 
@@ -181,6 +180,7 @@ void LogicalModel::initializeElement(const Id &id, modelsImplementation::Abstrac
 	beginInsertRows(index(parentItem), newRow, newRow);
 	parentItem->addChild(item);
 	mApi.addChild(parentItem->id(), id);
+	mApi.addUsedMetamodel(id.editor(), mEditorManagerInterface.editorVersion(id));  // todo: eliminate one of these lines
 	mApi.setMetaInformation(id.editor() + "Version", mEditorManagerInterface.version(Id(id.editor())).toString());
 
 	addInsufficientProperties(id, name);

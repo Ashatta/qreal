@@ -157,10 +157,10 @@ bool ProxyEditorManager::hasElement(const Id &element) const
 	return mProxiedEditorManager->hasElement(element);
 }
 
-void ProxyEditorManager::canMigrateMetamodels(QStringList &canMigrate, QStringList &cannotMigrate
+bool ProxyEditorManager::canMigrateMetamodels(QSet<QString> &canMigrate
 		, const qrRepo::LogicalRepoApi &logicalApi, const qrRepo::GraphicalRepoApi &graphicalApi) const
 {
-	mProxiedEditorManager->canMigrateMetamodels(canMigrate, cannotMigrate, logicalApi, graphicalApi);
+	return mProxiedEditorManager->canMigrateMetamodels(canMigrate, logicalApi, graphicalApi);
 }
 
 Id ProxyEditorManager::findElementByType(const QString &type) const

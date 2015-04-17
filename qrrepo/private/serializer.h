@@ -6,10 +6,10 @@
 #include <QtCore/QDir>
 
 #include <qrkernel/roles.h>
+#include <qrutils/migration/migration.h>
 
 #include "classes/object.h"
 #include "valuesSerializer.h"
-#include "migration.h"
 
 namespace qReal {
 namespace migration {
@@ -32,10 +32,11 @@ public:
 	void removeFromDisk(const qReal::Id &id) const;
 	void saveToDisk(const QList<Object *> &objects, const QHash<QString, QVariant> &metaInfo
 			, const QHash<qReal::Id, QList<qReal::migration::LogEntry *> > &log
-			, const QMap<QString, int> &metamodelsVersions, const QList<Migration> &migrations) const;
+			, const QMap<QString, int> &metamodelsVersions
+			, const QList<qReal::migration::Migration> &migrations) const;
 	void loadFromDisk(QHash<qReal::Id, Object *> &objectsHash, QHash<QString, QVariant> &metaInfo
 			, QHash<qReal::Id, QList<qReal::migration::LogEntry *> > &log, QMap<QString, int> &metamodelsVersions
-			, QList<Migration> &migrations);
+			, QList<qReal::migration::Migration> &migrations);
 
 	void decompressFile(const QString &fileName);
 
@@ -54,8 +55,8 @@ private:
 	void saveMetaInfo(QHash<QString, QVariant> const &metaInfo) const;
 	void loadMetaInfo(QHash<QString, QVariant> &metaInfo) const;
 
-	void saveMigrations(const QList<Migration> &migrations) const;
-	void loadMigrations(QList<Migration> &migrations) const;
+	void saveMigrations(const QList<qReal::migration::Migration> &migrations) const;
+	void loadMigrations(QList<qReal::migration::Migration> &migrations) const;
 
 	QString pathToElement(const qReal::Id &id) const;
 	QString createDirectory(const qReal::Id &id, bool logical) const;

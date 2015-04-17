@@ -622,9 +622,11 @@ void RepoApi::addMigration(int fromVersion, int toVersion
 	mRepository.addMigration(fromVersion, toVersion, fromVersionName, toVersionName, fromData, toData);
 }
 
-QList<QPair<QByteArray, QByteArray> > RepoApi::migrations()
+QList<qReal::migration::Migration> RepoApi::migrations()
 {
-	return mRepository.migrations();
+	QList<qReal::migration::Migration> result = mRepository.migrations();
+	qSort(result);
+	return result;
 }
 
 int RepoApi::version() const

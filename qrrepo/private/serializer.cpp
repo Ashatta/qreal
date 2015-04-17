@@ -57,7 +57,7 @@ void Serializer::setWorkingFile(const QString &workingFile)
 
 void Serializer::saveToDisk(QList<Object *> const &objects, QHash<QString, QVariant> const &metaInfo
 		, QHash<Id, QList<migration::LogEntry *> > const &log, QMap<QString, int> const &metamodelsVersions
-		, const QList<Migration> &migrations) const
+		, const QList<qReal::migration::Migration> &migrations) const
 {
 	Q_ASSERT_X(!mWorkingFile.isEmpty()
 		, "Serializer::saveToDisk(...)"
@@ -103,7 +103,7 @@ void Serializer::saveToDisk(QList<Object *> const &objects, QHash<QString, QVari
 
 void Serializer::loadFromDisk(QHash<qReal::Id, Object*> &objectsHash, QHash<QString, QVariant> &metaInfo
 		, QHash<Id, QList<migration::LogEntry *> > &log, QMap<QString, int> &metamodelsVersions
-		, QList<Migration> &migrations)
+		, QList<qReal::migration::Migration> &migrations)
 {
 	clearWorkingDir();
 	if (!mWorkingFile.isEmpty()) {
@@ -225,7 +225,7 @@ void Serializer::loadMetaInfo(QHash<QString, QVariant> &metaInfo) const
 	}
 }
 
-void Serializer::saveMigrations(const QList<Migration> &migrations) const
+void Serializer::saveMigrations(const QList<qReal::migration::Migration> &migrations) const
 {
 	if (migrations.isEmpty()) {
 		return;
@@ -235,7 +235,7 @@ void Serializer::saveMigrations(const QList<Migration> &migrations) const
 	dir.mkpath(mWorkingDir + "/migrations");
 
 	int i = 0;
-	for (const Migration &migration : migrations) {
+	for (const qReal::migration::Migration &migration : migrations) {
 		const QString dirPath = mWorkingDir + "/migrations/" + QString::number(i);
 		dir.mkpath(dirPath);
 
@@ -259,7 +259,7 @@ void Serializer::saveMigrations(const QList<Migration> &migrations) const
 	}
 }
 
-void Serializer::loadMigrations(QList<Migration> &migrations) const
+void Serializer::loadMigrations(QList<qReal::migration::Migration> &migrations) const
 {
 	migrations.clear();
 
@@ -281,7 +281,8 @@ void Serializer::loadMigrations(QList<Migration> &migrations) const
 
 		QDomDocument document = xmlUtils::loadDocument(dirPath + "/migrationInfo.xml");
 		QDomElement root = document.firstChildElement("migrationInfo");
-		migrations << Migration(root.attribute("fromVersion").toInt(), root.attribute("toVersion").toInt()
+		migrations << qReal::migration::Migration(root.attribute("fromVersion").toInt()
+				, root.attribute("toVersion").toInt()
 				, root.attribute("fromVersionName"), root.attribute("toVersionName")
 				, inFrom.readAll(), inTo.readAll());
 	}

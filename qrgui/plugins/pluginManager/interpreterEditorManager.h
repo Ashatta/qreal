@@ -69,8 +69,8 @@ public:
 
 	bool hasElement(const Id &element) const override;
 
-	void canMigrateMetamodels(QStringList &canMigrate, QStringList &cannotMigrate
-			, const qrRepo::LogicalRepoApi &logicalApi, const qrRepo::GraphicalRepoApi &graphicalApi) const override;
+	bool canMigrateMetamodels(QSet<QString> &canMigrate, const qrRepo::LogicalRepoApi &logicalApi
+			, const qrRepo::GraphicalRepoApi &graphicalApi) const override;
 
 	Id findElementByType(const QString &type) const override;
 	QList<ListenerInterface *> listeners() const override;
@@ -172,8 +172,8 @@ private:
 	QString valueOfProperty(const Id &id, const QString &propertyName, const QString &value) const;
 	void deletePropertyInElement(qrRepo::RepoApi *repo, const Id &diagram, const QString &propDisplayedName) const;
 
-	void checkMigrationPossibility(QStringList &canMigrate, QStringList &cannotMigrate
-			, const qrRepo::CommonRepoApi &api, const qReal::Id &id) const;
+	bool checkMigrationPossibility(QSet<QString> &canMigrate, const qrRepo::CommonRepoApi &api
+			, const qReal::Id &id) const;
 	bool needMigrate(const qrRepo::CommonRepoApi &api, const Id &id) const;
 };
 

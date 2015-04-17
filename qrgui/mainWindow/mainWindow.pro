@@ -34,6 +34,7 @@ HEADERS += \
 	$$PWD/referenceList.h \
 	$$PWD/externBrowser.h \
 	$$PWD/projectManager/migrator.h \
+	$$PWD/projectManager/migrationApplier.h \
 	$$PWD/projectManager/projectManagerWrapper.h \
 	$$PWD/projectManager/versionsConverterManager.h \
 	$$PWD/startWidget/startWidget.h \
@@ -55,6 +56,7 @@ SOURCES += \
 	$$PWD/modelExplorer.cpp \
 	$$PWD/referenceList.cpp \
 	$$PWD/projectManager/migrator.cpp \
+	$$PWD/projectManager/migrationApplier.cpp \
 	$$PWD/projectManager/projectManagerWrapper.cpp \
 	$$PWD/projectManager/versionsConverterManager.cpp \
 	$$PWD/startWidget/startWidget.cpp \

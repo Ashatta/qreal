@@ -9,7 +9,6 @@
 #include "classes/logicalObject.h"
 #include "qrRepoGlobal.h"
 #include "serializer.h"
-#include "migration.h"
 #include "qrutils/migration/logger.h"
 
 namespace qrRepo {
@@ -136,7 +135,7 @@ public:
 	virtual void addMigration(int fromVersion, int toVersion
 				, const QString &fromVersionName, const QString &toVersionName
 				, const QByteArray &fromData, const QByteArray &toData);
-	virtual QList<QPair<QByteArray, QByteArray> > migrations();
+	virtual QList<qReal::migration::Migration> migrations();
 
 	virtual int version() const;
 	virtual QHash<qReal::Id, QList<qReal::migration::LogEntry *> > logBetween(int startVersion, int endVersion) const;
@@ -172,7 +171,7 @@ private:
 	QString mWorkingFile;
 	Serializer mSerializer;
 
-	QList<Migration> mMigrations;
+	QList<qReal::migration::Migration> mMigrations;
 	qReal::migration::Logger *mLogger; // Takes ownership
 
 	QMap<QString, int> mUsedMetamodels;

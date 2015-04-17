@@ -49,7 +49,7 @@ public:
 	virtual int editorVersion(Id const &editor) const = 0;
 	virtual qrRepo::RepoApi *metamodel(QString const &editor) const = 0;
 
-	virtual void canMigrateMetamodels(QStringList &canMigrate, QStringList &cannotMigrate
+	virtual bool canMigrateMetamodels(QSet<QString> &canMigrate
 			, qrRepo::LogicalRepoApi const &logicalApi, qrRepo::GraphicalRepoApi const &graphicalApi) const = 0;
 
 	virtual QString mouseGesture(const Id &id) const = 0;
