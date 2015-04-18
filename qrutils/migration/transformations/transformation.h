@@ -12,7 +12,7 @@ class QRUTILS_EXPORT Transformation
 public:
 	virtual ~Transformation() {}
 
-	virtual void apply(qReal::models::ModelsInterface *model) = 0;
+	virtual void apply(qReal::models::ModelsInterface *model, const IdList &ignoredElements) = 0;
 };
 
 }

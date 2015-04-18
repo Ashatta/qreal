@@ -1339,9 +1339,10 @@ void InterpreterEditorManager::addPlugin(QString const &name, qrRepo::RepoApi *r
 	mEditorRepoApi[name] = repo;
 }
 
-void InterpreterEditorManager::ensureModelCorrectness(qrRepo::LogicalRepoApi &repoApi, qReal::Id const &id)
+void InterpreterEditorManager::ensureModelCorrectness(qrRepo::LogicalRepoApi &repoApi, const IdList ignoredElements
+		, qReal::Id const &id)
 {
-	if (id != Id::rootId()) {
+	if (id != Id::rootId() && !ignoredElements.contains(id)) {
 		if (!hasElement(id.type())) {
 			repoApi.removeElement(id);
 		}
@@ -1362,6 +1363,6 @@ void InterpreterEditorManager::ensureModelCorrectness(qrRepo::LogicalRepoApi &re
 	}
 
 	foreach (qReal::Id const &child, repoApi.children(id)) {
-		ensureModelCorrectness(repoApi, child);
+		ensureModelCorrectness(repoApi, ignoredElements, child);
 	}
 }

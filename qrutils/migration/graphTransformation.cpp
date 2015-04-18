@@ -19,9 +19,11 @@ GraphTransformation::GraphTransformation(LogicalModelAssistInterface &logicalRep
 
 void GraphTransformation::apply()
 {
+	mCreatedElements.clear();
 	analyzeTemplates();
 
-	while (findMatch()) {
+	findMatch();
+//	while (findMatch()) {
 		for (const QHash<Id, Id> &match : mMatches) {
 			mCurrentMatch = match;
 			saveProperties();
@@ -34,7 +36,7 @@ void GraphTransformation::apply()
 			setLinksGraphicalProperties(diagram);
 			deleteElements();
 		}
-	}
+//	}
 }
 
 void GraphTransformation::analyzeTemplates()
@@ -181,7 +183,7 @@ void GraphTransformation::createNodes(const Id &root, const Id &createdRoot)
 	for (const Id &child : mToTemplate.children(root)) {
 		if (mToTemplate.from(child) == Id::rootId() && mToTemplate.to(child) == Id::rootId()) {
 			// todo: creation of "any nodes"
-			Id created = mGraphicalModelApi.createElement(createdRoot, Id(createdRoot.editor(), child.diagram(), child.element()));
+			const Id created = createElement(createdRoot, Id(createdRoot.editor(), child.diagram(), child.element()));
 			createNodes(child, created);
 			setLogicalProperties(created, child); // todo: names
 			mToModel[child] = created;
@@ -193,13 +195,22 @@ void GraphTransformation::createLinks(const Id &root, const Id &diagram)
 {
 	for (const Id &child : mToTemplate.children(root)) {
 		if (mToTemplate.from(child) != Id::rootId() || mToTemplate.to(child) != Id::rootId()) {
-			const Id created = mGraphicalModelApi.createElement(diagram, Id(diagram.editor(), child.diagram(), child.element()));
+			const Id created = createElement(diagram, Id(diagram.editor(), child.diagram(), child.element()));
 			setLogicalProperties(created, child);
 			mToModel[child] = created;
 		} else {
 			createLinks(child, diagram);
 		}
 	}
+}
+
+qReal::Id GraphTransformation::createElement(const Id &parent, const Id &type)
+{
+	int oldVersion = mLogicalModelApi.logicalRepoApi().metamodelVersion(parent.editor());
+	Id created = mGraphicalModelApi.createElement(parent, type);
+	mLogicalModelApi.mutableLogicalRepoApi().addUsedMetamodel(created.editor(), oldVersion);
+	mCreatedElements << created << mGraphicalModelApi.logicalId(created);
+	return created;
 }
 
 void GraphTransformation::setLogicalProperties(const Id &created, const Id &rule)
@@ -345,4 +356,9 @@ void GraphTransformation::deleteElements()
 			mLogicalModelApi.removeElement(logicalId);
 		}
 	}
+}
+
+qReal::IdList GraphTransformation::createdElements() const
+{
+	return mCreatedElements;
 }

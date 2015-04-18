@@ -10,7 +10,7 @@
 using namespace qReal::migration;
 
 bool MigrationApplier::runUserMigrations(const EditorManagerInterface &editorManager
-		, models::ModelsInterface *model, QWidget *window)
+		, models::ModelsInterface *model, IdList &createdElements, QWidget *window)
 {
 	QSet<QString> editorsToCheck;
 	const IdList allElements = model->logicalModelAssistApi().children(Id::rootId());
@@ -19,14 +19,8 @@ bool MigrationApplier::runUserMigrations(const EditorManagerInterface &editorMan
 	}
 
 	for (const QString &editor : editorsToCheck) {
-		qrRepo::RepoApi *metamodelRepo = editorManager.metamodel(editor);
-
-		if (!metamodelRepo) {
-			continue;
-		}
-
 		int oldVersion = model->logicalRepoApi().metamodelVersion(editor);
-		int currentVersion = metamodelRepo->version();
+		int currentVersion = editorManager.editorVersion(Id(editor));
 
 		if (oldVersion == currentVersion) {
 			continue;
@@ -34,11 +28,12 @@ bool MigrationApplier::runUserMigrations(const EditorManagerInterface &editorMan
 
 		if (currentVersion < oldVersion) {
 			QMessageBox::information(window, QObject::tr("Can`t open project file")
-					, QObject::tr("Plugin for %1 needed for opening the save file is oudated. "
+					, QObject::tr("Plugin for %1 needed for opening the save file is outdated. "
 							"Please update your environment.").arg(editor));
 			return false;
 		}
 
+		qrRepo::RepoApi *metamodelRepo = editorManager.metamodel(editor);
 		QList<Migration> migrations = metamodelRepo->migrations();
 		for (const Migration &migration : migrations) {
 			if (migration.mFromVersion < oldVersion || migration.mToVersion > currentVersion) {
@@ -53,6 +48,7 @@ bool MigrationApplier::runUserMigrations(const EditorManagerInterface &editorMan
 			GraphTransformation transformation(model->logicalModelAssistApi(), model->graphicalModelAssistApi()
 					, *fromTemplate.data(), *toTemplate.data());
 			transformation.apply();
+			createdElements << transformation.createdElements();
 
 			QFile::remove("temp1");
 			QFile::remove("temp2");

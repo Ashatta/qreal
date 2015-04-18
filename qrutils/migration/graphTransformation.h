@@ -17,6 +17,7 @@ public:
 			, qrRepo::GraphicalRepoApi &toTemplate);
 
 	void apply();
+	IdList createdElements() const;
 
 protected:
 	bool findMatch() override;
@@ -39,6 +40,7 @@ private:
 	void saveProperties();
 	void createNodes(const Id &root, const Id &createdRoot);
 	void createLinks(const Id &root, const Id &diagram);
+	Id createElement(const Id &parent, const Id &type);
 	void setLogicalProperties(const Id &created, const Id &rule);
 	void setNodesGraphicalProperties(const Id &root);
 	void setLinksGraphicalProperties(const Id &root);
@@ -53,6 +55,8 @@ private:
 	QHash<Id, Id> mCurrentMatch;
 
 	QList<QString> mIgnoreProperties;
+
+	IdList mCreatedElements;
 };
 
 }

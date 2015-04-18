@@ -12,7 +12,7 @@ class MigrationApplier
 {
 public:
 	static bool runUserMigrations(const EditorManagerInterface &editorManager, models::ModelsInterface *model
-			, QWidget *window);
+			, IdList &createdElements, QWidget *window);
 
 private:
 	static void initTemporaryMigrationFiles(const Migration &migration);

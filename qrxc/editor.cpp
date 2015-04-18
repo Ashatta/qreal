@@ -53,7 +53,7 @@ bool Editor::load(const QDir &currentDir)
 		mIncludes.append(includeFile);
 	}
 
-	mEditorVersion = metamodel.attribute("versionForMigration", "2").toInt() - 1;
+	mEditorVersion = metamodel.attribute("versionForMigration", "1").toInt();
 
 	//Load listeners
 	for (QDomElement listenerElement = metamodel.firstChildElement("listener"); !listenerElement.isNull();

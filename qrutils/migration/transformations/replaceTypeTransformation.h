@@ -18,7 +18,7 @@ public:
 	ReplaceTypeTransformation(QString const &oldTypeName, QString const &newTypeName
 			, QMap<QString, QString> const &propertyMap);
 
-	void apply(models::ModelsInterface *model);
+	void apply(models::ModelsInterface *model, const IdList &ignoredElements);
 
 	QString oldElementType() const;
 	void setOldElementType(const QString &value);
@@ -26,7 +26,7 @@ public:
 	void setNewElementType(const QString &value);
 
 private:
-	IdList findMatching(qReal::Id const &id = qReal::Id::rootId()) const;
+	IdList findMatching(const IdList &ignoredElements, qReal::Id const &id = qReal::Id::rootId()) const;
 	bool checkPropertiesMatch(qReal::Id const &id) const;
 
 	Id createLogical(Id const &oldLogical) const;

@@ -101,9 +101,12 @@ QString ProjectManagerWrapper::textFileFilters() const
 bool ProjectManagerWrapper::checkVersions()
 {
 	migration::Migrator migrator(mModels.logicalModelAssistApi().editorManagerInterface());
+	IdList userMigrationsCreatedElements;
+
 	return mVersionsConverter.validateCurrentProject()
-			&& migration::MigrationApplier::runUserMigrations(mMainWindow->editorManager(), &mModels, mMainWindow)
-			&& migrator.migrate(&mModels);
+			&& migration::MigrationApplier::runUserMigrations(mMainWindow->editorManager(), &mModels
+					, userMigrationsCreatedElements, mMainWindow)
+			&& migrator.migrate(&mModels, userMigrationsCreatedElements, mMainWindow);
 }
 
 void ProjectManagerWrapper::refreshApplicationStateAfterSave()

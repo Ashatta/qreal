@@ -16,15 +16,13 @@ public:
 	Migrator(qReal::EditorManagerInterface const &editorManager);
 	~Migrator();
 
-	bool migrate(qReal::models::ModelsInterface *model);
-
-	QStringList migrationFailed() const;
+	bool migrate(qReal::models::ModelsInterface *model, const IdList &ignoredElements, QWidget *window);
 
 private:
 	void clear();
 
 	void initMetamodelsRepos(QSet<QString> const &metamodels);
-	void ensureLoadWithOldMetamodels();
+	void ensureLoadWithOldMetamodels(const IdList &ignoredElements);
 	QHash<qReal::Id, QList<qReal::migration::LogEntry *> > logBetweenVersions() const;
 	void initDifferenceModels();
 
@@ -37,8 +35,6 @@ private:
 	QList<DifferenceModel *> mDifferenceModels;
 
 	QMap<QString, QHash<qReal::Id, QList<LogEntry *> > > mLogs;
-
-	QStringList mMigrationFailed;
 };
 
 }

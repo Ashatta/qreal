@@ -144,7 +144,8 @@ public:
 	void restoreRenamedProperty(const Id &propertyId, const QString &previousName) const override;
 
 	void addPlugin(const QString &name, qrRepo::RepoApi *repo);
-	void ensureModelCorrectness(qrRepo::LogicalRepoApi &repoApi, const qReal::Id &id = qReal::Id::rootId());
+	void ensureModelCorrectness(qrRepo::LogicalRepoApi &repoApi, const IdList ignoredElements
+			, const qReal::Id &id = qReal::Id::rootId());
 	void setElementEnabled(const Id &type, bool enabled) override;
 
 	/// Returns list of metamodels for interpreted plugins.

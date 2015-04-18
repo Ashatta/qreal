@@ -13,11 +13,11 @@ ReplaceTypeTransformation::ReplaceTypeTransformation(QString const &oldTypeName,
 {
 }
 
-void ReplaceTypeTransformation::apply(models::ModelsInterface *model)
+void ReplaceTypeTransformation::apply(models::ModelsInterface *model, const IdList &ignoredElements)
 {
 	mModel = model;
 
-	IdList matching = findMatching();
+	IdList matching = findMatching(ignoredElements);
 	foreach (Id const &id, matching) {
 		Id const newLogical = createLogical(id);
 		foreach (Id const &graphicalId, model->graphicalModelAssistApi().graphicalIdsByLogicalId(id)) {
@@ -28,7 +28,7 @@ void ReplaceTypeTransformation::apply(models::ModelsInterface *model)
 	}
 }
 
-qReal::IdList ReplaceTypeTransformation::findMatching(qReal::Id const &id) const
+qReal::IdList ReplaceTypeTransformation::findMatching(const IdList &ignoredElements, qReal::Id const &id) const
 {
 	IdList result;
 	foreach (Id const &child, mModel->logicalModelAssistApi().children(id)) {
@@ -36,12 +36,12 @@ qReal::IdList ReplaceTypeTransformation::findMatching(qReal::Id const &id) const
 			continue;
 		}
 
-		if ((mOldElementType == "@ANY_ELEMENT@")
-				|| ((mOldElementType == child.element()) && checkPropertiesMatch(child))) {
+		if (!ignoredElements.contains(child) && ((mOldElementType == "@ANY_ELEMENT@")
+				|| ((mOldElementType == child.element()) && checkPropertiesMatch(child)))) {
 			result << child;
 		}
 
-		result.append(findMatching(child));
+		result.append(findMatching(ignoredElements, child));
 	}
 
 	return result;
