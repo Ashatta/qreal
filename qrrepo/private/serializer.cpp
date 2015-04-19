@@ -63,6 +63,8 @@ void Serializer::saveToDisk(QList<Object *> const &objects, QHash<QString, QVari
 		, "Serializer::saveToDisk(...)"
 		, "may be Repository of RepoApi (see Models constructor also) has been initialised with empty filename?");
 
+	clearDir(mWorkingDir);
+
 	foreach (const Object * const object, objects) {
 		const QString filePath = createDirectory(object->id(), object->isLogicalObject());
 
@@ -236,7 +238,7 @@ void Serializer::saveMigrations(const QList<qReal::migration::Migration> &migrat
 
 	int i = 0;
 	for (const qReal::migration::Migration &migration : migrations) {
-		const QString dirPath = mWorkingDir + "/migrations/" + QString::number(i);
+		const QString dirPath = mWorkingDir + "/migrations/" + QString::number(i++);
 		dir.mkpath(dirPath);
 
 		OutFile migrationInfo(dirPath + "/migrationInfo.xml");

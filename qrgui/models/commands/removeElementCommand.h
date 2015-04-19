@@ -28,6 +28,8 @@ protected:
 	virtual bool execute();
 	virtual bool restoreState();
 
+	QList<migration::LogEntry *> logEntries() const override;
+
 private:
 	CreateRemoveCommandImplementation mImpl;
 };

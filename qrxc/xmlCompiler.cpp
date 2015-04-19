@@ -178,7 +178,7 @@ void XmlCompiler::generatePluginHeader()
 		<< "\tQString id() const { return \"" << mPluginName << "\"; }\n"
 		<< "\tQString version() const { return \"" << mPluginVersion << "\"; }\n"
 		<< "\n"
-		<< "\tvirtual int editorVersion() const { return " << mEditors[mCurrentEditor]->versionForMigration() << "; }\n"
+		<< "\tvirtual int editorVersion() const { return " << mEditors[mCurrentEditor]->versionForMigration() - 1 << "; }\n"
 		<< "\n"
 		<< "\tvirtual QString metamodelFile() const;\n"
 		<< "\n"

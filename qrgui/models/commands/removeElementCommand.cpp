@@ -43,3 +43,8 @@ bool RemoveElementCommand::equals(const AbstractCommand &other) const
 
 	return false;
 }
+
+QList<qReal::migration::LogEntry *> RemoveElementCommand::logEntries() const
+{
+	return mImpl.removeEntries();
+}

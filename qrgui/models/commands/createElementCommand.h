@@ -30,9 +30,12 @@ protected:
 	bool execute() override;
 	bool restoreState() override;
 
+	QList<qReal::migration::LogEntry *> logEntries() const override;
+
 private:
 	CreateRemoveCommandImplementation mImpl;
 	Id mResult;
+	models::GraphicalModelAssistApi &mGraphicalApi;
 };
 
 }

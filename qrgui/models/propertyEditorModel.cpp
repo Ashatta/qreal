@@ -75,15 +75,22 @@ QVariant PropertyEditorModel::data(const QModelIndex &index, int role) const
 		}
 	}
 
-	if (role != Qt::DisplayRole) {
-		return QVariant();
-	}
-
 	if (index.column() == 0) {
-		const Id id = mTargetLogicalObject.data(roles::idRole).value<Id>();
-		const QString displayedName = mEditorManagerInterface.propertyDisplayedName(id, mFields[index.row()].fieldName);
-		return displayedName.isEmpty() ? mFields[index.row()].fieldName : displayedName;
+		switch (role) {
+		case Qt::DisplayRole: {
+			const Id id = mTargetLogicalObject.data(roles::idRole).value<Id>();
+			const QString displayedName = mEditorManagerInterface.propertyDisplayedName(id, mFields[index.row()].fieldName);
+			return displayedName.isEmpty() ? mFields[index.row()].fieldName : displayedName;
+		} case Qt::EditRole:
+			return mFields[index.row()].fieldName;
+		default:
+			return QVariant();
+		}
 	} else if (index.column() == 1) {
+		if (role != Qt::DisplayRole) {
+			return QVariant();
+		}
+
 		switch (mFields[index.row()].attributeClass) {
 		case logicalAttribute: {
 			return mTargetLogicalObject.data(mFields[index.row()].role).toString();

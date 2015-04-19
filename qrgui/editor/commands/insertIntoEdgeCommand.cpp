@@ -133,3 +133,25 @@ void InsertIntoEdgeCommand::makeLink(CreateElementCommand *command, NodeElement 
 	edge->setDst(dst);
 	mScene.reConnectLink(edge);
 }
+
+QList<qReal::migration::LogEntry *> InsertIntoEdgeCommand::logEntries() const
+{
+	QList<migration::LogEntry *> result;
+	if (mCreateCommand) {
+		result << mCreateCommand->commandLog();
+	}
+
+	if (mCreateFirst) {
+		result << mCreateFirst->commandLog();
+	}
+
+	if (mCreateSecond) {
+		result << mCreateSecond->commandLog();
+	}
+
+	if (mRemoveOldEdge) {
+		result << mRemoveOldEdge->commandLog();
+	}
+
+	return result;
+}

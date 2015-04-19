@@ -30,6 +30,8 @@ protected:
 	virtual bool execute();
 	virtual bool restoreState();
 
+	QList<qReal::migration::LogEntry *> logEntries() const override;
+
 private:
 	void initCommand(CreateElementCommand *&command, const Id &type);
 	void makeLink(CreateElementCommand *command, NodeElement *src, NodeElement *dst);

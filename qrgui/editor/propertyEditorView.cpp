@@ -221,12 +221,12 @@ void PropertyEditorView::editorValueChanged(QtProperty *prop, QVariant value)
 	}
 
 	value = QVariant(value.toString());
-	const QVariant oldValue = mModel->data(index);
 
 	// TODO: edit included Qt Property Browser framework or inherit new browser
 	// from it and create propertyCommited() and propertyCancelled() signal
 	qReal::commands::ChangePropertyCommand *changeCommand =
-			new qReal::commands::ChangePropertyCommand(mModel, index, oldValue, value);
+			new qReal::commands::ChangePropertyCommand(mLogicalModelAssistApi
+					, mModel->data(index.sibling(row, 0), Qt::EditRole).toString(), mModel->idByIndex(index), value);
 	mController->execute(changeCommand);
 }
 

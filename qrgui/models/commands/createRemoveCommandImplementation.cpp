@@ -5,6 +5,8 @@
 #include "models/logicalModelAssistApi.h"
 #include "models/graphicalModelAssistApi.h"
 
+#include <qrutils/migration/logEntries/removeElementEntry.h>
+
 using namespace qReal;
 using namespace commands;
 
@@ -60,14 +62,19 @@ Id CreateRemoveCommandImplementation::id() const
 
 void CreateRemoveCommandImplementation::remove()
 {
+	mRemoveEntries.clear();
+
 	if (mIsFromLogicalModel) {
 		mLogicalApi.removeReferencesTo(mId);
 		mLogicalApi.removeReferencesFrom(mId);
 		mLogicalApi.removeElement(mId);
 		mGraphicalApi.removeElement(mId);
+		mRemoveEntries << new migration::RemoveElementEntry(mId, mGraphicalApi.properties(mId), mLogicalParent);
 	} else {
 		mGraphicalPropertiesSnapshot = mGraphicalApi.properties(mId);
 		const Id logicalId = mGraphicalApi.logicalId(mId);
+		mRemoveEntries << new migration::RemoveElementEntry(mId, mGraphicalPropertiesSnapshot, mGraphicalParent
+				, logicalId);
 		if (!mLogicalApi.logicalRepoApi().exist(logicalId)) {
 			mGraphicalApi.removeElement(mId);
 			refreshAllPalettes();
@@ -84,6 +91,7 @@ void CreateRemoveCommandImplementation::remove()
 			mLogicalApi.removeReferencesTo(logicalId);
 			mLogicalApi.removeReferencesFrom(logicalId);
 			mLogicalApi.removeElement(logicalId);
+			mRemoveEntries << new migration::RemoveElementEntry(logicalId, mLogicalPropertiesSnapshot, mLogicalParent);
 		}
 	}
 
@@ -110,4 +118,9 @@ void CreateRemoveCommandImplementation::refreshAllPalettes()
 {
 	// Calling refreshing immideately may cause segfault because of deletting drag source
 	QTimer::singleShot(0, &mExploser, SIGNAL(explosionsSetCouldChange()));
+}
+
+QList<migration::LogEntry *> CreateRemoveCommandImplementation::removeEntries() const
+{
+	return mRemoveEntries;
 }

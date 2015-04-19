@@ -59,7 +59,7 @@ bool Migrator::migrate(models::ModelsInterface *model, const IdList &ignoredElem
 	}
 
 	foreach (QString const &metamodel, editorsToCheck) {
-		mModel->mutableLogicalRepoApi().addUsedMetamodel(metamodel, mNewMetamodels[metamodel]->version());
+		mModel->mutableLogicalRepoApi().addUsedMetamodel(metamodel, mNewMetamodels[metamodel]->version() - 1);
 	}
 
 	return true;

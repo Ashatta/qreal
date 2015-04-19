@@ -2,6 +2,8 @@
 
 #include "qrgui/models/exploser.h"
 
+#include <qrutils/migration/logEntries/logEntry.h>
+
 namespace qReal {
 namespace commands {
 
@@ -30,6 +32,8 @@ public:
 	/// Modifies command setting new creation position.
 	void setNewPosition(const QPointF &position);
 
+	QList<migration::LogEntry *> removeEntries() const;
+
 private:
 	void refreshAllPalettes();
 
@@ -45,6 +49,8 @@ private:
 	QMap<QString, QVariant> mLogicalPropertiesSnapshot;
 	QMap<QString, QVariant> mGraphicalPropertiesSnapshot;
 	Id mOldLogicalId;
+
+	QList<migration::LogEntry *> mRemoveEntries;
 };
 
 inline bool operator==(const CreateRemoveCommandImplementation &i1
