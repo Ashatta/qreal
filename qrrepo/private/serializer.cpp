@@ -171,9 +171,9 @@ void Serializer::loadLog(QString const &currentPath, QHash<Id, QList<migration::
 
 void Serializer::loadMetamodelsVersions(QString const &currentPath, QMap<QString, int> &metamodelsVersions) const
 {
-	if (QFile::exists(currentPath + "metamodelsVersions.txt")) {
+	if (QFile::exists(currentPath + "/metamodelsVersions.txt")) {
 		QStringList const &strings
-				= InFile::readAll(currentPath + "metamodelsVersions.txt").split('\n', QString::SkipEmptyParts);
+				= InFile::readAll(currentPath + "/metamodelsVersions.txt").split('\n', QString::SkipEmptyParts);
 		foreach (QString const &string, strings) {
 			QStringList const &nameAndVersion = string.split("=");
 			int version = 1;
@@ -365,7 +365,7 @@ void Serializer::saveLog(const QHash<Id, QList<migration::LogEntry *> > &log) co
 
 void Serializer::saveMetamodelsVersions(const QMap<QString, int> &metamodelsVersions) const
 {
-	OutFile out(mWorkingDir + "metamodelsVersions.txt");
+	OutFile out(mWorkingDir + "/metamodelsVersions.txt");
 	foreach (QString const &name, metamodelsVersions.keys()) {
 		out() << name << "=" << metamodelsVersions[name] << "\n";
 	}

@@ -48,14 +48,17 @@ bool Migrator::migrate(models::ModelsInterface *model, const IdList &ignoredElem
 	}
 
 	initMetamodelsRepos(editorsToCheck);
-	initDifferenceModels();
-	ensureLoadWithOldMetamodels(ignoredElements);
 
-	Analyzer analyzer(logBetweenVersions(), mDifferenceModels);
-	analyzer.analyze();
+	if (SettingsManager::value("migrationOn").toBool()) {
+		initDifferenceModels();
+		ensureLoadWithOldMetamodels(ignoredElements);
 
-	foreach (Transformation *transform, analyzer.transformations()) {
-		transform->apply(mModel, ignoredElements);
+		Analyzer analyzer(logBetweenVersions(), mDifferenceModels);
+		analyzer.analyze();
+
+		foreach (Transformation *transform, analyzer.transformations()) {
+			transform->apply(mModel, ignoredElements);
+		}
 	}
 
 	foreach (QString const &metamodel, editorsToCheck) {
