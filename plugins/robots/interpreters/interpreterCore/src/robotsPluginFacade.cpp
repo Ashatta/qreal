@@ -1,3 +1,17 @@
+/* Copyright 2007-2015 QReal Research Group, Dmitry Mordvinov
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License. */
+
 #include "interpreterCore/robotsPluginFacade.h"
 
 #include <qrkernel/settingsManager.h>
@@ -7,6 +21,8 @@
 #include "src/ui/robotsSettingsPage.h"
 #include "interpreterCore/managers/paletteUpdateManager.h"
 #include "interpreterCore/managers/kitAutoSwitcher.h"
+#include "src/managers/exerciseExportManager.h"
+#include "src/managers/uiManager.h"
 
 using namespace interpreterCore;
 
@@ -28,7 +44,13 @@ RobotsPluginFacade::~RobotsPluginFacade()
 
 void RobotsPluginFacade::init(const qReal::PluginConfigurator &configurer)
 {
-	mRobotSettingsPage = new ui::RobotsSettingsPage(mKitPluginManager, mRobotModelManager);
+	mActionsManager.init(&configurer.mainWindowInterpretersInterface());
+
+	mRobotSettingsPage = new ui::RobotsSettingsPage(mKitPluginManager, mRobotModelManager
+			, configurer.logicalModelApi());
+
+	connect(&configurer.systemEvents(), &qReal::SystemEvents::activeTabChanged
+			, mRobotSettingsPage, &ui::RobotsSettingsPage::onProjectOpened);
 
 	mDevicesConfigurationManager.reset(new DevicesConfigurationManager(
 			configurer.graphicalModelApi()
@@ -54,6 +76,12 @@ void RobotsPluginFacade::init(const qReal::PluginConfigurator &configurer)
 			);
 
 	mBlocksFactoryManager.addFactory(coreFactory);
+
+	mUiManager.reset(new UiManager(mActionsManager.debugModeAction()
+			, mActionsManager.editModeAction()
+			, configurer.mainWindowDockInterface()
+			, configurer.systemEvents()
+			, mEventsForKitPlugin));
 
 	interpreter::Interpreter *interpreter = new interpreter::Interpreter(
 			configurer.graphicalModelApi()
@@ -87,14 +115,40 @@ void RobotsPluginFacade::init(const qReal::PluginConfigurator &configurer)
 	new KitAutoSwitcher(configurer.projectManager(), configurer.logicalModelApi()
 			, mBlocksFactoryManager, mKitPluginManager, mRobotModelManager, this);
 
+	mSaveAsTaskManager.reset(new ExerciseExportManager(configurer.logicalModelApi()
+			, configurer.repoControlInterface(), configurer.projectManager()));
+
 	connectInterpreterToActions();
 
 	connectEventsForKitPlugin();
 
 	connect(&mActionsManager.robotSettingsAction(), &QAction::triggered
 			, [=] () { configurer.mainWindowInterpretersInterface().openSettingsDialog(tr("Robots")); });
+
 	connect(&configurer.systemEvents(), &qReal::SystemEvents::activeTabChanged
 			, &mActionsManager, &ActionsManager::onActiveTabChanged);
+
+	const qrRepo::LogicalRepoApi &repoApi = configurer.logicalModelApi().logicalRepoApi();
+
+	connect(&configurer.systemEvents(), &qReal::SystemEvents::activeTabChanged
+			, [this, &repoApi] (const qReal::TabInfo &info) {
+				Q_UNUSED(info);
+
+				mDockDevicesConfigurer->setEnabled(
+						!repoApi.metaInformation("twoDModelSensorsReadOnly").toBool());
+
+				const bool hasReadOnlyFlags = repoApi.metaInformation("twoDModelWorldReadOnly").toBool()
+						| repoApi.metaInformation("twoDModelSensorsReadOnly").toBool()
+						| repoApi.metaInformation("twoDModelRobotPositionReadOnly").toBool()
+						| repoApi.metaInformation("twoDModelRobotConfigurationReadOnly").toBool()
+						| repoApi.metaInformation("twoDModelSimulationSettingsReadOnly").toBool()
+						;
+
+				mActionsManager.exportExerciseAction().setEnabled(!hasReadOnlyFlags);
+			});
+
+	connect(&mActionsManager.exportExerciseAction(), &QAction::triggered
+			, [this] () { mSaveAsTaskManager->save(); });
 
 	sync();
 }
@@ -207,8 +261,8 @@ void RobotsPluginFacade::initSensorWidgets()
 		mActionsManager.stopRobotAction().setVisible(false);
 	});
 
-	mCustomizer.placeDevicesConfig(mDockDevicesConfigurer);
-	mCustomizer.placeWatchPlugins(mWatchListWindow, mGraphicsWatcherManager->widget());
+	mUiManager->placeDevicesConfig(mDockDevicesConfigurer);
+	mUiManager->placeWatchPlugins(mWatchListWindow, mGraphicsWatcherManager->widget());
 
 	mDevicesConfigurationManager->connectDevicesConfigurationProvider(mRobotSettingsPage);
 	mDevicesConfigurationManager->connectDevicesConfigurationProvider(mDockDevicesConfigurer);
@@ -280,7 +334,6 @@ void RobotsPluginFacade::connectEventsForKitPlugin()
 				emit mEventsForKitPlugin.robotModelChanged(model.name());
 			}
 			);
-
 }
 
 void RobotsPluginFacade::sync()

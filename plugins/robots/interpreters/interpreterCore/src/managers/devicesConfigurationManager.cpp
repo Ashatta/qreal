@@ -1,3 +1,17 @@
+/* Copyright 2007-2015 QReal Research Group
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License. */
+
 #include "interpreterCore/managers/devicesConfigurationManager.h"
 
 #include <QtXml/QDomDocument>
@@ -22,7 +36,7 @@ DevicesConfigurationManager::DevicesConfigurationManager(
 	, mMainWindowInterpretersInterface(mainWindowInterpretersInterface)
 {
 	QObject::connect(&systemEvents, &qReal::SystemEvents::activeTabChanged
-			, [&] (const Id &diagramRootId) { this->onActiveTabChanged(diagramRootId); });
+			, [&] (const TabInfo &info) { this->onActiveTabChanged(info); });
 }
 
 QString DevicesConfigurationManager::save() const
@@ -78,12 +92,15 @@ void DevicesConfigurationManager::onDeviceConfigurationChanged(const QString &ro
 	mLogicalModelAssistInterface.setPropertyByRoleName(logicalRootId, save(), "devicesConfiguration");
 }
 
-void DevicesConfigurationManager::onActiveTabChanged(const Id &graphicalRootId)
+void DevicesConfigurationManager::onActiveTabChanged(const TabInfo &info)
 {
-	if (graphicalRootId.isNull()) {
+	if (info.type() != TabInfo::TabType::editor) {
 		return;
 	}
 
-	const qReal::Id logicalRootId = mGraphicalModelAssistInterface.logicalId(graphicalRootId);
-	load(mLogicalModelAssistInterface.propertyByRoleName(logicalRootId, "devicesConfiguration").toString());
+	const Id logicalRootId = mGraphicalModelAssistInterface.logicalId(info.rootDiagramId());
+	const QString devicesConfiguration = logicalRootId.isNull()
+			? QString()
+			: mLogicalModelAssistInterface.propertyByRoleName(logicalRootId, "devicesConfiguration").toString();
+	load(devicesConfiguration);
 }

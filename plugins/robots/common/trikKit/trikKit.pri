@@ -1,3 +1,17 @@
+# Copyright 2007-2015 QReal Research Group
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 QT += widgets
 
 includes(plugins/robots/common/trikKit \
@@ -51,6 +65,9 @@ HEADERS += \
 	$$PWD/src/blocks/details/drawArcBlock.h \
 	$$PWD/src/blocks/details/setPainterWidthBlock.h \
 	$$PWD/src/blocks/details/setPainterColorBlock.h \
+	$$PWD/src/blocks/details/initCameraBlock.h \
+	$$PWD/src/blocks/details/detectLineBlock.h \
+	$$PWD/src/blocks/details/lineDetectorToVariable.h
 
 SOURCES += \
 	$$PWD/src/robotModel/trikRobotModelBase.cpp \
@@ -93,5 +110,8 @@ SOURCES += \
 	$$PWD/src/blocks/details/drawArcBlock.cpp \
 	$$PWD/src/blocks/details/setPainterWidthBlock.cpp \
 	$$PWD/src/blocks/details/setPainterColorBlock.cpp \
+	$$PWD/src/blocks/details/initCameraBlock.cpp \
+	$$PWD/src/blocks/details/detectLineBlock.cpp \
+	$$PWD/src/blocks/details/lineDetectorToVariable.cpp
 
 TRANSLATIONS += $$PWD/../../../../qrtranslations/ru/plugins/robots/trikKit_ru.ts

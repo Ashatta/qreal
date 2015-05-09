@@ -1,3 +1,17 @@
+/* Copyright 2007-2015 QReal Research Group
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License. */
+
 #include "qrtext/src/lua/luaSemanticAnalyzer.h"
 
 #include "qrtext/src/lua/luaGeneralizationsTable.h"
@@ -73,10 +87,19 @@ void LuaSemanticAnalyzer::addIntrinsicFunction(const QString &name, const QShare
 	mIntrinsicFunctions.insert(name, type);
 }
 
+void LuaSemanticAnalyzer::addReadOnlyVariable(const QString &name)
+{
+	mReadOnlyVariables.insert(name);
+}
+
 void LuaSemanticAnalyzer::analyzeNode(const QSharedPointer<core::ast::Node> &node)
 {
 	if (node->is<ast::Assignment>()) {
 		auto assignment = as<ast::Assignment>(node);
+		if (!checkForReadOnlyVariables(assignment->variable())) {
+			return;
+		}
+
 		constrainAssignment(assignment, assignment->variable(), assignment->value());
 		checkForUndeclaredIdentifiers(assignment->value());
 	} else if (node->is<ast::Identifier>()) {
@@ -286,6 +309,19 @@ void LuaSemanticAnalyzer::checkForUndeclaredIdentifiers(const QSharedPointer<cor
 	}
 }
 
+bool LuaSemanticAnalyzer::checkForReadOnlyVariables(const QSharedPointer<core::ast::Node> &node)
+{
+	if (node->is<ast::Identifier>()) {
+		const auto identifier = as<ast::Identifier>(node);
+		if (mReadOnlyVariables.contains(identifier->name())) {
+			reportError(node, QObject::tr("Variable %1 is read-only").arg(identifier->name()));
+			return false;
+		}
+	}
+
+	return true;
+}
+
 QMap<QString, QSharedPointer<types::TypeExpression>> LuaSemanticAnalyzer::variableTypes() const
 {
 	QMap<QString, QSharedPointer<qrtext::core::types::TypeExpression>> result = SemanticAnalyzer::variableTypes();
@@ -294,4 +330,10 @@ QMap<QString, QSharedPointer<types::TypeExpression>> LuaSemanticAnalyzer::variab
 	}
 
 	return result;
+}
+
+void LuaSemanticAnalyzer::clear()
+{
+	SemanticAnalyzer::clear();
+	mReadOnlyVariables.clear();
 }

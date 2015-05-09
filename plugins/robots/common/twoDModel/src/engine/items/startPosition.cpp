@@ -1,4 +1,20 @@
+/* Copyright 2007-2015 QReal Research Group
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License. */
+
 #include "startPosition.h"
+
+#include "twoDModel/engine/model/constants.h"
 
 using namespace twoDModel::items;
 
@@ -8,6 +24,8 @@ const int lineWidth = 3;
 StartPosition::StartPosition(QGraphicsItem *parent)
 	: RotateItem(parent)
 {
+	setX(robotWidth / 2);
+	setY(robotHeight / 2);
 	RotateItem::init();
 }
 
@@ -32,8 +50,8 @@ void StartPosition::drawItem(QPainter *painter, const QStyleOptionGraphicsItem *
 void StartPosition::serialize(QDomElement &robotElement, QDomDocument &target) const
 {
 	QDomElement startPositionElement = target.createElement("startPosition");
-	startPositionElement.setAttribute("startPosX", scenePos().x());
-	startPositionElement.setAttribute("startPosY", scenePos().y());
+	startPositionElement.setAttribute("x", scenePos().x());
+	startPositionElement.setAttribute("y", scenePos().y());
 	startPositionElement.setAttribute("direction", rotation());
 	robotElement.appendChild(startPositionElement);
 }
@@ -45,17 +63,12 @@ void StartPosition::deserialize(const QDomElement &robotElement)
 		const QStringList robotPositionParts = robotElement.attribute("position").split(":");
 		const QString robotX = robotPositionParts.count() != 2 ? "0" : robotPositionParts[0];
 		const QString robotY = robotPositionParts.count() != 2 ? "0" : robotPositionParts[1];
-		const QString startPositionX = robotElement.hasAttribute("startPosX")
-				? robotElement.attribute("startPosX")
-				: robotX;
-		const QString startPositionY = robotElement.hasAttribute("startPosY")
-				? robotElement.attribute("startPosY")
-				: robotY;
-		setX(startPositionX.toDouble());
-		setY(startPositionY.toDouble());
+		setX(robotX.toDouble() + robotWidth / 2);
+		setY(robotY.toDouble() + robotHeight / 2);
+		setRotation(robotElement.attribute("direction").toDouble());
 	} else {
 		setX(startPositionElement.attribute("x").toDouble());
-		setX(startPositionElement.attribute("y").toDouble());
+		setY(startPositionElement.attribute("y").toDouble());
 		setRotation(startPositionElement.attribute("direction").toDouble());
 	}
 }
@@ -69,5 +82,10 @@ void StartPosition::changeDragState(qreal x, qreal y)
 {
 	Q_UNUSED(x)
 	Q_UNUSED(y)
-	mDragState = None;
+	setDragState(None);
+}
+
+void StartPosition::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
+{
+	Q_UNUSED(event)
 }

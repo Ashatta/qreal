@@ -1,3 +1,17 @@
+/* Copyright 2007-2015 QReal Research Group
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License. */
+
 #pragma once
 
 #include <QtCore/QScopedPointer>
@@ -24,8 +38,13 @@ public:
 	/// @param type - type of a function.
 	void addIntrinsicFunction(const QString &name, const QSharedPointer<types::Function> &type);
 
+	/// Registers variable with given name as read-only (or predefined).
+	void addReadOnlyVariable(const QString &name);
+
 	/// Override that excludes intrinsic function identifiers.
 	QMap<QString, QSharedPointer<core::types::TypeExpression>> variableTypes() const;
+
+	void clear() override;
 
 private:
 	void analyzeNode(const QSharedPointer<core::ast::Node> &node) override;
@@ -44,6 +63,10 @@ private:
 	/// such information down to recursive tree traversal).
 	void checkForUndeclaredIdentifiers(const QSharedPointer<core::ast::Node> &node);
 
+	/// Reports errors about all read-only variables. Supposed to be called on left side of assignment.
+	/// @returns true, if everything is ok.
+	bool checkForReadOnlyVariables(const QSharedPointer<core::ast::Node> &node);
+
 	QSharedPointer<core::types::TypeExpression> mBoolean;
 	QSharedPointer<core::types::TypeExpression> mFloat;
 	QSharedPointer<core::types::TypeExpression> mInteger;
@@ -51,6 +74,9 @@ private:
 	QSharedPointer<core::types::TypeExpression> mString;
 
 	QHash<QString, QSharedPointer<types::Function>> mIntrinsicFunctions;
+
+	/// A set of predefined variables.
+	QSet<QString> mReadOnlyVariables;
 };
 
 }

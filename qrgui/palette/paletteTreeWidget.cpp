@@ -1,3 +1,17 @@
+/* Copyright 2007-2015 QReal Research Group
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License. */
+
 #include "paletteTreeWidget.h"
 
 #include <QtGui/QMouseEvent>
@@ -12,9 +26,10 @@ using namespace gui;
 const EditorManagerInterface *PaletteTreeWidget::mEditorManager = nullptr;
 
 PaletteTreeWidget::PaletteTreeWidget(PaletteTree &palette
-		, EditorManagerInterface &editorManagerProxy, bool editable)
+		, EditorManagerInterface &editorManagerProxy, bool editable, const QList<QAction *> &additionalActions)
 	: mPaletteTree(palette)
 	, mEditable(editable)
+	, mAdditionalActions(additionalActions)
 {
 	mEditorManager = &editorManagerProxy;
 }
@@ -225,7 +240,7 @@ void PaletteTreeWidget::setEnabledForAllElements(bool enabled)
 
 DraggableElement *PaletteTreeWidget::createDraggableElement(const PaletteElement &paletteElement, bool iconsOnly)
 {
-	DraggableElement *element = new DraggableElement(paletteElement, iconsOnly, *mEditorManager);
+	DraggableElement *element = new DraggableElement(paletteElement, iconsOnly, *mEditorManager, mAdditionalActions);
 
 	connect(element, &DraggableElement::requestForPropertiesChange
 			, this, &PaletteTreeWidget::requestForPropertiesChange);
@@ -235,4 +250,13 @@ DraggableElement *PaletteTreeWidget::createDraggableElement(const PaletteElement
 			, this, &PaletteTreeWidget::requestForElementDeletion);
 
 	return element;
+}
+
+void PaletteTreeWidget::setAdditionalActions(const QList<QAction *> &additionalActions)
+{
+	mAdditionalActions = additionalActions;
+
+	for (DraggableElement * element : mPaletteElements.values()) {
+		element->setAdditionalActions(additionalActions);
+	}
 }

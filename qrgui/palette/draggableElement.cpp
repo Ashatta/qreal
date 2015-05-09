@@ -1,3 +1,17 @@
+/* Copyright 2007-2015 QReal Research Group
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License. */
+
 #include "draggableElement.h"
 
 #include <QtCore/QUuid>
@@ -22,15 +36,16 @@ using namespace gui;
 
 const int gestureTipSize = 30;
 
-DraggableElement::DraggableElement(
-		const PaletteElement &data
+DraggableElement::DraggableElement(const PaletteElement &data
 		, bool iconsOnly
 		, const EditorManagerInterface &editorManagerProxy
+		, const QList<QAction *> &additionalActions
 		, QWidget *parent
 		)
 	: QWidget(parent)
 	, mData(data)
 	, mEditorManagerProxy(editorManagerProxy)
+	, mAdditionalActions(additionalActions)
 {
 	QHBoxLayout *layout = new QHBoxLayout(this);
 	layout->setContentsMargins(0, 4, 0, 4);
@@ -52,7 +67,7 @@ DraggableElement::DraggableElement(
 	QString description = mData.description();
 	if (!description.isEmpty()) {
 		const QString rawGesture = mEditorManagerProxy.mouseGesture(data.id());
-		if (!rawGesture.isEmpty()) {
+		if (!rawGesture.isEmpty() && qReal::SettingsManager::value("gesturesEnabled").toBool()) {
 			const QSize size(gestureTipSize, gestureTipSize);
 			gestures::GesturePainter painter(rawGesture, Qt::white, Qt::blue, gestureTipSize);
 			const QPixmap gesture = painter.pixmap(size, QIcon::Mode::Normal, QIcon::State::Off);
@@ -72,7 +87,6 @@ DraggableElement::DraggableElement(
 
 	setAttribute(Qt::WA_AcceptTouchEvents);
 }
-
 
 QIcon DraggableElement::icon() const
 {
@@ -261,16 +275,29 @@ void DraggableElement::mousePressEvent(QMouseEvent *event)
 		if (mEditorManagerProxy.isInterpretationMode()) {
 			QMenu *menu = new QMenu();
 			QAction * const changePropertiesPaletteAction = menu->addAction(tr("Change Properties"));
-			connect(changePropertiesPaletteAction, SIGNAL(triggered()), SLOT(changePropertiesPaletteActionTriggered()));
+			connect(changePropertiesPaletteAction, &QAction::triggered
+					, this, &DraggableElement::changePropertiesPaletteActionTriggered);
 			changePropertiesPaletteAction->setData(elementId.toVariant());
+
 			QAction * const changeAppearancePaletteAction = menu->addAction(tr("Change Appearance"));
-			connect(changeAppearancePaletteAction, SIGNAL(triggered()), SLOT(changeAppearancePaletteActionTriggered()));
+			connect(changeAppearancePaletteAction, &QAction::triggered
+					, this,  &DraggableElement::changeAppearancePaletteActionTriggered);
 			changeAppearancePaletteAction->setData(elementId.toVariant());
+
 			QAction * const deleteElementPaletteAction = menu->addAction(tr("Delete Element"));
 			connect(deleteElementPaletteAction, &QAction::triggered
 					, this, &DraggableElement::deleteElementPaletteActionTriggered
 					, Qt::QueuedConnection);
 			deleteElementPaletteAction->setData(elementId.toVariant());
+
+			if (!mAdditionalActions.isEmpty()) {
+				menu->addActions(mAdditionalActions);
+
+				for (QAction *action : mAdditionalActions) {
+					action->setData(elementId.toVariant());
+				}
+			}
+
 			menu->exec(QCursor::pos());
 		}
 	} else {
@@ -299,6 +326,11 @@ void DraggableElement::mousePressEvent(QMouseEvent *event)
 
 		drag->exec(Qt::CopyAction);
 	}
+}
+
+void DraggableElement::setAdditionalActions(const QList<QAction *> &additionalActions)
+{
+	mAdditionalActions = additionalActions;
 }
 
 #ifdef Q_OS_WIN

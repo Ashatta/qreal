@@ -1,3 +1,17 @@
+/* Copyright 2007-2015 QReal Research Group
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License. */
+
 #pragma once
 
 #include <QtWidgets/QButtonGroup>
@@ -30,6 +44,7 @@ public:
 	explicit RobotsSettingsPage(
 			KitPluginManager &kitPluginManager
 			, RobotModelManager &robotModelManager
+			, qReal::LogicalModelAssistInterface &logicalModel
 			, QWidget *parent = nullptr
 			);
 
@@ -37,6 +52,10 @@ public:
 
 	void save() override;
 	void restoreSettings() override;
+
+public slots:
+	/// Called when current project changed, allows settings page to react on save-specific settings.
+	void onProjectOpened();
 
 signals:
 	/// Emitted when uder saves settings on this page.
@@ -66,14 +85,20 @@ private:
 	Ui::PreferencesRobotSettingsPage *mUi;  // Has ownership.
 	KitPluginManager &mKitPluginManager;
 	RobotModelManager &mRobotModelManager;
-	QButtonGroup *mKitButtons;  // Has ownership indirectly, via Qt parent-child memory management system.
 
-	// Has ownership indirectly, via Qt parent-child memory management system.
+	/// Has ownership indirectly, via Qt parent-child memory management system.
+	QButtonGroup *mKitButtons;
+
+	/// Has ownership indirectly, via Qt parent-child memory management system.
 	QHash<QAbstractButton *, QButtonGroup *> mKitRobotModels;
 
-	// Has ownership over buttons indirectly, via Qt parent-child memory management system.
-	// Does not have ownership over robot models.
+	/// Has ownership over buttons indirectly, via Qt parent-child memory management system.
+	/// Does not have ownership over robot models.
 	QHash<QAbstractButton *, kitBase::robotModel::RobotModelInterface *> mButtonsToRobotModelsMapping;
+
+	/// Reference to logical model, to be able to change settings for current save, for example, disable sensors
+	/// changes when save explicitly prohibits it.
+	qReal::LogicalModelAssistInterface &mLogicalModel;
 };
 
 }

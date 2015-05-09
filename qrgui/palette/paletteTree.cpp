@@ -1,3 +1,17 @@
+/* Copyright 2007-2015 QReal Research Group
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License. */
+
 #include "paletteTree.h"
 
 #include <QtCore/QUuid>
@@ -94,7 +108,8 @@ void PaletteTree::addEditorElements(EditorManagerInterface &editorManagerProxy, 
 
 	mComboBox->addItem(mEditorManager->friendlyName(diagram));
 
-	PaletteTreeWidgets *editorTree = new PaletteTreeWidgets(*this, *mModels, *mEditorManager, editor, diagram);
+	PaletteTreeWidgets *editorTree = new PaletteTreeWidgets(*this, *mModels, *mEditorManager, editor, diagram
+			, mAdditionalElementActions);
 	connect(editorTree, &PaletteTreeWidgets::requestForPropertiesChange
 			, this, &PaletteTree::requestForPropertiesChange);
 	connect(editorTree, &PaletteTreeWidgets::requestForAppearanceChange
@@ -168,7 +183,7 @@ void PaletteTree::recreateTrees()
 
 void PaletteTree::createPaletteTree()
 {
-	mTree = new PaletteTreeWidgets(*this, *mModels, *mEditorManager);
+	mTree = new PaletteTreeWidgets(*this, *mModels, *mEditorManager, mAdditionalElementActions);
 	mTree->setMinimumHeight(0);
 	mLayout->addWidget(mTree);
 }
@@ -349,5 +364,14 @@ void PaletteTree::customizeExplosionTitles(const QString &userGroupTitle, const 
 {
 	for (PaletteTreeWidgets * const tree : mEditorsTrees) {
 		tree->customizeExplosionTitles(userGroupTitle, userGroupDescription);
+	}
+}
+
+void PaletteTree::setAdditionalActions(const QList<QAction *> &actions)
+{
+	mAdditionalElementActions = actions;
+
+	for (PaletteTreeWidgets * tree : mEditorsTrees) {
+		tree->setAdditionalActions(actions);
 	}
 }

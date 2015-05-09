@@ -1,3 +1,17 @@
+/* Copyright 2007-2015 QReal Research Group
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License. */
+
 #pragma once
 
 #include <QtCore/QString>
@@ -41,6 +55,10 @@ public:
 
 	/// Returns the average brightness of the picture under the light sensor on the given port.
 	virtual int readLightSensor(const kitBase::robotModel::PortInfo &port) const = 0;
+
+	/// Returns an image of the scene under a sensor on the given port.
+	/// @param widthFactor ratio of a return area width to width of sensor image.
+	virtual QImage areaUnderSensor(const kitBase::robotModel::PortInfo &port, qreal widthFactor) const = 0;
 
 	/// Draws sound waves during the given amount of time thus showing that the robot plays some sound.
 	virtual void playSound(int timeInMs) = 0;

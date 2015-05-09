@@ -1,3 +1,17 @@
+/* Copyright 2007-2015 QReal Research Group
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License. */
+
 #include "interpreterCore/managers/saveConvertionManager.h"
 
 using namespace interpreterCore;
@@ -141,16 +155,34 @@ qReal::ProjectConverter SaveConvertionManager::from301to302Converter()
 
 ProjectConverter SaveConvertionManager::from302to310Converter()
 {
-	return constructConverter("3.0.2", "3.1.0", { replace( {
-				{ "interpreterBase", "kitBase"}
-				, { "commonTwoDModel", "twoDModel" }
-				, { "nxtKitInterpreter", "nxt" }
-				, { "ev3KitInterpreter", "ev3" }
-				, { "trikKitInterpreter", "trik" }
-				, { "NxtRealRobotModel", "NxtUsbRealRobotModel" }
-				, { "nxtKitRobot", "nxtKitUsbRobot" }
-				, { "TrikRealRobotModelV6", "TrikRealRobotModel" }
-	})});
+	return constructConverter("3.0.2", "3.1.0"
+			, {
+				replace({
+						{ "interpreterBase", "kitBase"}
+						, { "commonTwoDModel", "twoDModel" }
+						, { "nxtKitInterpreter", "nxt" }
+						, { "ev3KitInterpreter", "ev3" }
+						, { "trikKitInterpreter", "trik" }
+						, { "NxtRealRobotModel", "NxtUsbRealRobotModel" }
+						, { "nxtKitRobot", "nxtKitUsbRobot" }
+						, { "TrikRealRobotModelV6", "TrikRealRobotModel" }
+				})
+				, replace({
+						{ "lineSensorX", "lineSensor[0]"}
+						, { "lineSensorSize", "lineSensor[1]" }
+						, { "lineSensorCross", "lineSensor[2]" }
+				})
+				, [] (const Id &block, LogicalModelAssistInterface &logicalApi) {
+					if (block.element() == "RobotsDiagramNode") {
+						const auto worldModel = logicalApi.logicalRepoApi().stringProperty(block, "worldModel");
+						logicalApi.mutableLogicalRepoApi().setMetaInformation("worldModel", worldModel);
+						return true;
+					}
+
+					return false;
+				}
+			}
+	);
 }
 
 bool SaveConvertionManager::isRobotsDiagram(const Id &diagram)

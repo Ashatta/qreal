@@ -1,3 +1,17 @@
+/* Copyright 2007-2015 QReal Research Group
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License. */
+
 #include "editorGenerator.h"
 
 #include <QtCore/QFile>
@@ -91,22 +105,22 @@ QPair<QString, QString> EditorGenerator::generateEditor(Id const &metamodelId, Q
 		return QPair<QString, QString>("", "");
 	}
 
-	try {
-		OutFile outpro(pathToFile + "/" + fileBaseName + ".pro");
-		outpro() << QString("QREAL_XML = %1\n").arg(fileBaseName + ".xml");
-		if (includeProList != "") {
-			outpro() << QString("QREAL_XML_DEPENDS = %1\n").arg(includeProList);
-		}
-		outpro() << QString ("QREAL_EDITOR_PATH = %1\n").arg(editorPath);
-		QString const relativeQRealSourcesPath = calculateRelativeQRealSourcesPath(pathToFile, pathToQRealSource);
-		outpro() << QString ("ROOT = %1\n").arg(relativeQRealSourcesPath);
-		outpro() << "\n";
-		outpro() << QString("include (%1)").arg(relativeQRealSourcesPath + "/plugins/editorsSdk/editorsCommon.pri");
-		outpro() << "\n\n";
-
-		generateTranslations(pathToFile, fileBaseName, relativeQRealSourcesPath);
+	bool fileOpened = false;
+	OutFile outpro(pathToFile + "/" + fileBaseName + ".pro", &fileOpened);
+	outpro() << QString("QREAL_XML = %1\n").arg(fileBaseName + ".xml");
+	if (includeProList != "") {
+		outpro() << QString("QREAL_XML_DEPENDS = %1\n").arg(includeProList);
 	}
-	catch (char *) {
+	outpro() << QString ("QREAL_EDITOR_PATH = %1\n").arg(editorPath);
+	QString const relativeQRealSourcesPath = calculateRelativeQRealSourcesPath(pathToFile, pathToQRealSource);
+	outpro() << QString ("ROOT = %1\n").arg(relativeQRealSourcesPath);
+	outpro() << "\n";
+	outpro() << QString("include (%1)").arg(relativeQRealSourcesPath + "/plugins/editorsSdk/editorsCommon.pri");
+	outpro() << "\n\n";
+
+	generateTranslations(pathToFile, fileBaseName, relativeQRealSourcesPath);
+
+	if (!fileOpened) {
 		mErrorReporter.addCritical(QObject::tr("incorrect file name"));
 	}
 
@@ -328,6 +342,7 @@ void EditorGenerator::createEdge(QDomElement &parent, Id const &id)
 	ensureCorrectness(id, edge, "displayedName", mApi.stringProperty(id, "displayedName"));
 	ensureCorrectness(id, edge, "description", mApi.stringProperty(id, "description"));
 	ensureCorrectness(id, edge, "path", mApi.stringProperty(id, "path"));
+
 	parent.appendChild(edge);
 
 	if (mApi.stringProperty(id, "lineType") != "") {
@@ -502,9 +517,9 @@ void EditorGenerator::setValues(QDomElement &parent, Id const &id)
 	}
 }
 
-void EditorGenerator::setGroupNodes(QDomElement &parent, Id const &id)
+void EditorGenerator::setGroupNodes(QDomElement &parent, const Id &id)
 {
-	for (Id const idChild : mApi.children(id)) {
+	for (const Id &idChild : mApi.children(id)) {
 		if (idChild != Id::rootId()) {
 			QDomElement groupNodeTag = mDocument.createElement("groupNode");
 			ensureCorrectness(idChild, groupNodeTag, "name", mApi.name(idChild));
@@ -512,7 +527,7 @@ void EditorGenerator::setGroupNodes(QDomElement &parent, Id const &id)
 			ensureCorrectness(idChild, groupNodeTag, "xPosition", mApi.property(idChild, "xPosition").toString());
 			ensureCorrectness(idChild, groupNodeTag, "yPosition", mApi.property(idChild, "yPosition").toString());
 
-			Id typeElement = Id::loadFromString(mApi.property(idChild, "type").toString());
+			const Id typeElement = Id::loadFromString(mApi.property(idChild, "type").toString());
 			ensureCorrectness(idChild, groupNodeTag, "type", mApi.name(typeElement));
 
 			parent.appendChild(groupNodeTag);
@@ -665,8 +680,8 @@ void EditorGenerator::setExplosion(QDomElement &parent, Id const &id)
 	IdList const inLinks = mApi.incomingLinks(id);
 	foreach (Id const inLink, inLinks) {
 		if (inLink.element() == "Explosion") {
-			Id const elementId = mApi.from(inLink);
-			QString const typeName = elementId.element();
+			const Id elementId = mApi.from(inLink);
+			const QString typeName = elementId.element();
 			if (typeName == "MetaEntityNode" || typeName == "MetaEntityGroup") {
 				QDomElement target = mDocument.createElement("target");
 				ensureCorrectness(elementId, target, "type", mApi.name(elementId));
@@ -689,7 +704,7 @@ void EditorGenerator::setExplosionProperties(QDomElement &target, Id const &link
 	target.setAttribute("requireImmediateLinkage", mApi.property(linkId, "requireImmediateLinkage").toString());
 }
 
-void EditorGenerator::setDividability(QDomElement &parent, Id const&id)
+void EditorGenerator::setDividability(QDomElement &parent, const Id &id)
 {
 	QDomElement dividability = mDocument.createElement("dividability");
 	parent.appendChild(dividability);

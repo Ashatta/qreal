@@ -1,3 +1,17 @@
+/* Copyright 2007-2015 QReal Research Group
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License. */
+
 #pragma once
 
 #include <QtCore/QString>
@@ -64,6 +78,21 @@ public:
 		Q_UNUSED(deviceType)
 
 		return QRect();
+	}
+
+	/// Returns ports and info of devices that are specific to a particular robot model and non-configurable.
+	virtual QHash<kitBase::robotModel::PortInfo, kitBase::robotModel::DeviceInfo> specialDevices() const
+	{
+		return QHash<kitBase::robotModel::PortInfo, kitBase::robotModel::DeviceInfo>();
+	}
+
+	/// Returns position and direction of a special device image relative to robot image center
+	/// (for example, -1 stands for left or top side, 1 stands for right or bottom side of an image).
+	virtual QPair<QPoint, qreal> specialDeviceConfiguration(const kitBase::robotModel::PortInfo &port) const
+	{
+		Q_UNUSED(port)
+
+		return qMakePair(QPoint(), 0);
 	}
 
 protected:

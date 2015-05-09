@@ -1,4 +1,18 @@
-#include <QtCore/QDebug>
+/* Copyright 2007-2015 QReal Research Group
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License. */
+
+#include <QtWidgets/QMenu>
 #include <QtWidgets/QGraphicsSceneMouseEvent>
 
 #include "abstractScene.h"
@@ -69,8 +83,8 @@ void AbstractScene::setX2andY2(QGraphicsSceneMouseEvent *event)
 void AbstractScene::reshapeItem(QGraphicsSceneMouseEvent *event)
 {
 	setX2andY2(event);
-	if (mGraphicsItem) {
-		if (mGraphicsItem->getDragState() != graphicsUtils::AbstractItem::None) {
+	if (mGraphicsItem && mGraphicsItem->editable()) {
+		if (mGraphicsItem->dragState() != graphicsUtils::AbstractItem::None) {
 			mView->setDragMode(QGraphicsView::NoDrag);
 		}
 		mGraphicsItem->resizeItem(event);
@@ -81,7 +95,7 @@ void AbstractScene::reshapeItem(QGraphicsSceneMouseEvent *event,graphicsUtils::A
 {
 	setX2andY2(event);
 	if (item) {
-		if (item->getDragState() != graphicsUtils::AbstractItem::None) {
+		if (item->dragState() != graphicsUtils::AbstractItem::None) {
 			mView->setDragMode(QGraphicsView::NoDrag);
 		}
 		item->resizeItem(event);
@@ -93,9 +107,25 @@ void AbstractScene::setMoveFlag(QGraphicsSceneMouseEvent *event)
 	QList<QGraphicsItem *> list = items(event->scenePos());
 	foreach (QGraphicsItem *graphicsItem, list){
 		AbstractItem *item = dynamic_cast<graphicsUtils::AbstractItem *>(graphicsItem);
-		if (item) {
+		if (item && item->editable()) {
 			graphicsItem->setFlag(QGraphicsItem::ItemIsMovable, true);
 		}
+	}
+}
+
+void AbstractScene::mousePressEvent(QGraphicsSceneMouseEvent *mouseEvent)
+{
+	QGraphicsScene::mousePressEvent(mouseEvent);
+	if (mouseEvent->button() == Qt::LeftButton) {
+		emit leftButtonPressed();
+	}
+}
+
+void AbstractScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *mouseEvent)
+{
+	QGraphicsScene::mouseReleaseEvent(mouseEvent);
+	if (mouseEvent->button() == Qt::LeftButton) {
+		emit leftButtonReleased();
 	}
 }
 
@@ -108,8 +138,9 @@ void AbstractScene::removeMoveFlag(QGraphicsSceneMouseEvent *event, QGraphicsIte
 			grItem->setFlag(QGraphicsItem::ItemIsMovable, false);
 		}
 	}
+
 	if (item && item != mEmptyRect) {
-		item->setFlag(QGraphicsItem::ItemIsMovable, true);
+		item->setFlag(QGraphicsItem::ItemIsMovable, false);
 	}
 }
 
@@ -131,9 +162,9 @@ void AbstractScene::forPressResize(QGraphicsSceneMouseEvent *event)
 {
 	setX1andY1(event);
 	mGraphicsItem = dynamic_cast<AbstractItem *>(itemAt(event->scenePos(), QTransform()));
-	if (mGraphicsItem) {
+	if (mGraphicsItem && mGraphicsItem->editable()) {
 		mGraphicsItem->changeDragState(mX1, mY1);
-		if (mGraphicsItem->getDragState() != AbstractItem::None) {
+		if (mGraphicsItem->dragState() != AbstractItem::None) {
 			mView->setDragMode(QGraphicsView::NoDrag);
 		}
 	}
@@ -241,6 +272,18 @@ QString AbstractScene::brushColorItems()
 	return mBrushColorItems;
 }
 
+QList<AbstractItem *> AbstractScene::abstractItems(const QPointF &scenePos) const
+{
+	QList<AbstractItem *> result;
+	for (QGraphicsItem * const item : items(scenePos)) {
+		if (AbstractItem * const abstractItem = dynamic_cast<AbstractItem *>(item)) {
+			result << abstractItem;
+		}
+	}
+
+	return result;
+}
+
 void AbstractScene::setPenStyleItems(const QString &text)
 {
 	mPenStyleItems = text;
@@ -264,4 +307,29 @@ void AbstractScene::setBrushStyleItems(const QString &text)
 void AbstractScene::setBrushColorItems(const QString &text)
 {
 	mBrushColorItems = text;
+}
+
+void AbstractScene::addAction(QAction * const action)
+{
+	mActions << action;
+	mView->addAction(action);
+}
+
+void AbstractScene::addActions(const QList<QAction *> &actions)
+{
+	mActions << actions;
+	mView->addActions(actions);
+}
+
+void AbstractScene::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
+{
+	if (abstractItems(event->scenePos()).isEmpty()) {
+		QMenu menu;
+		menu.addActions(mActions);
+		if (!menu.isEmpty()) {
+			menu.exec(event->screenPos());
+		}
+	} else {
+		QGraphicsScene::contextMenuEvent(event);
+	}
 }

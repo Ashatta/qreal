@@ -1,3 +1,17 @@
+/* Copyright 2007-2015 QReal Research Group
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License. */
+
 #include "paletteTreeWidgets.h"
 
 #include "palette/paletteTree.h"
@@ -7,27 +21,29 @@ using namespace qReal;
 using namespace gui;
 
 PaletteTreeWidgets::PaletteTreeWidgets(PaletteTree &parent, models::Models &models
-		, EditorManagerInterface &editorManagerProxy)
+		, EditorManagerInterface &editorManagerProxy, const QList<QAction *> &additionalActions)
 	: QSplitter(Qt::Vertical)
 	, mEditorManager(&editorManagerProxy)
 	, mParentPalette(&parent)
 	, mModels(models)
-	, mEditorTree(new PaletteTreeWidget(parent, editorManagerProxy, false))
-	, mUserTree(new PaletteTreeWidget(parent, editorManagerProxy, true))
+	, mEditorTree(new PaletteTreeWidget(parent, editorManagerProxy, false, additionalActions))
+	, mUserTree(new PaletteTreeWidget(parent, editorManagerProxy, true, additionalActions))
+	, mAdditionalActions(additionalActions)
 {
 	initWidgets();
 }
 
 PaletteTreeWidgets::PaletteTreeWidgets(PaletteTree &parent, models::Models &models
 		, EditorManagerInterface &editorManagerProxy
-		, const Id &editor, const Id &diagram)
+		, const Id &editor, const Id &diagram, const QList<QAction *> &additionalActions)
 	: QSplitter(Qt::Vertical)
 	, mParentPalette(&parent)
 	, mModels(models)
 	, mEditor(editor)
 	, mDiagram(diagram)
-	, mEditorTree(new PaletteTreeWidget(parent, editorManagerProxy, false))
-	, mUserTree(new PaletteTreeWidget(parent, editorManagerProxy, true))
+	, mEditorTree(new PaletteTreeWidget(parent, editorManagerProxy, false, additionalActions))
+	, mUserTree(new PaletteTreeWidget(parent, editorManagerProxy, true, additionalActions))
+	, mAdditionalActions(additionalActions)
 {
 	mEditorManager = &editorManagerProxy;
 	initWidgets();
@@ -251,7 +267,7 @@ void PaletteTreeWidgets::refreshUserPalette()
 
 DraggableElement *PaletteTreeWidgets::createDraggableElement(const PaletteElement &paletteElement, bool iconsOnly)
 {
-	DraggableElement *element = new DraggableElement(paletteElement, iconsOnly, *mEditorManager);
+	DraggableElement *element = new DraggableElement(paletteElement, iconsOnly, *mEditorManager, mAdditionalActions);
 
 	connect(element, &DraggableElement::requestForPropertiesChange
 			, this, &PaletteTreeWidgets::requestForPropertiesChange);
@@ -261,4 +277,16 @@ DraggableElement *PaletteTreeWidgets::createDraggableElement(const PaletteElemen
 			, this, &PaletteTreeWidgets::requestForElementDeletion);
 
 	return element;
+}
+
+void PaletteTreeWidgets::setAdditionalActions(const QList<QAction *> &additionalActions)
+{
+	mAdditionalActions = additionalActions;
+
+	mEditorTree->setAdditionalActions(additionalActions);
+	mUserTree->setAdditionalActions(additionalActions);
+
+	for (DraggableElement * element : mPaletteElements.values()) {
+		element->setAdditionalActions(additionalActions);
+	}
 }
