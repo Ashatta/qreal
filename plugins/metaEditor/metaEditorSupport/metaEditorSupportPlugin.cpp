@@ -366,18 +366,83 @@ qrRepo::RepoApi *MetaEditorSupportPlugin::migrationLanguageForVersion(int versio
 			repo->setProperty(anyNodeId, "isResizeable", true);
 			repo->setProperty(anyNodeId, "shape"
 					, "<graphics>\n"
-					"    <picture sizex=\"50\" sizey=\"50\">\n"
-					"        <rectangle fill=\"#ffffff\" stroke-style=\"solid\" stroke=\"#000000\" y1=\"0\" "
-					"x1=\"0\" y2=\"50\" stroke-width=\"1\" x2=\"50\" fill-style=\"solid\"/>\n"
-					"    </picture>\n"
+					"	<picture sizex=\"150\" sizey=\"100\">\n"
+					"		<line fill=\"#000000\" stroke-style=\"solid\" stroke=\"#2f4f4f\""
+					"y1=\"0\" x1=\"0\" y2=\"100\" stroke-width=\"2\" x2=\"0\" fill-style=\"solid\"/>\n"
+					"		<line fill=\"#000000\" stroke-style=\"solid\" stroke=\"#2f4f4f\""
+					"y1=\"0\" x1=\"150\" y2=\"100\" stroke-width=\"2\" x2=\"150\" fill-style=\"solid\"/>\n"
+					"		<line fill=\"#000000\" stroke-style=\"solid\" stroke=\"#2f4f4f\""
+					"y1=\"0\" x1=\"0\" y2=\"0\" stroke-width=\"2\" x2=\"150\" fill-style=\"solid\"/>\n"
+					"		<line fill=\"#000000\" stroke-style=\"solid\" stroke=\"#2f4f4f\""
+					"y1=\"100\" x1=\"0\" y2=\"100\" stroke-width=\"2\" x2=\"150\" fill-style=\"solid\"/>\n"
+					"		<line fill=\"#000000\" stroke-style=\"solid\" stroke=\"#2f4f4f\""
+					"y1=\"25a\" x1=\"0a\" y2=\"25a\" stroke-width=\"2\" x2=\"150\" fill-style=\"solid\"/>\n"
+					"	</picture>\n"
+					"	<labels>\n"
+					"		<label x=\"5\" y=\"3\" textBinded=\"TypeName\" center=\"true\"/>\n"
+					"	</labels>\n"
 					"    <ports>\n"
-					"        <pointPort x=\"0\" y=\"25\"/>\n"
-					"        <pointPort x=\"50\" y=\"25\"/>\n"
-					"        <pointPort x=\"25\" y=\"0\"/>\n"
-					"        <pointPort x=\"25\" y=\"50\"/>\n"
+					"        <pointPort x=\"0\" y=\"50\"/>\n"
+					"        <pointPort x=\"150\" y=\"50\"/>\n"
+					"        <pointPort x=\"75\" y=\"0\"/>\n"
+					"        <pointPort x=\"75\" y=\"100\"/>\n"
 					"    </ports>\n"
 					"</graphics>\n"
 			);
+
+			const Id typePropertyId("MetaEditor", "MetaEditor", "MetaEntity_Attribute", QUuid::createUuid().toString());
+			repo->addChild(anyNodeId, typePropertyId);
+			repo->setName(typePropertyId, "TypeName");
+			repo->setProperty(typePropertyId, "attributeType", "string");
+			repo->setProperty(typePropertyId, "displayedName", "Type Name");
+			repo->setProperty(typePropertyId, "defaultValue", "");
+
+			const Id anyPropertyId("MetaEditor", "MetaEditor", "MetaEntityNode", QUuid::createUuid().toString());
+			repo->addChild(diagram, anyPropertyId);
+			repo->setName(anyPropertyId, "AnyProperty");
+			repo->setProperty(anyPropertyId, "displayedName", "Any Property");
+			repo->setProperty(anyPropertyId, "isResizeable", true);
+			repo->setProperty(anyPropertyId, "shape"
+					, "<graphics>\n"
+					"	<picture sizex=\"140\" sizey=\"30\">\n"
+					"	</picture>\n"
+					"	<labels>\n"
+					"		<label x=\"10\" y=\"0\" textBinded=\"Name\"/>\n"
+					  "		<label x=\"70\" y=\"0\" textBinded=\"Value\"/>\n"
+					"	</labels>\n"
+					"	<ports/>\n"
+					"</graphics>\n"
+			);
+
+			const Id anyPropertyName("MetaEditor", "MetaEditor", "MetaEntity_Attribute", QUuid::createUuid().toString());
+			repo->addChild(anyPropertyId, anyPropertyName);
+			repo->setName(anyPropertyName, "Name");
+			repo->setProperty(anyPropertyName, "attributeType", "string");
+			repo->setProperty(anyPropertyName, "displayedName", "Name");
+			repo->setProperty(anyPropertyName, "defaultValue", "");
+
+			const Id anyPropertyValue("MetaEditor", "MetaEditor", "MetaEntity_Attribute", QUuid::createUuid().toString());
+			repo->addChild(anyPropertyId, anyPropertyValue);
+			repo->setName(anyPropertyValue, "Value");
+			repo->setProperty(anyPropertyValue, "attributeType", "string");
+			repo->setProperty(anyPropertyValue, "displayedName", "Value");
+			repo->setProperty(anyPropertyValue, "defaultValue", "");
+
+			const Id containerProperties("MetaEditor", "MetaEditor", "MetaEntityPropertiesAsContainer"
+					, QUuid::createUuid().toString());
+			repo->addChild(anyNodeId, containerProperties);
+			repo->setName(containerProperties, "ContainerProperties");
+			repo->setProperty(containerProperties, "sortContainer", true);
+			repo->setProperty(containerProperties, "minimizeToChildren", true);
+			repo->setProperty(containerProperties, "banChildrenMove", true);
+			repo->setProperty(containerProperties, "forestallingSize", "10,30,10,10");
+			repo->setProperty(containerProperties, "childrenForestallingSize", "5");
+
+			const Id container("MetaEditor", "MetaEditor", "Container", QUuid::createUuid().toString());
+			repo->addChild(diagram, container);
+			repo->setName(container, "Container");
+			repo->setTo(container, anyPropertyId);
+			repo->setFrom(container, anyNodeId);
 
 			const Id anyEdgeId("MetaEditor", "MetaEditor", "MetaEntityEdge", QUuid::createUuid().toString());
 			repo->addChild(diagram, anyEdgeId);
@@ -385,6 +450,13 @@ qrRepo::RepoApi *MetaEditorSupportPlugin::migrationLanguageForVersion(int versio
 			repo->setProperty(anyEdgeId, "displayedName", "Any Edge");
 			repo->setProperty(anyEdgeId, "lineType", "solidLine");
 			repo->setProperty(anyEdgeId, "labelText", "");
+
+			const Id edgeTypeId("MetaEditor", "MetaEditor", "MetaEntity_Attribute", QUuid::createUuid().toString());
+			repo->addChild(anyEdgeId, edgeTypeId);
+			repo->setName(edgeTypeId, "TypeName");
+			repo->setProperty(edgeTypeId, "attributeType", "string");
+			repo->setProperty(edgeTypeId, "displayedName", "Type Name");
+			repo->setProperty(edgeTypeId, "defaultValue", "");
 
 			for (const Id &node : repo->children(diagram)) {
 				if (node.type() == Id("MetaEditor", "MetaEditor", "MetaEntityNode")

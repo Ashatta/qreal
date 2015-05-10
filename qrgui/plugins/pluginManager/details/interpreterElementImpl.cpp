@@ -521,15 +521,22 @@ bool InterpreterElementImpl::isSortingContainer() const
 QVector<int> InterpreterElementImpl::getSizeOfContainerProperty(const QString &property) const
 {
 	QVector<int> size(4, 0);
-	const QDomElement propertiesElement =
-			mGraphics.firstChildElement("logic").firstChildElement("container").firstChildElement("properties");
-	if (propertiesElement.hasChildNodes()) {
-		if (!propertiesElement.firstChildElement(property).isNull()) {
-			const QStringList sizeStr = propertiesElement.firstChildElement(property).attribute("size").split(',');
-			for (int i = 0; i < sizeStr.size(); i++) {
-				size[i] = sizeStr[i].toInt();
-			}
+	for (const Id child : mEditorRepoApi->children(mId)) {
+		if (child.type() != Id("MetaEditor", "MetaEditor", "MetaEntityPropertiesAsContainer")) {
+			continue;
 		}
+
+		if (!mEditorRepoApi->hasProperty(child, property)
+				|| mEditorRepoApi->stringProperty(child, property).isEmpty()) {
+			continue;
+		}
+
+		const QStringList values = mEditorRepoApi->stringProperty(child, property).split(',');
+		for (int i = 0; i < values.size(); i++) {
+			size[i] = values[i].toInt();
+		}
+
+		break;
 	}
 
 	return size;
