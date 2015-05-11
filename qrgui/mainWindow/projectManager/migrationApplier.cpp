@@ -46,7 +46,7 @@ bool MigrationApplier::runUserMigrations(const EditorManagerInterface &editorMan
 			QScopedPointer<qrRepo::RepoApi> toTemplate(new qrRepo::RepoApi("temp2", false, false));
 
 			GraphTransformation transformation(model->logicalModelAssistApi(), model->graphicalModelAssistApi()
-					, *fromTemplate.data(), *toTemplate.data());
+					, *fromTemplate.data(), *toTemplate.data(), getTypes(editor, editorManager));
 			transformation.apply();
 			createdElements << transformation.createdElements();
 
@@ -68,4 +68,14 @@ void MigrationApplier::initTemporaryMigrationFiles(const Migration &migration)
 	QFile file2("temp2");
 	file2.open(QIODevice::WriteOnly);
 	file2.write(migration.mToData);
+}
+
+qReal::IdList MigrationApplier::getTypes(const QString &editor, const EditorManagerInterface &editorManager)
+{
+	IdList result;
+	for (const Id &diagram : editorManager.diagrams(Id(editor))) {
+		result << editorManager.elements(diagram);
+	}
+
+	return result;
 }

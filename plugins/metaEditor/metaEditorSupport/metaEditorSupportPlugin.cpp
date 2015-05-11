@@ -416,9 +416,9 @@ qrRepo::RepoApi *MetaEditorSupportPlugin::migrationLanguageForVersion(int versio
 
 			const Id anyPropertyName("MetaEditor", "MetaEditor", "MetaEntity_Attribute", QUuid::createUuid().toString());
 			repo->addChild(anyPropertyId, anyPropertyName);
-			repo->setName(anyPropertyName, "Name");
+			repo->setName(anyPropertyName, "PropertyName");
 			repo->setProperty(anyPropertyName, "attributeType", "string");
-			repo->setProperty(anyPropertyName, "displayedName", "Name");
+			repo->setProperty(anyPropertyName, "displayedName", "Property Name");
 			repo->setProperty(anyPropertyName, "defaultValue", "");
 
 			const Id anyPropertyValue("MetaEditor", "MetaEditor", "MetaEntity_Attribute", QUuid::createUuid().toString());

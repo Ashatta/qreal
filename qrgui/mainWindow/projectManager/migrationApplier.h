@@ -16,6 +16,7 @@ public:
 
 private:
 	static void initTemporaryMigrationFiles(const Migration &migration);
+	static IdList getTypes(const QString &editor, const EditorManagerInterface &editorManager);
 };
 
 }
