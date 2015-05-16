@@ -1,6 +1,7 @@
 #pragma once
 
 #include <qrutils/graphUtils/baseGraphTransformationUnit.h>
+#include <qrutils/migration/migration.h>
 #include <qrgui/plugins/toolPluginInterface/usedInterfaces/logicalModelAssistInterface.h>
 #include <qrgui/plugins/toolPluginInterface/usedInterfaces/graphicalModelAssistInterface.h>
 #include <qrrepo/graphicalRepoApi.h>
@@ -15,7 +16,7 @@ public:
 			, GraphicalModelAssistInterface &graphicalRepoApi
 			, qrRepo::GraphicalRepoApi &fromTemplate
 			, qrRepo::GraphicalRepoApi &toTemplate
-			, const IdList &allowedTypes);
+			, const IdList &allowedTypes, qReal::migration::Migration::Policy policy);
 
 	void apply();
 	IdList createdElements() const;
@@ -38,6 +39,8 @@ private:
 	void elementsFromTemplate(QHash<QString, Id> &elements, qrRepo::GraphicalRepoApi &migrationTemplate
 			, const Id &root);
 	Id migrationDiagram(qrRepo::GraphicalRepoApi &migrationTemplate) const;
+
+	void resolveOverlaps();
 
 	void saveProperties();
 	void addPropertyValue(const QString &migrationId, const QString &propertyName
@@ -69,6 +72,7 @@ private:
 	QList<QString> mIgnoreProperties;
 
 	IdList mCreatedElements;
+	bool mRepeat;
 };
 
 }

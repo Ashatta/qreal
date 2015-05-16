@@ -8,6 +8,7 @@ VersionChooserDialog::VersionChooserDialog(QMap<int, QString> const &versions, Q
 	, ui(new Ui::VersionChooserDialog)
 {
 	ui->setupUi(this);
+	setWindowTitle(tr("Create new migration"));
 
 	for (int version : versions.keys()) {
 		ui->fromComboBox->addItem(versions[version], version);

@@ -16,6 +16,7 @@ MigrationDialog::MigrationDialog(const QString &name, int fromVersion, const QSt
 	, mMigrationIndex(-1)
 {
 	ui->setupUi(this);
+	setWindowTitle(mMigrationName);
 
 	mFromEditor = new MigrationEditor(languageName, fromRepo, ui->fromWidget);
 	mToEditor = new MigrationEditor(languageName, toRepo, ui->toWidget);
@@ -32,7 +33,10 @@ void MigrationDialog::onAccept()
 {
 	qReal::migration::Migration result(mMigrationName, mFromVersion, mToVersion
 			, mFromVersionName, mToVersionName, mFromEditor->serializedData()
-			, mToEditor->serializedData());
+			, mToEditor->serializedData()
+			, ui->policyComboBox->currentIndex() == 0
+					? qReal::migration::Migration::applyOnce
+					: qReal::migration::Migration::fixedPoint);
 	emit migrationCreated(result, mMigrationIndex);
 }
 
@@ -42,4 +46,6 @@ void MigrationDialog::setMigration(const migration::Migration &migration, int id
 	mToEditor->load(migration.mToData);
 	mMigrationIndex = idx;
 	mMigrationName = migration.mName;
+	setWindowTitle(mMigrationName);
+	ui->policyComboBox->setCurrentIndex(migration.mPolicy == qReal::migration::Migration::applyOnce ? 0 : 1);
 }

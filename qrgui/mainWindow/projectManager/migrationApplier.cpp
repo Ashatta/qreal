@@ -46,7 +46,7 @@ bool MigrationApplier::runUserMigrations(const EditorManagerInterface &editorMan
 			QScopedPointer<qrRepo::RepoApi> toTemplate(new qrRepo::RepoApi("temp2", false, false));
 
 			GraphTransformation transformation(model->logicalModelAssistApi(), model->graphicalModelAssistApi()
-					, *fromTemplate.data(), *toTemplate.data(), getTypes(editor, editorManager));
+					, *fromTemplate.data(), *toTemplate.data(), getTypes(editor, editorManager), migration.mPolicy);
 			transformation.apply();
 			createdElements << transformation.createdElements();
 

@@ -13,6 +13,11 @@ namespace migration {
 class QRUTILS_EXPORT Migration
 {
 public:
+	enum Policy {
+		applyOnce
+		, fixedPoint
+	};
+
 	Migration() {}
 
 	Migration(const QString &name
@@ -21,7 +26,8 @@ public:
 			, const QString &fromVersionName
 			, const QString &toVersionName
 			, const QByteArray &fromData
-			, const QByteArray &toData)
+			, const QByteArray &toData
+			, Policy policy)
 		: mName(name)
 		, mFromVersion(fromVersion)
 		, mToVersion(toVersion)
@@ -29,6 +35,7 @@ public:
 		, mToVersionName(toVersionName)
 		, mFromData(fromData)
 		, mToData(toData)
+		, mPolicy(policy)
 	{}
 
 	QVariant toVariant() const
@@ -45,6 +52,7 @@ public:
 	QString mToVersionName;
 	QByteArray mFromData;
 	QByteArray mToData;
+	Policy mPolicy;
 };
 
 inline bool operator<(const Migration &first, const Migration &second)

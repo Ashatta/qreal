@@ -262,6 +262,8 @@ void Serializer::saveMigrations(const QList<qReal::migration::Migration> &migrat
 		root.setAttribute("toVersion", migration.mToVersion);
 		root.setAttribute("fromVersionName", migration.mFromVersionName);
 		root.setAttribute("toVersionName", migration.mToVersionName);
+		root.setAttribute("policy"
+				, migration.mPolicy == qReal::migration::Migration::applyOnce ? "applyOnce" : "fixedPoint");
 		document.save(migrationInfo(), QDomNode::EncodingFromTextStream);
 
 		QFile outFrom(dirPath + "/from.qrs");
@@ -300,7 +302,11 @@ void Serializer::loadMigrations(QList<qReal::migration::Migration> &migrations) 
 				, root.attribute("fromVersion").toInt()
 				, root.attribute("toVersion").toInt()
 				, root.attribute("fromVersionName"), root.attribute("toVersionName")
-				, inFrom.readAll(), inTo.readAll());
+				, inFrom.readAll(), inTo.readAll()
+				, root.attribute("policy") == "fixedPoint"
+						? qReal::migration::Migration::fixedPoint
+						: qReal::migration::Migration::applyOnce
+		);
 	}
 }
 

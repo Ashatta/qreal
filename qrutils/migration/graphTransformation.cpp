@@ -10,11 +10,13 @@ GraphTransformation::GraphTransformation(LogicalModelAssistInterface &logicalRep
 		, GraphicalModelAssistInterface &graphicalRepoApi
 		, qrRepo::GraphicalRepoApi &fromTemplate
 		, qrRepo::GraphicalRepoApi &toTemplate
-		, const IdList &allowedTypes)
+		, const IdList &allowedTypes
+		, qReal::migration::Migration::Policy policy)
 	: BaseGraphTransformationUnit(logicalRepoApi, graphicalRepoApi, nullptr)
 	, mFromTemplate(fromTemplate)
 	, mToTemplate(toTemplate)
 	, mAllowedTypes(allowedTypes)
+	, mRepeat(policy == qReal::migration::Migration::fixedPoint)
 {
 	mIgnoreProperties = { "from", "links", "name", "to", "fromPort", "toPort", "__migrationId__"
 			, "outgoingExplosion", "incomingExplosions", "position", "configuration"
@@ -28,7 +30,8 @@ void GraphTransformation::apply()
 	analyzeTemplates();
 
 	findMatch();
-//	while (findMatch()) {
+	do {
+		resolveOverlaps();
 		for (const QHash<Id, Id> &match : mMatches) {
 			mCurrentMatch = match;
 			saveProperties();
@@ -41,7 +44,7 @@ void GraphTransformation::apply()
 			setLinksGraphicalProperties(diagram);
 			deleteElements();
 		}
-//	}
+	} while (mRepeat && findMatch());
 }
 
 void GraphTransformation::analyzeTemplates()
@@ -210,6 +213,25 @@ qReal::Id GraphTransformation::migrationDiagram(qrRepo::GraphicalRepoApi &migrat
 	}
 
 	return result;
+}
+
+void GraphTransformation::resolveOverlaps()
+{
+	QSet<Id> occupiedElements;
+	for (const QHash<Id, Id> &match : mMatches) {
+		bool notOverlapping = true;
+		for (const Id &element : match.values()) {
+			if (occupiedElements.contains(element)) {
+				notOverlapping = false;
+				mMatches.removeAll(match);
+				break;
+			}
+		}
+
+		if (notOverlapping) {
+			occupiedElements.unite(match.values().toSet());
+		}
+	}
 }
 
 void GraphTransformation::saveProperties()
