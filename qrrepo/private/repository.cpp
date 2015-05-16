@@ -651,12 +651,9 @@ QMap<int, QString> Repository::versionNames() const
 	return mLogger->versionNames();
 }
 
-void Repository::addMigration(int fromVersion, int toVersion
-	, const QString &fromVersionName, const QString &toVersionName
-	, const QByteArray &fromData, const QByteArray &toData)
+void Repository::setMigrations(const QList<qReal::migration::Migration> &migrations)
 {
-	mMigrations << qReal::migration::Migration(fromVersion, toVersion, fromVersionName, toVersionName
-			, fromData, toData);
+	mMigrations = migrations;
 }
 
 QList<qReal::migration::Migration> Repository::migrations()

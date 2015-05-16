@@ -37,29 +37,7 @@ MigrationEditor::MigrationEditor(const QString &languageName
 	}
 
 	Id const diagramId = mModels.graphicalModelAssistApi().idByIndex(index);
-	mEditorView = new EditorView(mModels, mController, mSceneCustomizer, diagramId, ui->editorWidget);
-	mController.diagramOpened(diagramId);
-	mController.setActiveDiagram(diagramId);
-
-	mEditorView->mutableMvIface().configure(mModels.graphicalModelAssistApi()
-			, mModels.logicalModelAssistApi(), mModels.exploser());
-
-	mEditorView->mutableMvIface().setModel(mModels.graphicalModel());
-	if (mEditorView->sceneRect() == QRectF(0, 0, 0, 0)) {
-		mEditorView->setSceneRect(0, 0, 1, 1);
-	}
-
-	mEditorView->mutableMvIface().setLogicalModel(mModels.logicalModel());
-	mEditorView->mutableMvIface().setRootIndex(index);
-
-	connect(mEditorView->scene(), SIGNAL(selectionChanged()), SLOT(sceneSelectionChanged()));
-	connect(mModels.graphicalModel(), SIGNAL(rowsAboutToBeMoved(QModelIndex, int, int, QModelIndex, int))
-			, &mEditorView->mvIface(), SLOT(rowsAboutToBeMoved(QModelIndex, int, int, QModelIndex, int)));
-	connect(mModels.graphicalModel(), SIGNAL(rowsMoved(QModelIndex, int, int, QModelIndex, int))
-			, &mEditorView->mvIface(), SLOT(rowsMoved(QModelIndex, int, int, QModelIndex, int)));
-
-	mEditorView->mutableScene().initNodes();
-	mEditorView->centerOn(mEditorView->scene()->sceneRect().topLeft());
+	initEditorView(diagramId);
 
 	if (SettingsManager::value("PaletteTabSwitching").toBool()) {
 		int i = 0;
@@ -93,6 +71,36 @@ MigrationEditor::MigrationEditor(const QString &languageName
 MigrationEditor::~MigrationEditor()
 {
 	delete ui;
+}
+
+void MigrationEditor::load(const QByteArray &data)
+{
+	const QString tempFile = "tempMigrationFile.qrs";
+	QFile outFile(tempFile);
+	outFile.open(QIODevice::WriteOnly);
+	outFile.write(data);
+	outFile.close();
+
+	mModels.repoControlApi().open(tempFile);
+	mModels.reinit();
+	mPropertyModel.setSourceModels(mModels.logicalModel(), mModels.graphicalModel());
+	ui->paletteTree->refreshUserPalettes();
+
+	const Id rootId = mModels.graphicalModelAssistApi().rootId();
+	const IdList rootIds = mModels.graphicalModelAssistApi().children(rootId);
+	if (rootIds.count() == 0) {
+		return;
+	}
+
+	for (const Id &diagramId : rootIds) {
+		if (mModels.graphicalRepoApi().isGraphicalElement(diagramId)) {
+			delete mEditorView;
+			initEditorView(diagramId);
+			break;
+		}
+	}
+
+	outFile.remove();
 }
 
 void MigrationEditor::sceneSelectionChanged()
@@ -148,4 +156,31 @@ QByteArray MigrationEditor::serializedData()
 	QByteArray result = inFile.readAll();
 	inFile.remove();
 	return result;
+}
+
+void MigrationEditor::initEditorView(const Id &diagramId)
+{
+	mEditorView = new EditorView(mModels, mController, mSceneCustomizer, diagramId, ui->editorWidget);
+	mController.diagramOpened(diagramId);
+	mController.setActiveDiagram(diagramId);
+
+	mEditorView->mutableMvIface().configure(mModels.graphicalModelAssistApi()
+			, mModels.logicalModelAssistApi(), mModels.exploser());
+
+	mEditorView->mutableMvIface().setModel(mModels.graphicalModel());
+	if (mEditorView->sceneRect() == QRectF(0, 0, 0, 0)) {
+		mEditorView->setSceneRect(0, 0, 1, 1);
+	}
+
+	mEditorView->mutableMvIface().setLogicalModel(mModels.logicalModel());
+	mEditorView->mutableMvIface().setRootIndex(mModels.graphicalModelAssistApi().indexById(diagramId));
+
+	connect(mEditorView->scene(), SIGNAL(selectionChanged()), SLOT(sceneSelectionChanged()));
+	connect(mModels.graphicalModel(), SIGNAL(rowsAboutToBeMoved(QModelIndex, int, int, QModelIndex, int))
+			, &mEditorView->mvIface(), SLOT(rowsAboutToBeMoved(QModelIndex, int, int, QModelIndex, int)));
+	connect(mModels.graphicalModel(), SIGNAL(rowsMoved(QModelIndex, int, int, QModelIndex, int))
+			, &mEditorView->mvIface(), SLOT(rowsMoved(QModelIndex, int, int, QModelIndex, int)));
+
+	mEditorView->mutableScene().initNodes();
+	mEditorView->centerOn(mEditorView->scene()->sceneRect().topLeft());
 }

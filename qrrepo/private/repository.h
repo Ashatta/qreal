@@ -148,9 +148,8 @@ public:
 	virtual void rollBackTo(int version);
 	virtual void createNewVersion(QString const &versionName);
 	virtual QMap<int, QString> versionNames() const;
-	virtual void addMigration(int fromVersion, int toVersion
-				, const QString &fromVersionName, const QString &toVersionName
-				, const QByteArray &fromData, const QByteArray &toData);
+
+	virtual void setMigrations(const QList<qReal::migration::Migration> &migrations);
 	virtual QList<qReal::migration::Migration> migrations();
 
 	virtual int version() const;

@@ -26,10 +26,14 @@ public:
 
 	QByteArray serializedData();
 
+	void load(const QByteArray &data);
+
 private slots:
 	void sceneSelectionChanged();
 
 private:
+	void initEditorView(const qReal::Id &diagramId);
+
 	Ui::MigrationEditor *ui;
 
 	QString mLanguageName;

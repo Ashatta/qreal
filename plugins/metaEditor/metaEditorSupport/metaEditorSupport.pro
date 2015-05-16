@@ -31,7 +31,8 @@ HEADERS += \
 	compilerPage.h \
 	versionChooserDialog.h \
 	migrationDialog.h \
-	migrationEditor.h
+	migrationEditor.h \
+	migrationManager.h
 
 SOURCES += \
 	metaEditorSupportPlugin.cpp \
@@ -40,13 +41,15 @@ SOURCES += \
 	compilerPage.cpp \
 	versionChooserDialog.cpp \
 	migrationDialog.cpp \
-	migrationEditor.cpp
+	migrationEditor.cpp \
+	migrationManager.cpp
 
 FORMS += \
 	compilerPage.ui \
 	versionchooserdialog.ui \
 	migrationDialog.ui \
-	migrationEditor.ui
+	migrationEditor.ui \
+	migrationManager.ui
 
 TRANSLATIONS = $$PWD/../../../qrtranslations/ru/plugins/metaEditorSupport_ru.ts
 

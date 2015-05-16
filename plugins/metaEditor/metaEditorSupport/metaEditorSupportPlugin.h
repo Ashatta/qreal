@@ -76,7 +76,6 @@ private:
 			);
 
 	bool checkModel();
-	qrRepo::RepoApi *migrationLanguageForVersion(int version);
 
 	/// Action that starts generation of .xml file with metamodel for qrxc
 	QAction mGenerateEditorForQrxcAction;
@@ -89,7 +88,7 @@ private:
 
 	QAction mCommitNewVersionAction;
 
-	QAction mCreateMigrationAction;
+	QAction mEditMigrationsAction;
 
 	/// Interface of MainWindow, used, for example, to reinit models when finished parsing
 	qReal::gui::MainWindowInterpretersInterface *mMainWindowInterface;  // Does not have ownership

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <QtCore/QMetaType>
+#include <QtCore/QVariant>
 #include <QtCore/QString>
 
 #include <qrutils/utilsDeclSpec.h>
@@ -11,13 +13,17 @@ namespace migration {
 class QRUTILS_EXPORT Migration
 {
 public:
-	Migration(int fromVersion
+	Migration() {}
+
+	Migration(const QString &name
+			, int fromVersion
 			, int toVersion
 			, const QString &fromVersionName
 			, const QString &toVersionName
 			, const QByteArray &fromData
 			, const QByteArray &toData)
-		: mFromVersion(fromVersion)
+		: mName(name)
+		, mFromVersion(fromVersion)
 		, mToVersion(toVersion)
 		, mFromVersionName(fromVersionName)
 		, mToVersionName(toVersionName)
@@ -25,6 +31,14 @@ public:
 		, mToData(toData)
 	{}
 
+	QVariant toVariant() const
+	{
+		QVariant result;
+		result.setValue(*this);
+		return result;
+	}
+
+	QString mName;
 	int mFromVersion;
 	int mToVersion;
 	QString mFromVersionName;
@@ -40,3 +54,5 @@ inline bool operator<(const Migration &first, const Migration &second)
 
 }
 }
+
+Q_DECLARE_METATYPE(qReal::migration::Migration)

@@ -79,9 +79,7 @@ public:
 
 	virtual QMap<int, QString> versionNames() const = 0;
 
-	virtual void addMigration(int fromVersion, int toVersion
-			, const QString &fromVersionName, const QString &toVersionName
-			, const QByteArray &fromData, const QByteArray &toData) = 0;
+	virtual void setMigrations(const QList<qReal::migration::Migration> &migrations) = 0;
 
 	virtual QList<qReal::migration::Migration> migrations() = 0;
 

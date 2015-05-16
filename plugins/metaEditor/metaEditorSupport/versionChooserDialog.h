@@ -18,7 +18,7 @@ public:
 	~VersionChooserDialog();
 
 signals:
-	void versionChosen(const QString &fromName, int from, const QString &toName, int to);
+	void versionChosen(const QString &name, const QString &fromName, int from, const QString &toName, int to);
 
 private slots:
 	void onAccept();

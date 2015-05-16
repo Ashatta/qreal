@@ -3,9 +3,9 @@
 
 using namespace metaEditor;
 
-VersionChooserDialog::VersionChooserDialog(QMap<int, QString> const &versions, QWidget *parent) :
-	QDialog(parent),
-	ui(new Ui::VersionChooserDialog)
+VersionChooserDialog::VersionChooserDialog(QMap<int, QString> const &versions, QWidget *parent)
+	: QDialog(parent)
+	, ui(new Ui::VersionChooserDialog)
 {
 	ui->setupUi(this);
 
@@ -24,6 +24,7 @@ VersionChooserDialog::~VersionChooserDialog()
 
 void VersionChooserDialog::onAccept()
 {
-	emit versionChosen(ui->fromComboBox->currentText(), ui->fromComboBox->currentData().toInt()
+	emit versionChosen(ui->name->text().isEmpty() ? "Migration Rule" : ui->name->text()
+			, ui->fromComboBox->currentText(), ui->fromComboBox->currentData().toInt()
 			, ui->toComboBox->currentText(), ui->toComboBox->currentData().toInt());
 }

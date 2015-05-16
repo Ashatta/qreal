@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>281</width>
-    <height>100</height>
+    <width>279</width>
+    <height>147</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,7 +17,7 @@
    <property name="geometry">
     <rect>
      <x>80</x>
-     <y>60</y>
+     <y>110</y>
      <width>181</width>
      <height>20</height>
     </rect>
@@ -33,7 +33,7 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>20</y>
+     <y>70</y>
      <width>111</width>
      <height>21</height>
     </rect>
@@ -43,10 +43,33 @@
    <property name="geometry">
     <rect>
      <x>150</x>
-     <y>20</y>
+     <y>70</y>
      <width>111</width>
      <height>21</height>
     </rect>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="name">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>30</y>
+     <width>241</width>
+     <height>22</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QLabel" name="nameLabel">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>10</y>
+     <width>71</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Rule name</string>
    </property>
   </widget>
  </widget>

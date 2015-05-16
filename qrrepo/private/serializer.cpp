@@ -257,6 +257,7 @@ void Serializer::saveMigrations(const QList<qReal::migration::Migration> &migrat
 		QDomDocument document;
 		QDomElement root = document.createElement("migrationInfo");
 		document.appendChild(root);
+		root.setAttribute("name", migration.mName);
 		root.setAttribute("fromVersion", migration.mFromVersion);
 		root.setAttribute("toVersion", migration.mToVersion);
 		root.setAttribute("fromVersionName", migration.mFromVersionName);
@@ -295,7 +296,8 @@ void Serializer::loadMigrations(QList<qReal::migration::Migration> &migrations) 
 
 		QDomDocument document = xmlUtils::loadDocument(dirPath + "/migrationInfo.xml");
 		QDomElement root = document.firstChildElement("migrationInfo");
-		migrations << qReal::migration::Migration(root.attribute("fromVersion").toInt()
+		migrations << qReal::migration::Migration(root.attribute("name")
+				, root.attribute("fromVersion").toInt()
 				, root.attribute("toVersion").toInt()
 				, root.attribute("fromVersionName"), root.attribute("toVersionName")
 				, inFrom.readAll(), inTo.readAll());

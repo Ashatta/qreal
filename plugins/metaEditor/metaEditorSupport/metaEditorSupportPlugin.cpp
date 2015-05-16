@@ -30,6 +30,7 @@
 #include "xmlParser.h"
 #include "versionChooserDialog.h"
 #include "migrationDialog.h"
+#include "migrationManager.h"
 
 using namespace qReal;
 using namespace metaEditor;
@@ -39,7 +40,7 @@ MetaEditorSupportPlugin::MetaEditorSupportPlugin()
 		, mGenerateEditorWithQrmcAction(nullptr)
 		, mParseEditorXmlAction(nullptr)
 		, mCommitNewVersionAction(nullptr)
-		, mCreateMigrationAction(nullptr)
+		, mEditMigrationsAction(nullptr)
 		, mRepoControlApi(nullptr)
 		, mCompilerSettingsPage(new PreferencesCompilerPage())
 {
@@ -75,9 +76,9 @@ QList<ActionInfo> MetaEditorSupportPlugin::actions()
 	ActionInfo commitNewVersionActionInfo(&mCommitNewVersionAction, "generators", "tools");
 	connect(&mCommitNewVersionAction, SIGNAL(triggered()), this, SLOT(commitNewVersion()));
 
-	mCreateMigrationAction.setText(tr("Create migration"));
-	ActionInfo createMigrationActionInfo(&mCreateMigrationAction, "generators", "tools");
-	connect(&mCreateMigrationAction, SIGNAL(triggered()), this, SLOT(openMigrationDialog()));
+	mEditMigrationsAction.setText(tr("Edit migrations"));
+	ActionInfo createMigrationActionInfo(&mEditMigrationsAction, "generators", "tools");
+	connect(&mEditMigrationsAction, SIGNAL(triggered()), this, SLOT(openMigrationDialog()));
 
 	return QList<ActionInfo>() << generateEditorForQrxcActionInfo
 			<< generateEditorWithQrmcActionInfo
@@ -282,229 +283,8 @@ bool MetaEditorSupportPlugin::checkModel()
 
 void MetaEditorSupportPlugin::openMigrationDialog()
 {
-	VersionChooserDialog versionChooser(mRepoControlApi->versionNames(), mMainWindowInterface->windowWidget());
-	connect(&versionChooser, SIGNAL(versionChosen(QString,int,QString,int))
-			, this, SLOT(createMigrationsForVersions(QString,int,QString,int)));
-	versionChooser.exec();
-}
-
-void MetaEditorSupportPlugin::createMigrationsForVersions(const QString &fromName, int from
-		, const QString  &toName, int to)
-{
-	const QString name = mLogicalRepoApi->name(mLogicalRepoApi->elementsByType("MetamodelDiagram")[0]);  // guarantee correctness?
-	const QString fromLanguage = name + "_" + fromName;
-	const QString toLanguage = name + "_" + toName;
-
-	MigrationDialog dialog(from, name, migrationLanguageForVersion(from)
-			, to, name, migrationLanguageForVersion(to));
-	connect(&dialog, &MigrationDialog::migrationCreated, this, &MetaEditorSupportPlugin::addNewMigration);
-	dialog.exec();
-}
-
-qrRepo::RepoApi *MetaEditorSupportPlugin::migrationLanguageForVersion(int version)
-{
-	const QString tempFile = "currentModel.qrs";
-	mRepoControlApi->saveTo(tempFile);
-	qrRepo::RepoApi *repo = new qrRepo::RepoApi(tempFile);
-	repo->rollBackTo(version);
-	QFile::remove(tempFile);
-
-	const Id migrationEditor("MetaEditor", "MetaEditor", "MetamodelDiagram", QUuid::createUuid().toString());
-	repo->addChild(Id::rootId(), migrationEditor);
-	repo->setProperty(migrationEditor, "name", "migrationEditor");
-	repo->setProperty(migrationEditor, "displayedName", "Migration Editor");
-
-	for (const Id &editor : repo->logicalElements(migrationEditor.type())) {
-		if (editor == migrationEditor) {
-			continue;
-		}
-
-		for (const Id &diagram : repo->children(editor)) {
-			repo->setParent(diagram, migrationEditor);
-			if (diagram.element() != "MetaEditorDiagramNode") {
-				continue;
-			}
-
-			const QString diagramNodeName = repo->stringProperty(diagram, "nodeName");
-			Id diagramNodeId;
-			for (const Id &node : repo->children(diagram)) {
-				if (repo->name(node) == diagramNodeName) {
-					diagramNodeId = node;
-					break;
-				}
-			}
-
-			if (diagramNodeId.isNull()) {
-				diagramNodeId = Id("MetaEditor", "MetaEditor", "MetaEntityNode", QUuid::createUuid().toString());
-				repo->addChild(diagram, diagramNodeId);
-				repo->setProperty(diagramNodeId, "name", diagramNodeName);
-				repo->setProperty(diagramNodeId, "displayedName", diagramNodeName);
-
-				const Id properties("MetaEditor", "MetaEditor", "MetaEntityPropertiesAsContainer"
-						, QUuid::createUuid().toString());
-				repo->addChild(diagramNodeId, properties);
-				repo->setName(properties, "diagramNodeProperties");
-				repo->setProperty(properties, "banChildrenMove", false);
-			}
-
-			if (!repo->hasProperty(diagramNodeId, "shape") || repo->stringProperty(diagramNodeId, "shape").isEmpty()) {
-				const QString shape =
-					"<graphics>\n"
-					"    <picture sizex=\"300\" sizey=\"300\">\n"
-					"        <rectangle fill=\"#ffffff\" stroke-style=\"solid\" stroke=\"#000000\" y1=\"0\" "
-					"x1=\"0\" y2=\"300\" stroke-width=\"1\" x2=\"300\" fill-style=\"solid\"/>\n"
-					"    </picture>\n"
-					"</graphics>\n";
-
-				repo->setProperty(diagramNodeId, "shape", shape);
-			}
-
-			const Id anyNodeId("MetaEditor", "MetaEditor", "MetaEntityNode", QUuid::createUuid().toString());
-			repo->addChild(diagram, anyNodeId);
-			repo->setName(anyNodeId, "AnyNode");
-			repo->setProperty(anyNodeId, "displayedName", "Any Node");
-			repo->setProperty(anyNodeId, "isResizeable", true);
-			repo->setProperty(anyNodeId, "shape"
-					, "<graphics>\n"
-					"	<picture sizex=\"150\" sizey=\"100\">\n"
-					"		<line fill=\"#000000\" stroke-style=\"solid\" stroke=\"#2f4f4f\""
-					"y1=\"0\" x1=\"0\" y2=\"100\" stroke-width=\"2\" x2=\"0\" fill-style=\"solid\"/>\n"
-					"		<line fill=\"#000000\" stroke-style=\"solid\" stroke=\"#2f4f4f\""
-					"y1=\"0\" x1=\"150\" y2=\"100\" stroke-width=\"2\" x2=\"150\" fill-style=\"solid\"/>\n"
-					"		<line fill=\"#000000\" stroke-style=\"solid\" stroke=\"#2f4f4f\""
-					"y1=\"0\" x1=\"0\" y2=\"0\" stroke-width=\"2\" x2=\"150\" fill-style=\"solid\"/>\n"
-					"		<line fill=\"#000000\" stroke-style=\"solid\" stroke=\"#2f4f4f\""
-					"y1=\"100\" x1=\"0\" y2=\"100\" stroke-width=\"2\" x2=\"150\" fill-style=\"solid\"/>\n"
-					"		<line fill=\"#000000\" stroke-style=\"solid\" stroke=\"#2f4f4f\""
-					"y1=\"25a\" x1=\"0a\" y2=\"25a\" stroke-width=\"2\" x2=\"150\" fill-style=\"solid\"/>\n"
-					"	</picture>\n"
-					"	<labels>\n"
-					"		<label x=\"5\" y=\"3\" textBinded=\"TypeName\" center=\"true\"/>\n"
-					"	</labels>\n"
-					"    <ports>\n"
-					"        <pointPort x=\"0\" y=\"50\"/>\n"
-					"        <pointPort x=\"150\" y=\"50\"/>\n"
-					"        <pointPort x=\"75\" y=\"0\"/>\n"
-					"        <pointPort x=\"75\" y=\"100\"/>\n"
-					"    </ports>\n"
-					"</graphics>\n"
-			);
-
-			const Id typePropertyId("MetaEditor", "MetaEditor", "MetaEntity_Attribute", QUuid::createUuid().toString());
-			repo->addChild(anyNodeId, typePropertyId);
-			repo->setName(typePropertyId, "TypeName");
-			repo->setProperty(typePropertyId, "attributeType", "string");
-			repo->setProperty(typePropertyId, "displayedName", "Type Name");
-			repo->setProperty(typePropertyId, "defaultValue", "");
-
-			const Id anyPropertyId("MetaEditor", "MetaEditor", "MetaEntityNode", QUuid::createUuid().toString());
-			repo->addChild(diagram, anyPropertyId);
-			repo->setName(anyPropertyId, "AnyProperty");
-			repo->setProperty(anyPropertyId, "displayedName", "Any Property");
-			repo->setProperty(anyPropertyId, "isResizeable", true);
-			repo->setProperty(anyPropertyId, "shape"
-					, "<graphics>\n"
-					"	<picture sizex=\"140\" sizey=\"30\">\n"
-					"	</picture>\n"
-					"	<labels>\n"
-					"		<label x=\"10\" y=\"0\" textBinded=\"Name\"/>\n"
-					  "		<label x=\"70\" y=\"0\" textBinded=\"Value\"/>\n"
-					"	</labels>\n"
-					"	<ports/>\n"
-					"</graphics>\n"
-			);
-
-			const Id anyPropertyName("MetaEditor", "MetaEditor", "MetaEntity_Attribute", QUuid::createUuid().toString());
-			repo->addChild(anyPropertyId, anyPropertyName);
-			repo->setName(anyPropertyName, "PropertyName");
-			repo->setProperty(anyPropertyName, "attributeType", "string");
-			repo->setProperty(anyPropertyName, "displayedName", "Property Name");
-			repo->setProperty(anyPropertyName, "defaultValue", "");
-
-			const Id anyPropertyValue("MetaEditor", "MetaEditor", "MetaEntity_Attribute", QUuid::createUuid().toString());
-			repo->addChild(anyPropertyId, anyPropertyValue);
-			repo->setName(anyPropertyValue, "Value");
-			repo->setProperty(anyPropertyValue, "attributeType", "string");
-			repo->setProperty(anyPropertyValue, "displayedName", "Value");
-			repo->setProperty(anyPropertyValue, "defaultValue", "");
-
-			const Id containerProperties("MetaEditor", "MetaEditor", "MetaEntityPropertiesAsContainer"
-					, QUuid::createUuid().toString());
-			repo->addChild(anyNodeId, containerProperties);
-			repo->setName(containerProperties, "ContainerProperties");
-			repo->setProperty(containerProperties, "sortContainer", true);
-			repo->setProperty(containerProperties, "minimizeToChildren", true);
-			repo->setProperty(containerProperties, "banChildrenMove", true);
-			repo->setProperty(containerProperties, "forestallingSize", "10,30,10,10");
-			repo->setProperty(containerProperties, "childrenForestallingSize", "5");
-
-			const Id container("MetaEditor", "MetaEditor", "Container", QUuid::createUuid().toString());
-			repo->addChild(diagram, container);
-			repo->setName(container, "Container");
-			repo->setTo(container, anyPropertyId);
-			repo->setFrom(container, anyNodeId);
-
-			const Id anyEdgeId("MetaEditor", "MetaEditor", "MetaEntityEdge", QUuid::createUuid().toString());
-			repo->addChild(diagram, anyEdgeId);
-			repo->setName(anyEdgeId, "AnyEdge");
-			repo->setProperty(anyEdgeId, "displayedName", "Any Edge");
-			repo->setProperty(anyEdgeId, "lineType", "solidLine");
-			repo->setProperty(anyEdgeId, "labelText", "");
-
-			const Id edgeTypeId("MetaEditor", "MetaEditor", "MetaEntity_Attribute", QUuid::createUuid().toString());
-			repo->addChild(anyEdgeId, edgeTypeId);
-			repo->setName(edgeTypeId, "TypeName");
-			repo->setProperty(edgeTypeId, "attributeType", "string");
-			repo->setProperty(edgeTypeId, "displayedName", "Type Name");
-			repo->setProperty(edgeTypeId, "defaultValue", "");
-
-			for (const Id &node : repo->children(diagram)) {
-				if (node.type() == Id("MetaEditor", "MetaEditor", "MetaEntityNode")
-						|| node.type() == Id("MetaEditor", "MetaEditor", "MetaEntityEdge")) {
-					const Id idProperty("MetaEditor", "MetaEditor", "MetaEntity_Attribute"
-							, QUuid::createUuid().toString());
-					repo->addChild(node, idProperty);
-					repo->setName(idProperty, "__migrationId__");
-					repo->setProperty(idProperty, "displayedName", "__migrationId__");
-					repo->setProperty(idProperty, "attributeType", "int");
-					repo->setProperty(idProperty, "defaultValue", "");
-
-					for (const Id &property : repo->children(node)) {
-						repo->setProperty(property, "attributeType", "string");
-					}
-				}
-
-				if (node.type() == Id("MetaEditor", "MetaEditor", "MetaEntityNode") && node != diagramNodeId) {
-					bool contains = false;
-					for (const Id &link : repo->outgoingLinks(node)) {
-						if (link.type() == Id("MetaEditor", "MetaEditor", "Container")
-								&& repo->otherEntityFromLink(link, node) == diagramNodeId) {
-							contains = true;
-							break;
-						}
-					}
-
-					if (!contains) {
-						const Id container("MetaEditor", "MetaEditor", "Container", QUuid::createUuid().toString());
-						repo->addChild(diagram, container);
-						repo->setName(container, "Container");
-						repo->setFrom(container, diagramNodeId);
-						repo->setTo(container, node);
-					}
-				}
-			}
-		}
-
-		repo->removeElement(editor);
-	}
-
-	return repo;
-}
-
-void MetaEditorSupportPlugin::addNewMigration(int fromVersion, const QString &fromName, const QByteArray &fromData
-		, int toVersion, const QString &toName, const QByteArray &toData)
-{
-	mRepoControlApi->addMigration(fromVersion, toVersion, fromName, toName, fromData, toData);
+	MigrationManager migrationDialog(*mRepoControlApi, *mLogicalRepoApi, mMainWindowInterface->windowWidget());
+	migrationDialog.exec();
 }
 
 void MetaEditorSupportPlugin::loadNewEditor(QString const &directoryName
