@@ -99,18 +99,23 @@ void MigrationManager::setMigration(const qReal::migration::Migration &migration
 		return;
 	}
 
+	bool foundCurrentVersion = false;
 	int lastVersion = -1;
 	if (idx == -1) {
 		idx = ui->migrationsList->count();
 		for (int i = 0; i < ui->migrationsList->count(); ++i) {
 			QListWidgetItem *item = ui->migrationsList->item(i);
-			if (!item->data(Qt::UserRole).type() == QVariant::Int) {
+			if (item->data(Qt::UserRole).type() != QVariant::Int) {
 				continue;
 			}
 
 			int currentVersion = item->data(Qt::UserRole).toInt();
 			if (currentVersion <= migration.mFromVersion) {
 				lastVersion = currentVersion;
+				if (currentVersion == migration.mFromVersion) {
+					foundCurrentVersion = true;
+				}
+
 				continue;
 			}
 
@@ -124,7 +129,7 @@ void MigrationManager::setMigration(const qReal::migration::Migration &migration
 		}
 	}
 
-	if (idx == 0) {
+	if (idx == ui->migrationsList->count() && !foundCurrentVersion) {
 		ui->migrationsList->insertItem(idx, versionItem(migration.mFromVersionName, migration.mFromVersion));
 		idx++;
 	}
@@ -183,7 +188,7 @@ void MigrationManager::move(int direction)
 	int idx = ui->migrationsList->row(ui->migrationsList->selectedItems()[0]);
 	QListWidgetItem *item = ui->migrationsList->takeItem(idx);
 	ui->migrationsList->insertItem(idx + direction, item);
-	ui->migrationsList->setCurrentRow(idx);
+	ui->migrationsList->setCurrentRow(idx + direction);
 }
 
 void MigrationManager::save()

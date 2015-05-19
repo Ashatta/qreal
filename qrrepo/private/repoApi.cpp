@@ -643,7 +643,6 @@ void RepoApi::setMigrations(const QList<qReal::migration::Migration> &migrations
 QList<qReal::migration::Migration> RepoApi::migrations()
 {
 	QList<qReal::migration::Migration> result = mRepository->migrations();
-	qSort(result);
 	return result;
 }
 
