@@ -426,6 +426,7 @@ QListWidgetItem *MigrationManager::versionItem(const QString &label, int version
 {
 	QListWidgetItem *item = new QListWidgetItem(label);
 	item->setBackgroundColor(Qt::darkGray);
+	item->setForeground(Qt::white);
 	item->setData(Qt::UserRole, version);
 	item->setFlags(Qt::NoItemFlags);
 	return item;
