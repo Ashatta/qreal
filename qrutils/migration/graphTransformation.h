@@ -1,5 +1,7 @@
 #pragma once
 
+#include <QtCore/QRect>
+
 #include <qrutils/graphUtils/baseGraphTransformationUnit.h>
 #include <qrutils/migration/migration.h>
 #include <qrgui/plugins/toolPluginInterface/usedInterfaces/logicalModelAssistInterface.h>
@@ -36,12 +38,14 @@ protected:
 
 private:
 	void analyzeTemplates();
+	void analyzeTemplate(QHash<QString, Id> &elements, qrRepo::GraphicalRepoApi &migrationTemplate, QRect &bounds);
 	void elementsFromTemplate(QHash<QString, Id> &elements, qrRepo::GraphicalRepoApi &migrationTemplate
 			, const Id &root);
 	Id migrationDiagram(qrRepo::GraphicalRepoApi &migrationTemplate) const;
 
 	void resolveOverlaps();
 
+	void setMatch(const QHash<Id, Id> &match);
 	void saveProperties();
 	void addPropertyValue(const QString &migrationId, const QString &propertyName
 			, const QString &regExp, const QString &value);
@@ -73,6 +77,10 @@ private:
 
 	IdList mCreatedElements;
 	bool mRepeat;
+
+	QRect mFromRect;
+	QRect mToRect;
+	QRect mMatchRect;
 };
 
 }

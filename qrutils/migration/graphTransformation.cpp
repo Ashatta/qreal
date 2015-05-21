@@ -33,7 +33,7 @@ void GraphTransformation::apply()
 	do {
 		resolveOverlaps();
 		for (const QHash<Id, Id> &match : mMatches) {
-			mCurrentMatch = match;
+			setMatch(match);
 			saveProperties();
 			Id diagram = migrationDiagram(mToTemplate);
 			Id diagramInModel = mGraphicalModelApi.graphicalRepoApi().parent(match.values()[0]);
@@ -52,8 +52,29 @@ void GraphTransformation::analyzeTemplates()
 	mIdToFrom.clear();
 	mIdToTo.clear();
 
-	elementsFromTemplate(mIdToFrom, mFromTemplate, migrationDiagram(mFromTemplate));
-	elementsFromTemplate(mIdToTo, mToTemplate, migrationDiagram(mToTemplate));
+	analyzeTemplate(mIdToFrom, mFromTemplate, mFromRect);
+	analyzeTemplate(mIdToTo, mToTemplate, mToRect);
+}
+
+void GraphTransformation::analyzeTemplate(QHash<QString, Id> &elements, qrRepo::GraphicalRepoApi &migrationTemplate
+		, QRect &bounds)
+{
+	const Id diagram = migrationDiagram(migrationTemplate);
+	elementsFromTemplate(elements, migrationTemplate, migrationDiagram(migrationTemplate));
+
+	for (const Id &child : migrationTemplate.children(diagram)) {
+		QRect configuration = migrationTemplate.configuration(child).value<QPolygon>().boundingRect();
+		configuration.translate(migrationTemplate.position(child).toPoint());
+		if (bounds.isNull()) {
+			bounds = configuration;
+			continue;
+		}
+
+		bounds.setBottom(qMax(bounds.bottom(), configuration.bottom()));
+		bounds.setTop(qMin(bounds.top(), configuration.top()));
+		bounds.setLeft(qMin(bounds.left(), configuration.left()));
+		bounds.setRight(qMax(bounds.right(), configuration.right()));
+	}
 }
 
 void GraphTransformation::elementsFromTemplate(QHash<QString, Id> &elements
@@ -231,6 +252,27 @@ void GraphTransformation::resolveOverlaps()
 		if (notOverlapping) {
 			occupiedElements.unite(match.values().toSet());
 		}
+	}
+}
+
+void GraphTransformation::setMatch(const QHash<Id, Id> &match)
+{
+	mCurrentMatch = match;
+
+	mMatchRect = QRect();
+	for (const Id &element : match.values()) {
+		QRect configuration = mGraphicalModelApi.configuration(element).boundingRect();
+		configuration.translate(mGraphicalModelApi.position(element).toPoint());
+		if (mMatchRect.isNull()) {
+			mMatchRect = configuration;
+			continue;
+		}
+
+		mMatchRect.setBottom(qMax(mMatchRect.bottom(), configuration.bottom()));
+		mMatchRect.setTop(qMin(mMatchRect.top(), configuration.top()));
+		mMatchRect.setLeft(qMin(mMatchRect.left(), configuration.left()));
+		mMatchRect.setRight(qMax(mMatchRect.right(), configuration.right()));
+
 	}
 }
 
@@ -478,14 +520,19 @@ void GraphTransformation::setNodesGraphicalProperties(const Id &root)
 		}
 
 		const QString migrationId = mToTemplate.property(mToTemplate.logicalId(child), "__migrationId__").toString();
-		const Id oldElement = mCurrentMatch[mIdToFrom[migrationId]];
+		const Id oldElement = mCurrentMatch.value(mIdToFrom[migrationId], Id());
 		const Id created = mToModel[child];
 		mGraphicalModelApi.mutableGraphicalRepoApi().setConfiguration(created, mToTemplate.configuration(child));
 		if (mToTemplate.parent(root) == Id::rootId()) {
 			if (!migrationId.isEmpty() && !oldElement.isNull()) {
 				mGraphicalModelApi.setPosition(created, mGraphicalModelApi.position(oldElement).toPoint());
 			} else {
-				mGraphicalModelApi.setPosition(created, mToTemplate.position(child).toPoint()); // todo: find better place for new elements
+				QPoint templateOffset = mToTemplate.position(child).toPoint() - mToRect.center();
+				const qreal widthRatio = mMatchRect.width() / mToRect.width();
+				const qreal heightRatio = mMatchRect.height() / mToRect.height();
+				templateOffset.setX(templateOffset.x() * widthRatio);
+				templateOffset.setY(templateOffset.y() * heightRatio);
+				mGraphicalModelApi.setPosition(created, mMatchRect.center() + templateOffset);
 			}
 		} else {
 			mGraphicalModelApi.setPosition(created, mToTemplate.position(child).toPoint());
@@ -497,6 +544,7 @@ void GraphTransformation::setNodesGraphicalProperties(const Id &root)
 			for (const Id &link : mGraphicalModelApi.graphicalRepoApi().links(oldElement)) {
 				if (oldElement == mGraphicalModelApi.from(link)) {
 					mGraphicalModelApi.mutableGraphicalRepoApi().setFrom(link, created);
+					mLogicalModelApi.setFrom(mGraphicalModelApi.logicalId(link), mGraphicalModelApi.logicalId(created));
 					QPolygon configuration = mGraphicalModelApi.configuration(link);
 					configuration.setPoint(0, configuration.at(0) + offset);
 					mGraphicalModelApi.mutableGraphicalRepoApi().setConfiguration(link, configuration);
@@ -504,6 +552,7 @@ void GraphTransformation::setNodesGraphicalProperties(const Id &root)
 
 				if (oldElement == mGraphicalModelApi.to(link)) {
 					mGraphicalModelApi.mutableGraphicalRepoApi().setTo(link, created);
+					mLogicalModelApi.setTo(mGraphicalModelApi.logicalId(link), mGraphicalModelApi.logicalId(created));
 					QPolygon configuration = mGraphicalModelApi.configuration(link);
 					configuration.setPoint(configuration.length() - 1, configuration.last() + offset);
 					mGraphicalModelApi.mutableGraphicalRepoApi().setConfiguration(link, configuration);
@@ -534,6 +583,9 @@ void GraphTransformation::setLinksGraphicalProperties(const Id &root)
 
 		mGraphicalModelApi.setFrom(created, from);
 		mGraphicalModelApi.setTo(created, to);
+
+		mLogicalModelApi.setFrom(mGraphicalModelApi.logicalId(created), mGraphicalModelApi.logicalId(from));
+		mLogicalModelApi.setTo(mGraphicalModelApi.logicalId(created), mGraphicalModelApi.logicalId(to));
 
 		mGraphicalModelApi.setConfiguration(created
 				, QPolygon() << mGraphicalModelApi.position(from).toPoint() << mGraphicalModelApi.position(to).toPoint());
